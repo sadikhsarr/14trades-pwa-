@@ -1,0 +1,420 @@
+// 14 Trades Alert — PWA App JS v5 — All Premium Features
+const SERVER = 'https://14trades-server-production.up.railway.app';
+const VAPID_PUBLIC = 'YOUR_VAPID_PUBLIC_KEY';
+
+const WINDOWS = [
+  { time:'19:10', asset:'GOLD' },
+  { time:'00:10', asset:'GOLD' },
+  { time:'07:10', asset:'GOLD' },
+  { time:'12:10', asset:'GOLD' },
+];
+
+const ASSET_META = {
+  GOLD:   { ico:'XAU', bg:'#C9A84C15', color:'#C9A84C', border:'#C9A84C20' },
+  NASDAQ: { ico:'NQ',  bg:'#5B8DEF15', color:'#5B8DEF', border:'#5B8DEF20' },
+  BTC:    { ico:'BTC', bg:'#F0921A15', color:'#F0921A', border:'#F0921A20' },
+};
+
+const MILESTONES = [
+  { at:3,  label:'TRADER',       emoji:'⚡' },
+  { at:5,  label:'PRO TRADER',   emoji:'🔥' },
+  { at:10, label:'ELITE TRADER', emoji:'🏆' },
+  { at:20, label:'MASTER',       emoji:'💎' },
+];
+
+// Per-signal PnL in $ (Gold 1 lot ≈ $10/pt)
+const PNL_PER = { tp1:100, tp2:150, tp3:200, sl:-120 };
+
+let lastState   = null;
+let lastTradeId = null;
+let streak      = parseInt(localStorage.getItem('14t_streak') || '0');
+let totalPnL    = parseFloat(localStorage.getItem('14t_pnl') || '0');
+let todayPnL    = parseFloat(localStorage.getItem('14t_today_pnl') || '0');
+let totalSigs   = parseInt(localStorage.getItem('14t_signals') || '0');
+let wins        = parseInt(localStorage.getItem('14t_wins') || '0');
+let pnlInterval = null;
+let pnlValue    = 0;
+let joinDate    = localStorage.getItem('14t_join') || new Date().toISOString();
+
+// Save join date on first visit
+if (!localStorage.getItem('14t_join')) {
+  localStorage.setItem('14t_join', joinDate);
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await registerSW();
+  restorePushState();
+  startPolling();
+  startNextWindowCountdown();
+  startMarketMood();
+  updateStreak(streak);
+  updateStats();
+  updateMemberSince();
+  showDailyRecap();
+  resetTodayPnLIfNewDay();
+});
+
+// ── Service Worker ─────────────────────────────────────────────────
+async function registerSW() {
+  if (!('serviceWorker' in navigator)) return;
+  try { const reg = await navigator.serviceWorker.register('/sw.js'); window._swReg = reg; } catch(e) {}
+}
+
+// ── Push ───────────────────────────────────────────────────────────
+async function requestPush() {
+  if (!('Notification' in window)) { showToast('Not supported','info'); return; }
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') { showToast('Enable in Settings','info'); return; }
+  try {
+    const reg = window._swReg || await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC) });
+    const token = localStorage.getItem('token');
+    await fetch(`${SERVER}/push/subscribe`, { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`}, body:JSON.stringify(sub) });
+    localStorage.setItem('push_subscribed','1');
+    document.getElementById('notif-btn').classList.add('active');
+    showToast('Notifications enabled ✓','buy');
+  } catch(e) { showToast('Could not enable push','info'); }
+}
+function restorePushState() {
+  if (localStorage.getItem('push_subscribed')) document.getElementById('notif-btn').classList.add('active');
+}
+
+// ── Polling ────────────────────────────────────────────────────────
+function startPolling() { fetchState(); setInterval(fetchState, 5000); }
+
+async function fetchState() {
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${SERVER}/api/state`, { headers: token ? { Authorization:`Bearer ${token}` } : {} });
+    if (!res.ok) return;
+    const data = await res.json();
+    applyState(data); lastState = data;
+  } catch {}
+}
+
+function applyState({ activeTrade, signals }) {
+  if (activeTrade && activeTrade.id !== lastTradeId) {
+    if (lastTradeId !== null) showSignalFlash(activeTrade);
+    lastTradeId = activeTrade.id;
+    // Count new signal
+    totalSigs++;
+    localStorage.setItem('14t_signals', totalSigs);
+    updateStats();
+  } else if (!activeTrade) {
+    lastTradeId = null;
+  }
+  updateLiveTrade(activeTrade);
+  renderHistory(signals || []);
+  checkFOMO(signals || []);
+  updateMoodFromSignals(signals || []);
+}
+
+// ── FULL SCREEN FLASH ──────────────────────────────────────────────
+function showSignalFlash(trade) {
+  const flash = document.getElementById('signal-flash');
+  const isBuy = trade.direction === 'BUY';
+  document.getElementById('sf-asset').textContent = (trade.asset||'GOLD') + ' · XAU/USD';
+  document.getElementById('sf-dir').textContent   = trade.direction;
+  document.getElementById('sf-ring').textContent  = isBuy ? '↑' : '↓';
+  document.getElementById('sf-ring').className    = 'sf-ring ' + (isBuy?'buy-ring':'sell-ring');
+  document.getElementById('sf-dir').className     = 'sf-dir ' + (isBuy?'buy':'sell');
+  flash.className = 'signal-flash ' + (isBuy?'buy-flash':'sell-flash');
+  document.getElementById('sf-levels').innerHTML  = `
+    <div class="sfl-item"><div class="sfl-lbl">SL</div><div class="sfl-val sl">${formatPrice(trade.sl)}</div></div>
+    <div class="sfl-item"><div class="sfl-lbl">TP1</div><div class="sfl-val tp1">${formatPrice(trade.tp1)}</div></div>
+    <div class="sfl-item"><div class="sfl-lbl">TP2</div><div class="sfl-val tp2">${formatPrice(trade.tp2)}</div></div>
+    <div class="sfl-item"><div class="sfl-lbl">TP3</div><div class="sfl-val tp3">${formatPrice(trade.tp3)}</div></div>`;
+  flash.style.display = 'flex';
+  // Vibrate
+  if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+  setTimeout(dismissFlash, 8000);
+}
+function dismissFlash() { document.getElementById('signal-flash').style.display = 'none'; }
+
+// ── Live Trade ─────────────────────────────────────────────────────
+const tpPos = { 1:'55%', 2:'75%', 3:'93%' };
+
+function updateLiveTrade(trade) {
+  const liveBlock  = document.getElementById('live-block');
+  const scanBlock  = document.getElementById('scanning-block');
+  const fomoCard   = document.getElementById('fomo-card');
+  if (!trade) {
+    liveBlock.style.display = 'none';
+    scanBlock.style.display = 'flex';
+    clearInterval(pnlInterval); pnlInterval = null;
+    return;
+  }
+  liveBlock.style.display = 'flex';
+  scanBlock.style.display = 'none';
+  fomoCard.style.display  = 'none';
+  const isBuy = trade.direction === 'BUY';
+  document.getElementById('live-asset').textContent = trade.asset || 'GOLD';
+  document.getElementById('live-dir').textContent   = trade.direction;
+  document.getElementById('live-dir').style.color   = isBuy ? 'var(--green)' : 'var(--red)';
+  document.getElementById('sl-price').textContent   = formatPrice(trade.sl);
+  document.getElementById('tp1-price').textContent  = formatPrice(trade.tp1);
+  document.getElementById('tp2-price').textContent  = formatPrice(trade.tp2);
+  document.getElementById('tp3-price').textContent  = formatPrice(trade.tp3);
+  if (trade.tp1_hit) markTPHit(1);
+  if (trade.tp2_hit) markTPHit(2);
+  if (trade.tp3_hit) markTPHit(3);
+  if (trade.sl_hit)  markSLHit();
+  if (trade.status === 'open' && !pnlInterval) {
+    pnlValue = 0;
+    pnlInterval = setInterval(() => {
+      pnlValue += Math.floor(Math.random() * 6);
+      document.getElementById('pnl-val').textContent = '+$' + pnlValue;
+    }, 2000);
+  }
+}
+
+function markTPHit(n) {
+  const row = document.getElementById('tp' + n);
+  if (!row || row.classList.contains('hit')) return;
+  row.classList.add('hit');
+  document.getElementById('prog-fill').style.width  = tpPos[n];
+  document.getElementById('prog-cursor').style.left = tpPos[n];
+  // Update streak + PnL
+  streak++; localStorage.setItem('14t_streak', streak); updateStreak(streak);
+  wins++;   localStorage.setItem('14t_wins', wins);
+  const earned = PNL_PER['tp'+n] || 100;
+  totalPnL += earned; todayPnL += earned;
+  localStorage.setItem('14t_pnl', totalPnL);
+  localStorage.setItem('14t_today_pnl', todayPnL);
+  localStorage.setItem('14t_today_date', new Date().toDateString());
+  animatePnL(totalPnL, todayPnL);
+  updateStats();
+  if (navigator.vibrate) navigator.vibrate(80);
+}
+
+function markSLHit() {
+  const slRow = document.getElementById('sl-row');
+  const lb    = document.getElementById('live-block');
+  if (!slRow || slRow.classList.contains('hit')) return;
+  slRow.classList.add('hit'); lb.classList.add('sl-hit');
+  document.getElementById('prog-fill').style.width  = '6%';
+  document.getElementById('prog-cursor').style.left = '6%';
+  [1,2,3].forEach(n => { const r=document.getElementById('tp'+n); if(r&&!r.classList.contains('hit'))r.classList.add('dimmed'); });
+  clearInterval(pnlInterval); pnlInterval = null;
+  document.getElementById('pnl-val').textContent = '-$' + Math.floor(Math.random()*60+20);
+  document.getElementById('pnl-val').style.color = 'var(--red)';
+  document.getElementById('pnl-lbl').textContent = 'closed';
+  // Update PnL + streak
+  streak = 0; localStorage.setItem('14t_streak', 0); updateStreak(0);
+  totalPnL += PNL_PER.sl; todayPnL += PNL_PER.sl;
+  localStorage.setItem('14t_pnl', totalPnL);
+  localStorage.setItem('14t_today_pnl', todayPnL);
+  animatePnL(totalPnL, todayPnL);
+  updateStats();
+  if (navigator.vibrate) navigator.vibrate([100,50,100,50,100]);
+}
+
+// ── PnL animation ──────────────────────────────────────────────────
+function animatePnL(total, today) {
+  const totalEl = document.getElementById('pnl-total');
+  const todayEl = document.getElementById('pnl-today');
+  const prefix  = total >= 0 ? '+$' : '-$';
+  totalEl.textContent = prefix + Math.abs(total).toLocaleString();
+  totalEl.style.color = total >= 0 ? 'var(--green)' : 'var(--red)';
+  const tPrefix = today >= 0 ? '+$' : '-$';
+  todayEl.textContent = tPrefix + Math.abs(today).toLocaleString();
+  todayEl.style.color = today >= 0 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('pnl-sub-lbl').textContent = `Based on 1 lot · ${totalSigs} signals`;
+}
+
+// ── Stats ──────────────────────────────────────────────────────────
+function updateStats() {
+  const winRate = totalSigs > 0 ? Math.round((wins / totalSigs) * 100) : 0;
+  document.getElementById('stat-winrate').textContent = winRate + '%';
+  document.getElementById('stat-signals').textContent = totalSigs;
+  animatePnL(totalPnL, todayPnL);
+}
+
+// ── Streak ─────────────────────────────────────────────────────────
+function updateStreak(n) {
+  const num   = document.getElementById('streak-num');
+  const title = document.getElementById('streak-title');
+  const sub   = document.getElementById('streak-sub');
+  const fill  = document.getElementById('streak-fill');
+  const badge = document.getElementById('milestone-badge');
+  const card  = document.getElementById('streak-card');
+
+  // Find current milestone
+  let currentMs = null;
+  let nextMs    = MILESTONES[0];
+  MILESTONES.forEach(m => { if (n >= m.at) currentMs = m; });
+  MILESTONES.forEach(m => { if (n < m.at && (!nextMs || m.at < nextMs.at)) nextMs = m; });
+
+  num.textContent = n >= 3 ? n + ' 🔥' : n;
+  card.classList.toggle('hot', n >= 3);
+
+  if (currentMs) {
+    title.textContent = currentMs.emoji + ' ' + currentMs.label;
+    badge.textContent = currentMs.label;
+    badge.style.display = 'block';
+  } else {
+    title.textContent = 'Streak';
+    badge.style.display = 'none';
+  }
+
+  if (nextMs) {
+    const progress = Math.min((n / nextMs.at) * 100, 100);
+    fill.style.width = progress + '%';
+    const remaining = nextMs.at - n;
+    sub.textContent  = remaining + ' more signal' + (remaining !== 1 ? 's' : '') + ' to unlock';
+    document.getElementById('streak-next').textContent = nextMs.emoji + ' ' + nextMs.label + ' at ' + nextMs.at;
+  } else {
+    fill.style.width = '100%';
+    sub.textContent  = 'Maximum level reached 💎';
+    document.getElementById('streak-next').textContent = '';
+  }
+}
+
+// ── Member since ───────────────────────────────────────────────────
+function updateMemberSince() {
+  const join  = new Date(joinDate);
+  const days  = Math.floor((Date.now() - join) / 86400000);
+  const month = join.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+  document.getElementById('ms-date').textContent = month;
+  document.getElementById('ms-days').textContent = days + 'd';
+  document.getElementById('stat-days').textContent = days + 'd';
+}
+
+// ── Reset today PnL at midnight ────────────────────────────────────
+function resetTodayPnLIfNewDay() {
+  const saved = localStorage.getItem('14t_today_date');
+  const today = new Date().toDateString();
+  if (saved && saved !== today) {
+    todayPnL = 0;
+    localStorage.setItem('14t_today_pnl', 0);
+    localStorage.setItem('14t_today_date', today);
+  }
+}
+
+// ── Daily recap ────────────────────────────────────────────────────
+function showDailyRecap() {
+  if (totalSigs === 0) return;
+  const winRate = totalSigs > 0 ? Math.round((wins/totalSigs)*100) : 0;
+  const recapCard = document.getElementById('recap-card');
+  const recapDesc = document.getElementById('recap-desc');
+  const pnlPrefix = totalPnL >= 0 ? '+' : '';
+  recapDesc.innerHTML = `${totalSigs} signals · Win rate <strong style="color:var(--green)">${winRate}%</strong> · P&L <strong style="color:${totalPnL>=0?'var(--green)':'var(--red)'}">${pnlPrefix}$${Math.abs(totalPnL).toLocaleString()}</strong>`;
+  recapCard.style.display = 'flex';
+}
+
+// ── Countdown ──────────────────────────────────────────────────────
+function startNextWindowCountdown() { updateNextWindow(); setInterval(updateNextWindow, 1000); }
+
+function updateNextWindow() {
+  const ny = new Date().toLocaleTimeString('en-US',{timeZone:'America/New_York',hour12:false,hour:'2-digit',minute:'2-digit'});
+  const [nH,nM] = ny.split(':').map(Number);
+  const nowSecs = nH*3600 + nM*60 + new Date().getSeconds();
+  let best=null, bestDiff=Infinity;
+  WINDOWS.forEach(w=>{
+    const[wH,wM]=w.time.split(':').map(Number);
+    let diff=(wH*3600+wM*60)-nowSecs;
+    if(diff<=0)diff+=86400;
+    if(diff<bestDiff){bestDiff=diff;best={...w,secsUntil:diff};}
+  });
+  if(!best)return;
+  const h=Math.floor(best.secsUntil/3600);
+  const m=Math.floor((best.secsUntil%3600)/60);
+  const s=best.secsUntil%60;
+  const pad=n=>String(n).padStart(2,'0');
+  const timeStr = h>0 ? `${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
+  const urgent = best.secsUntil < 60;
+  const cdEl   = document.getElementById('cc-time');
+  const card   = document.getElementById('countdown-card');
+  const glow   = document.getElementById('cc-glow');
+  const border = document.getElementById('cc-border');
+  const ring   = document.getElementById('cc-ring');
+  const lbl    = document.getElementById('cc-lbl');
+  const sub    = document.getElementById('cc-sub');
+  cdEl.textContent = timeStr;
+  document.getElementById('nw-asset') && (document.getElementById('nw-asset').textContent = best.asset);
+  if(urgent){
+    cdEl.className='cc-time urgent';
+    sub.className='cc-sub urgent';
+    sub.textContent='Get ready now';
+    lbl.textContent='⚡ Signal incoming';
+    card.classList.add('urgent');
+    glow.style.display='block';
+    border.style.display='block';
+    ring.className='cc-ring urgent';
+    if(navigator.vibrate && best.secsUntil===30) navigator.vibrate([50,50,50]);
+  } else {
+    cdEl.className='cc-time';
+    sub.className='cc-sub';
+    sub.textContent='Signal incoming';
+    lbl.textContent='Next signal';
+    card.classList.remove('urgent');
+    glow.style.display='none';
+    border.style.display='none';
+    ring.className='cc-ring';
+  }
+}
+
+// ── Market Mood ────────────────────────────────────────────────────
+function startMarketMood(){updateMood();setInterval(updateMood,60000);}
+function updateMood(){
+  const nyHour=parseInt(new Date().toLocaleTimeString('en-US',{timeZone:'America/New_York',hour12:false,hour:'2-digit'}));
+  let s,sc;
+  if(nyHour>=8&&nyHour<12){s='NY Open';sc='bull';}
+  else if(nyHour>=12&&nyHour<14){s='NY Prime';sc='volatile';}
+  else if(nyHour>=14&&nyHour<17){s='NY Close';sc='bull';}
+  else if(nyHour>=2&&nyHour<8){s='London';sc='bull';}
+  else if(nyHour>=19||nyHour<2){s='Asia';sc='neutral';}
+  else{s='Off Hours';sc='neutral';}
+  setMoodTag('mood-session-tag',s,sc);
+}
+function updateMoodFromSignals(signals){
+  const lg=signals.find(s=>s.asset==='GOLD'&&s.type==='signal');
+  const lb=signals.find(s=>s.asset==='BTC'&&s.type==='signal');
+  const gm=lg?(lg.direction==='BUY'?{tag:'Bullish',cls:'bull'}:{tag:'Bearish',cls:'bear'}):{tag:'Watching',cls:'neutral'};
+  const bm=lb?(lb.direction==='BUY'?{tag:'Bullish',cls:'bull'}:{tag:'Bearish',cls:'bear'}):{tag:'Watching',cls:'neutral'};
+  setMoodTag('mood-gold-tag',gm.tag,gm.cls);
+  setMoodTag('mood-btc-tag',bm.tag,bm.cls);
+}
+function setMoodTag(id,text,cls){const el=document.getElementById(id);if(!el)return;el.textContent=text;el.className='mood-tag '+cls;}
+
+// ── FOMO ───────────────────────────────────────────────────────────
+function checkFOMO(signals){
+  const scanBlock=document.getElementById('scanning-block');
+  const fomoCard=document.getElementById('fomo-card');
+  const liveBlock=document.getElementById('live-block');
+  if(liveBlock.style.display!=='none')return;
+  const closed=signals.find(s=>(s.type==='tp_hit'||s.type==='sl_hit')&&(Date.now()-new Date(s.timestamp))<3600000);
+  if(closed){
+    scanBlock.style.display='none';fomoCard.style.display='flex';
+    const isTP=closed.type==='tp_hit';
+    document.getElementById('fomo-title').textContent=isTP?`TP${closed.level} Hit — ${closed.asset}`:`SL Hit — ${closed.asset}`;
+    document.getElementById('fomo-desc').textContent=isTP?`Don't miss the next one. Keep notifications ON.`:`Stay ready for the next setup.`;
+  }else{fomoCard.style.display='none';scanBlock.style.display='flex';}
+}
+
+// ── History ────────────────────────────────────────────────────────
+function renderHistory(signals){
+  const feed=document.getElementById('hist-feed');
+  const items=signals.filter(s=>s.type!=='prep').slice(0,10);
+  if(!items.length){feed.innerHTML='<div style="font-size:11px;color:var(--muted);padding:8px 2px">No history yet</div>';return;}
+  feed.innerHTML=items.map(sig=>{
+    const m=ASSET_META[sig.asset]||{ico:sig.asset,bg:'#1A1A1A',color:'#888',border:'#222'};
+    let out='';
+    if(sig.type==='tp_hit')out=`<div class="outcome tp">TP${sig.level} HIT</div>`;
+    else if(sig.type==='sl_hit')out=`<div class="outcome sl">SL HIT</div>`;
+    else if(sig.type==='signal')out=`<div class="outcome open">OPEN</div>`;
+    return`<div class="hist-item"><div class="hi-left"><div class="hi-ico" style="background:${m.bg};color:${m.color};border:1px solid ${m.border}">${m.ico}</div><div><div class="hi-asset">${sig.asset||'GOLD'}</div><div class="hi-sub">${formatAgo(sig.timestamp)}</div></div></div><div class="hi-right">${sig.direction?`<div class="hi-dir ${(sig.direction||'').toLowerCase()}">${sig.direction}</div>`:''}${out}</div></div>`;
+  }).join('');
+}
+
+// ── Install ────────────────────────────────────────────────────────
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();document.getElementById('install-banner').style.display='flex';});
+function dismissInstall(){document.getElementById('install-banner').style.display='none';}
+
+// ── Toast ──────────────────────────────────────────────────────────
+function showToast(msg,type='info'){const t=document.getElementById('toast');t.textContent=msg;t.className=`toast ${type} show`;setTimeout(()=>t.classList.remove('show'),3000);}
+
+// ── Helpers ────────────────────────────────────────────────────────
+function formatPrice(p){if(!p)return'—';return parseFloat(p).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function formatAgo(iso){const d=Math.floor((Date.now()-new Date(iso))/60000);if(d<1)return'just now';if(d<60)return d+' min ago';if(d<1440)return Math.floor(d/60)+'h ago';return new Date(iso).toLocaleDateString();}
+function urlBase64ToUint8Array(b64){const pad='='.repeat((4-b64.length%4)%4);const raw=atob((b64+pad).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from([...raw].map(c=>c.charCodeAt(0)));}
