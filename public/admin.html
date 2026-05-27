@@ -38,6 +38,13 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--white);disp
 .cb-right{display:flex;flex-direction:column;align-items:flex-end;gap:1px}
 .cb-lbl{font-size:9px;color:var(--muted)}
 .cb-next{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--gold)}
+.price-bar{margin:10px 18px 0;background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:0}
+.price-item{flex:1;display:flex;flex-direction:column;gap:3px}
+.price-asset{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.price-val{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:var(--white)}
+.price-change{font-family:'Space Mono',monospace;font-size:10px;font-weight:600}
+.price-divider{width:1px;height:40px;background:var(--border);margin:0 16px;flex-shrink:0}
+.price-refresh{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite;flex-shrink:0;align-self:flex-start;margin-top:2px}
 .win-status{margin:10px 18px 0;border-radius:12px;padding:11px 16px;display:flex;align-items:center;justify-content:space-between;transition:all .4s}
 .win-status.locked{background:#1A0A00;border:1px solid #FF3B4E20}
 .win-status.ready{background:#0A1A00;border:1px solid #00C87A30;animation:pulse-border 2s infinite}
@@ -182,6 +189,20 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--white);disp
       <div class="cb-lbl" id="next-name-lbl">--</div>
     </div>
   </div>
+  <div class="price-bar">
+    <div class="price-item">
+      <div class="price-asset" style="color:var(--gold)">XAU/USD</div>
+      <div class="price-val" id="live-price-gold">loading...</div>
+      <div class="price-change" id="live-change-gold"></div>
+    </div>
+    <div class="price-divider"></div>
+    <div class="price-item">
+      <div class="price-asset" style="color:var(--btc)">BTC/USD</div>
+      <div class="price-val" id="live-price-btc">loading...</div>
+      <div class="price-change" id="live-change-btc"></div>
+    </div>
+    <div class="price-refresh"></div>
+  </div>
   <div class="win-status locked" id="win-status">
     <div class="ws-left">
       <div class="ws-dot" id="ws-dot" style="background:var(--red)"></div>
@@ -294,7 +315,7 @@ let selectedDir=null,activeTrades=[],pinEntry='',isInWindow=false;
 function pressPin(d){if(pinEntry.length>=6)return;pinEntry+=d;updateDots();if(pinEntry.length===6)checkPin();}
 function deletePin(){pinEntry=pinEntry.slice(0,-1);updateDots();}
 function updateDots(){for(let i=0;i<6;i++){const dot=document.getElementById('d'+i);dot.classList.toggle('filled',i<pinEntry.length);dot.classList.remove('error');}}
-function checkPin(){if(pinEntry===PIN){document.getElementById('pin-screen').style.display='none';document.getElementById('admin-app').style.display='flex';startClock();}else{for(let i=0;i<6;i++)document.getElementById('d'+i).classList.add('error');setTimeout(()=>{pinEntry='';updateDots();},700);}}
+function checkPin(){if(pinEntry===PIN){document.getElementById('pin-screen').style.display='none';document.getElementById('admin-app').style.display='flex';startClock();fetchPrices();setInterval(fetchPrices,8000);}else{for(let i=0;i<6;i++)document.getElementById('d'+i).classList.add('error');setTimeout(()=>{pinEntry='';updateDots();},700);}}
 function lockAdmin(){pinEntry='';updateDots();selectedDir=null;document.getElementById('pin-screen').style.display='flex';document.getElementById('admin-app').style.display='none';}
 function startClock(){tick();setInterval(tick,1000);}
 function toMins(s){const[h,m]=s.split(':').map(Number);return h*60+m;}
@@ -316,17 +337,17 @@ function updateWindowStatus(inWindow,next){
   else{bar.className='win-status locked';dot.style.background='var(--red)';txt.textContent='Outside window';txt.className='ws-status locked';if(next){const h=Math.floor(next.minsUntil/60);const m=next.minsUntil%60;cd.textContent=(h>0?h+'h ':'')+m+'m';}}
 }
 function updateConfirmSection(inWindow){
-  const lm=document.getElementById('locked-msg');const s1=document.getElementById('step1-body');const s2=document.getElementById('step2-body');const btn=document.getElementById('confirm-fire-btn');
+  const lm=document.getElementById('locked-msg');const s1=document.getElementById('step1-body');const s2=document.getElementById('step2-body');
   if(!inWindow){lm.style.display='flex';s1.style.display='none';s2.style.display='none';
     const ny=getNYHHMM();const nowMins=toMins(ny);let best=null,bd=9999;
     WINDOWS.forEach(w=>{let d=toMins(w.o)-nowMins;if(d<=0)d+=1440;if(d<bd){bd=d;best={...w,minsUntil:d};}});
     if(best){const h=Math.floor(best.minsUntil/60);const m=best.minsUntil%60;document.getElementById('lm-next-txt').textContent='Next open: '+best.o+' NY · in '+(h>0?h+'h ':'')+m+'m';}
-  }else{lm.style.display='none';if(selectedDir){s1.style.display='none';s2.style.display='block';const isBuy=selectedDir==='BUY';btn.className='confirm-fire-btn '+(isBuy?'buy':'sell');document.getElementById('cfb-text').textContent='SEND '+selectedDir+' ⚡ — TAP TO CONFIRM';}else{s1.style.display='block';s2.style.display='none';}}
+  }else{lm.style.display='none';if(selectedDir){s1.style.display='none';s2.style.display='block';const isBuy=selectedDir==='BUY';document.getElementById('confirm-fire-btn').className='confirm-fire-btn '+(isBuy?'buy':'sell');document.getElementById('cfb-text').textContent='SEND '+selectedDir+' ⚡ — TAP TO CONFIRM';}else{s1.style.display='block';s2.style.display='none';}}
 }
 function selWin(t,p,o,n,el){winTime=t;winPrep=p;winOpen=o;winName=n;document.querySelectorAll('.win-tab').forEach(b=>{b.classList.remove('sel');b.querySelector('.wt-time').style.color='#555';});el.classList.add('sel');el.querySelector('.wt-time').style.color='var(--gold)';document.getElementById('cs-win-lbl').textContent=t+' '+n;selectedDir=null;updateAssetLabel();}
 function toggleAsset(a){const card=document.getElementById('ac-'+a);if(selAssets.has(a)){if(selAssets.size===1){showToast('Select at least one asset','warn');return;}selAssets.delete(a);card.className='asset-card';card.querySelector('.ac-name').style.color='#555';}else{selAssets.add(a);card.className='asset-card sel-'+a;card.querySelector('.ac-name').style.color=ASSETS_CFG[a].color;}updateAssetLabel();}
-function updateAssetLabel(){const names=[...selAssets].map(a=>ASSETS_CFG[a].label).join(' + ')||'—';document.getElementById('cs-asset-lbl').textContent=names;}
-function selectDir(dir){selectedDir=dir;const isBuy=dir==='BUY';document.getElementById('dir-buy').className='dir-btn'+(isBuy?' active-buy':'');document.getElementById('dir-sell').className='dir-btn'+(isBuy?'':' active-sell');document.getElementById('step1-num').className='step-num done';document.getElementById('step1-num').textContent='✓';document.getElementById('step2-num').className='step-num active';document.getElementById('step2-lbl').className='step-label active';document.getElementById('step1-body').style.display='none';document.getElementById('step2-body').style.display='block';const btn=document.getElementById('confirm-fire-btn');btn.className='confirm-fire-btn '+(isBuy?'buy':'sell');document.getElementById('cfb-text').textContent='SEND '+dir+' ⚡ — TAP TO CONFIRM';}
+function updateAssetLabel(){document.getElementById('cs-asset-lbl').textContent=[...selAssets].map(a=>ASSETS_CFG[a].label).join(' + ')||'—';}
+function selectDir(dir){selectedDir=dir;const isBuy=dir==='BUY';document.getElementById('dir-buy').className='dir-btn'+(isBuy?' active-buy':'');document.getElementById('dir-sell').className='dir-btn'+(isBuy?'':' active-sell');document.getElementById('step1-num').className='step-num done';document.getElementById('step1-num').textContent='✓';document.getElementById('step2-num').className='step-num active';document.getElementById('step2-lbl').className='step-label active';document.getElementById('step1-body').style.display='none';document.getElementById('step2-body').style.display='block';document.getElementById('confirm-fire-btn').className='confirm-fire-btn '+(isBuy?'buy':'sell');document.getElementById('cfb-text').textContent='SEND '+dir+' ⚡ — TAP TO CONFIRM';}
 function resetDir(){selectedDir=null;document.getElementById('dir-buy').className='dir-btn';document.getElementById('dir-sell').className='dir-btn';document.getElementById('step1-num').className='step-num active';document.getElementById('step1-num').textContent='1';document.getElementById('step2-num').className='step-num todo';document.getElementById('step2-lbl').className='step-label';document.getElementById('step1-body').style.display='block';document.getElementById('step2-body').style.display='none';}
 async function fireSig(){
   if(!isInWindow){showToast('Window is closed','warn');return;}
@@ -338,14 +359,18 @@ async function fireSig(){
     try{await fetch(SERVER+'/webhook/signal?token=14trades_secret',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'prep',asset:a.toUpperCase(),direction:selectedDir})});
     setTimeout(async()=>{await fetch(SERVER+'/admin/fire',{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':ADMIN_SECRET},body:JSON.stringify({direction:selectedDir,asset:a.toUpperCase(),slPoints:cfg.sl,window:winName})});},5000);}catch(e){}
   }
-  assets.forEach(a=>{const c=ASSETS_CFG[a];activeTrades.push({asset:a,label:c.label,dir:selectedDir,color:c.color});});
+  assets.forEach(a=>{activeTrades.push({asset:a,label:ASSETS_CFG[a].label,dir:selectedDir,color:ASSETS_CFG[a].color});});
   setTimeout(()=>{renderTrades();resetDir();},2200);
 }
 function renderTrades(){const el=document.getElementById('active-trades');if(!activeTrades.length){el.innerHTML='';return;}el.innerHTML=activeTrades.map((t,i)=>`<div class="active-trade" style="border:1px solid ${t.color}30"><div class="at-top"><div style="display:flex;align-items:center"><div class="at-dot"></div><div class="at-lbl">Live</div></div><div class="at-info"><div class="at-asset" style="color:${t.color}">${t.label}</div><div class="at-dir" style="color:${t.dir==='BUY'?'var(--green)':'var(--red)'}">${t.dir}</div></div></div><div class="at-note">Tap when level hit → members notified</div><div class="close-row"><button class="cl-btn tp" onclick="closeTrade(${i},'tp1')">TP1</button><button class="cl-btn tp" onclick="closeTrade(${i},'tp2')">TP2</button><button class="cl-btn tp" onclick="closeTrade(${i},'tp3')">TP3</button><button class="cl-btn sl" onclick="closeTrade(${i},'sl')">SL</button></div></div>`).join('');}
 async function closeTrade(i,outcome){const t=activeTrades[i];const isTP=outcome.startsWith('tp');try{await fetch(SERVER+'/admin/close',{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':ADMIN_SECRET},body:JSON.stringify({outcome,asset:t.asset})});}catch(e){}showToast((isTP?outcome.toUpperCase()+' hit':'SL hit')+' — '+t.label,isTP?'buy':'sell');activeTrades.splice(i,1);renderTrades();}
-function playSound(isBuy){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const notes=isBuy?[523,659,784,1047]:[784,659,523,392];notes.forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.value=f;const t=ctx.currentTime+i*.1;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.25,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+.2);o.start(t);o.stop(t+.25);});}catch(e){}}
+function playSound(isBuy){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();[isBuy?523:784,isBuy?659:659,isBuy?784:523,isBuy?1047:392].forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.value=f;const t=ctx.currentTime+i*.1;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.25,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+.2);o.start(t);o.stop(t+.25);});}catch(e){}}
 function showOrderFiled(assets,dir,isBuy){const ov=document.getElementById('order-overlay');const color=isBuy?'var(--green)':'var(--red)';document.getElementById('order-ring').style.cssText=`width:90px;height:90px;border-radius:50%;background:${isBuy?'#00C87A18':'#FF3B4E18'};border:2px solid ${isBuy?'#00C87A60':'#FF3B4E60'};display:flex;align-items:center;justify-content:center;font-size:34px;animation:ring-in .4s ease`;document.getElementById('order-ring').textContent=isBuy?'↑':'↓';document.getElementById('order-text').style.color=color;document.getElementById('order-text').textContent='ORDER FILED';document.getElementById('order-sub').textContent=dir+' — '+assets.map(a=>ASSETS_CFG[a].label).join(' + ');document.getElementById('order-chips').innerHTML=assets.map(a=>`<div class="oc-chip" style="background:${ASSETS_CFG[a].color}18;color:${ASSETS_CFG[a].color};border-color:${ASSETS_CFG[a].color}40">${ASSETS_CFG[a].label}</div>`).join('');ov.classList.add('show');setTimeout(()=>ov.classList.remove('show'),2200);}
 function showToast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type+' show';setTimeout(()=>t.classList.remove('show'),3000);}
+async function fetchPrices(){
+  try{const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true');const d=await r.json();const p=d.bitcoin.usd;const c=parseFloat(d.bitcoin.usd_24h_change.toFixed(2));document.getElementById('live-price-btc').textContent='$'+p.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});const cel=document.getElementById('live-change-btc');cel.textContent=(c>=0?'+':'')+c+'%';cel.style.color=c>=0?'var(--green)':'var(--red)';}catch(e){}
+  try{const r=await fetch('https://api.metals.live/v1/spot/gold');const d=await r.json();const p=d[0]?.price;if(p)document.getElementById('live-price-gold').textContent='$'+parseFloat(p).toFixed(2);}catch(e){}
+}
 updateAssetLabel();
 </script>
 </body>
