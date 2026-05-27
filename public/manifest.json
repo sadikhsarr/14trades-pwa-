@@ -1,7 +1,7 @@
 {
   "name": "14 Trades Alert",
   "short_name": "14 Trades",
-  "description": "Gold · Nasdaq · BTC signals by Sadikh Sarr",
+  "description": "Gold & BTC signals by Sadikh Sarr",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0C0C0C",
@@ -19,6 +19,11 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
     }
   ]
 }
