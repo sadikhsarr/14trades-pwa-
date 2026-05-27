@@ -1,7 +1,7 @@
 // 14 Trades Alert — PWA App JS
 // Registers SW, subscribes to push, polls server for live state
 
-const SERVER = 'https://your-server.up.railway.app'; // ← your Railway URL
+const SERVER = 'https://14trades-server-production.up.railway.app'; // ← your Railway URL
 const VAPID_PUBLIC = 'YOUR_VAPID_PUBLIC_KEY';         // ← generated below
 
 // ─── Boot ─────────────────────────────────────────────────────────
