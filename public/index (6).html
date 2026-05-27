@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="14 Trades">
+<meta name="theme-color" content="#C9A84C">
+<title>14 Trades Alert</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<!-- SIGNAL FLASH -->
+<div class="signal-flash" id="signal-flash" style="display:none" onclick="dismissFlash()">
+  <div class="sf-asset" id="sf-asset">GOLD</div>
+  <div class="sf-ring" id="sf-ring">↑</div>
+  <div class="sf-dir" id="sf-dir">BUY</div>
+  <div class="sf-sub" data-i18n="signal_confirmed">Signal confirmed</div>
+  <div class="sf-levels" id="sf-levels"></div>
+  <div class="sf-dismiss" data-i18n="tap_continue">Tap anywhere to continue</div>
+</div>
+
+<!-- INSTALL BANNER -->
+<div id="install-banner" class="install-banner" style="display:none">
+  <div class="ib-text">
+    <strong data-i18n="add_home">Add to Home Screen</strong>
+    <span data-i18n="best_exp">for the best experience</span>
+  </div>
+  <button class="ib-btn" onclick="dismissInstall()">✕</button>
+</div>
+
+<div class="phone">
+  <div class="header">
+    <div class="logo-col">
+      <div class="logo-row">
+        <span class="logo-num">14</span><span class="logo-bolt">⚡</span>
+        <div class="logo-shimmer"></div>
+      </div>
+      <div class="logo-trades" data-i18n="trades">TRADES</div>
+      <div class="logo-sub" data-i18n="alert">ALERT</div>
+    </div>
+    <div class="header-right">
+      <!-- LANGUAGE SWITCHER -->
+      <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+      </div>
+      <div class="dot-live"></div>
+      <button class="notif-btn" id="notif-btn" onclick="requestPush()"><i class="ti ti-bell"></i></button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="sb-val green" id="stat-winrate">—%</div>
+        <div class="sb-lbl" data-i18n="win_rate">Win Rate</div>
+      </div>
+      <div class="stat-box">
+        <div class="sb-val gold" id="stat-signals">0</div>
+        <div class="sb-lbl" data-i18n="signals">Signals</div>
+      </div>
+      <div class="stat-box">
+        <div class="sb-val blue" id="stat-days">—</div>
+        <div class="sb-lbl" data-i18n="member">Member</div>
+      </div>
+    </div>
+
+    <!-- PNL -->
+    <div class="pnl-card">
+      <div class="pnl-left">
+        <div class="pnl-lbl" data-i18n="total_pnl">Total P&L</div>
+        <div class="pnl-val" id="pnl-total">+$0</div>
+        <div class="pnl-sub" id="pnl-sub-lbl" data-i18n="based_on">Based on 1 lot</div>
+      </div>
+      <div class="pnl-right">
+        <div class="pnl-today-lbl" data-i18n="today">Today</div>
+        <div class="pnl-today-val" id="pnl-today">+$0</div>
+      </div>
+    </div>
+
+    <!-- STREAK -->
+    <div class="streak-card" id="streak-card">
+      <div class="streak-left">
+        <div class="streak-title" id="streak-title" data-i18n="streak">Streak</div>
+        <div class="streak-sub" id="streak-sub" data-i18n="keep_going">Keep going</div>
+        <div class="streak-bar"><div class="streak-fill" id="streak-fill"></div></div>
+        <div class="streak-next" id="streak-next"></div>
+      </div>
+      <div class="streak-right">
+        <div class="streak-num" id="streak-num">0</div>
+        <div class="milestone-badge" id="milestone-badge" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- COUNTDOWN -->
+    <div class="countdown-card" id="countdown-card">
+      <div class="cc-glow" id="cc-glow" style="display:none"></div>
+      <div class="cc-border" id="cc-border" style="display:none"></div>
+      <div class="cc-left">
+        <div class="cc-lbl" id="cc-lbl" data-i18n="next_signal">Next signal</div>
+        <div class="cc-time" id="cc-time">--:--</div>
+        <div class="cc-sub" id="cc-sub" data-i18n="signal_incoming">Signal incoming</div>
+      </div>
+      <div class="cc-right">
+        <div class="cc-ring" id="cc-ring">⚡</div>
+      </div>
+    </div>
+
+    <!-- MOOD -->
+    <div class="mood-bar">
+      <div class="mood-item">
+        <div class="mood-asset" style="color:var(--gold)" data-i18n="gold">GOLD</div>
+        <div class="mood-tag neutral" id="mood-gold-tag" data-i18n="watching">Watching</div>
+      </div>
+      <div class="mood-divider"></div>
+      <div class="mood-item">
+        <div class="mood-asset" style="color:var(--btc)" data-i18n="btc">BTC</div>
+        <div class="mood-tag neutral" id="mood-btc-tag" data-i18n="watching">Watching</div>
+      </div>
+      <div class="mood-divider"></div>
+      <div class="mood-item">
+        <div class="mood-asset" style="color:var(--muted)" data-i18n="session">SESSION</div>
+        <div class="mood-tag neutral" id="mood-session-tag">—</div>
+      </div>
+    </div>
+
+    <!-- RECAP -->
+    <div class="recap-card" id="recap-card" style="display:none">
+      <div class="recap-ico">📊</div>
+      <div class="recap-body">
+        <div class="recap-title" data-i18n="recap_title">Yesterday's recap</div>
+        <div class="recap-desc" id="recap-desc"></div>
+      </div>
+    </div>
+
+    <!-- SCANNING -->
+    <div class="scanning-block" id="scanning-block">
+      <div class="scan-ring">
+        <div class="scan-pulse"></div>
+        <div class="scan-icon">⚡</div>
+      </div>
+      <div class="scan-title" data-i18n="scanning">Scanning markets</div>
+      <div class="scan-dots">
+        <div class="scan-dot" style="animation-delay:0s"></div>
+        <div class="scan-dot" style="animation-delay:.2s"></div>
+        <div class="scan-dot" style="animation-delay:.4s"></div>
+      </div>
+      <div class="scan-sub" data-i18n="stand_by">Stand by for next setup</div>
+    </div>
+
+    <!-- LIVE TRADE -->
+    <div class="live-block" id="live-block" style="display:none">
+      <div class="live-top">
+        <div class="live-tag"><div class="blink green-dot"></div><span data-i18n="live_trade">Live trade</span></div>
+        <div class="live-asset" id="live-asset">GOLD</div>
+      </div>
+      <div class="live-mid">
+        <div class="live-dir" id="live-dir">BUY</div>
+        <div class="live-pnl">
+          <div class="pnl-val-live" id="pnl-val">+$0</div>
+          <div class="pnl-lbl" id="pnl-lbl" data-i18n="running">running</div>
+        </div>
+      </div>
+      <div class="prog-wrap">
+        <div class="prog-fill" id="prog-fill" style="width:5%"></div>
+        <div class="prog-cursor" id="prog-cursor" style="left:5%"></div>
+      </div>
+      <div class="levels-wrap">
+        <div class="sl-row" id="sl-row">
+          <div class="sl-shine"></div>
+          <div class="sl-left">
+            <div class="sl-dot"></div>
+            <div class="sl-label" data-i18n="stop_loss">Stop Loss</div>
+            <div class="sl-hit-lbl" data-i18n="hit">Hit</div>
+          </div>
+          <div class="sl-right">
+            <div class="sl-price" id="sl-price">—</div>
+            <div class="sl-x"><i class="ti ti-x"></i></div>
+          </div>
+        </div>
+        <div class="tp-row" id="tp1"><div class="tp-shine"></div><div class="tp-left"><div class="tp-num">TP 1</div><div class="hit-lbl" data-i18n="hit">Hit</div></div><div class="tp-right"><div class="tp-pts">+10 pts</div><div class="tp-price" id="tp1-price">—</div><div class="tp-check"><i class="ti ti-check"></i></div></div></div>
+        <div class="tp-row" id="tp2"><div class="tp-shine"></div><div class="tp-left"><div class="tp-num">TP 2</div><div class="hit-lbl" data-i18n="hit">Hit</div></div><div class="tp-right"><div class="tp-pts">+15 pts</div><div class="tp-price" id="tp2-price">—</div><div class="tp-check"><i class="ti ti-check"></i></div></div></div>
+        <div class="tp-row" id="tp3"><div class="tp-shine"></div><div class="tp-left"><div class="tp-num">TP 3</div><div class="hit-lbl" data-i18n="hit">Hit</div></div><div class="tp-right"><div class="tp-pts">+20 pts</div><div class="tp-price" id="tp3-price">—</div><div class="tp-check"><i class="ti ti-check"></i></div></div></div>
+      </div>
+    </div>
+
+    <!-- FOMO -->
+    <div class="fomo-card" id="fomo-card" style="display:none">
+      <div class="fomo-top">
+        <div class="fomo-ico">📵</div>
+        <div class="fomo-body">
+          <div class="fomo-title" id="fomo-title" data-i18n="missed">You missed this one</div>
+          <div class="fomo-desc" id="fomo-desc" data-i18n="keep_notif">Keep notifications ON</div>
+        </div>
+      </div>
+      <div class="fomo-next" data-i18n="signal_incoming">Next signal coming soon</div>
+    </div>
+
+    <!-- MEMBER SINCE -->
+    <div class="member-since">
+      <div class="ms-dot"></div>
+      <div class="ms-text"><span data-i18n="member_since">Member since</span> <span id="ms-date">—</span> ·</div>
+      <div class="ms-days" id="ms-days">—</div>
+      <div class="ms-dot"></div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="hist-block">
+      <div class="hist-title" data-i18n="history">History</div>
+      <div id="hist-feed"></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/i18n.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
