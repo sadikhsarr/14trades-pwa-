@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="14 Trades">
+<meta name="theme-color" content="#C9A84C">
+<title>14 Trades Alert</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="stylesheet" href="/style.css">
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({ appId: "534e2f6f-66fe-4d3d-904f-e86e603b904b" });
+  });
+</script>
+<style>
+/* SIGNAL COUNTDOWN OVERLAY */
+.signal-countdown-overlay{position:fixed;inset:0;z-index:900;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:radial-gradient(ellipse at center,#0C0B00 0%,#060504 100%)}
+.sco-asset{font-size:11px;font-weight:700;letter-spacing:3px;color:var(--muted,#555);text-transform:uppercase}
+.sco-label{font-size:13px;font-weight:600;letter-spacing:2px;color:var(--gold,#C9A84C);text-transform:uppercase}
+.sco-ring{position:relative;width:160px;height:160px;display:flex;align-items:center;justify-content:center}
+.sco-ring-bg{position:absolute;inset:0;border-radius:50%;border:3px solid #1A1800}
+.sco-ring-fill{position:absolute;inset:0;border-radius:50%;border:3px solid var(--gold,#C9A84C);clip-path:inset(0 50% 0 0);animation:ring-glow 2s ease infinite}
+@keyframes ring-glow{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,.3)}50%{box-shadow:0 0 20px 4px rgba(201,168,76,.15)}}
+.sco-time{font-family:'Space Mono',monospace;font-size:52px;font-weight:700;letter-spacing:-3px;color:var(--white,#F0F0F0);line-height:1;z-index:1}
+.sco-time.urgent{color:var(--yellow,#F5A800);animation:urgent .8s ease infinite}
+@keyframes urgent{0%,100%{opacity:1}50%{opacity:.5}}
+.sco-dir{display:flex;align-items:center;gap:12px;padding:10px 28px;border-radius:30px}
+.sco-dir.buy{background:#00C87A15;border:1px solid #00C87A40}
+.sco-dir.sell{background:#FF3B4E15;border:1px solid #FF3B4E40}
+.sco-dir-text{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;letter-spacing:2px}
+.sco-dir.buy .sco-dir-text{color:var(--green,#00C87A)}
+.sco-dir.sell .sco-dir-text{color:var(--red,#FF3B4E)}
+.sco-dir-dot{width:8px;height:8px;border-radius:50%;animation:blink 1s infinite}
+.sco-dir.buy .sco-dir-dot{background:var(--green,#00C87A)}
+.sco-dir.sell .sco-dir-dot{background:var(--red,#FF3B4E)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.sco-levels{background:rgba(0,0,0,.5);border:1px solid #2A2A2A;border-radius:14px;padding:12px 24px;display:flex;gap:22px}
+.scol-item{display:flex;flex-direction:column;align-items:center;gap:4px}
+.scol-lbl{font-size:9px;color:var(--muted,#555);text-transform:uppercase;letter-spacing:.8px}
+.scol-val{font-family:'Space Mono',monospace;font-size:13px;font-weight:700}
+.scol-val.sl{color:var(--red,#FF3B4E)}
+.scol-val.tp{color:var(--green,#00C87A)}
+.scol-val.tp2{color:#00A862}
+.scol-val.tp3{color:#007A48}
+.sco-sub{font-size:11px;color:var(--muted,#555);letter-spacing:.5px}
+</style>
+</head>
+<body>
+
+<!-- SIGNAL COUNTDOWN OVERLAY — shown after prep, before signal -->
+<div id="signal-countdown" style="display:none" class="signal-countdown-overlay">
+  <div class="sco-asset" id="sco-asset">GOLD · XAU/USD</div>
+  <div class="sco-label">Signal firing in</div>
+  <div class="sco-ring">
+    <div class="sco-ring-bg"></div>
+    <div class="sco-ring-fill"></div>
+    <div class="sco-time" id="sco-time">05:00</div>
+  </div>
+  <div class="sco-dir buy" id="sco-dir">
+    <div class="sco-dir-dot"></div>
+    <div class="sco-dir-text" id="sco-dir-text">BUY</div>
+  </div>
+  <div class="sco-levels" id="sco-levels"></div>
+  <div class="sco-sub">Get ready — signal fires automatically</div>
+</div>
+
+<!-- SIGNAL FLASH -->
+<div class="signal-flash" id="signal-flash" style="display:none" onclick="dismissFlash()">
+  <div class="sf-asset" id="sf-asset">GOLD</div>
+  <div class="sf-ring" id="sf-ring">↑</div>
+  <div class="sf-dir" id="sf-dir">BUY</div>
+  <div class="sf-sub">Signal confirmed</div>
+  <div class="sf-levels" id="sf-levels"></div>
+  <div class="sf-dismiss">Tap anywhere to continue</div>
+</div>
+
+<div id="install-banner" class="install-banner" style="display:none">
+  <div class="ib-text"><strong>Add to Home Screen</strong><span>for the best experience</span></div>
+  <button class="ib-btn" onclick="dismissInstall()">✕</button>
+</div>
+
+<div class="phone">
+  <div class="header">
+    <div class="logo-col">
+      <div class="logo-row"><span class="logo-num">14</span><span class="logo-bolt">⚡</span><div class="logo-shimmer"></div></div>
+      <div class="logo-trades">TRADES</div>
+      <div class="logo-sub">ALERT</div>
+    </div>
+    <div class="header-right">
+      <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+      </div>
+      <div class="dot-live"></div>
+      <button class="notif-btn" id="notif-btn" onclick="requestPush()"><i class="ti ti-bell"></i></button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="stats-row">
+      <div class="stat-box"><div class="sb-val green" id="stat-winrate">—%</div><div class="sb-lbl">Win Rate</div></div>
+      <div class="stat-box"><div class="sb-val gold" id="stat-signals">0</div><div class="sb-lbl">Signals</div></div>
+      <div class="stat-box"><div class="sb-val blue" id="stat-days">—</div><div class="sb-lbl">Member</div></div>
+    </div>
+
+    <div class="pnl-card">
+      <div class="pnl-left">
+        <div class="pnl-lbl">Total P&L</div>
+        <div class="pnl-val" id="pnl-total">+$0</div>
+        <div class="pnl-sub" id="pnl-sub-lbl">Based on 1 lot</div>
+      </div>
+      <div class="pnl-right">
+        <div class="pnl-today-lbl">Today</div>
+        <div class="pnl-today-val" id="pnl-today">+$0</div>
+      </div>
+    </div>
+
+    <div class="streak-card" id="streak-card">
+      <div class="streak-left">
+        <div class="streak-title" id="streak-title">Streak</div>
+        <div class="streak-sub" id="streak-sub">Keep going</div>
+        <div class="streak-bar"><div class="streak-fill" id="streak-fill"></div></div>
+        <div class="streak-next" id="streak-next"></div>
+      </div>
+      <div class="streak-right">
+        <div class="streak-num" id="streak-num">0</div>
+        <div class="milestone-badge" id="milestone-badge" style="display:none"></div>
+      </div>
+    </div>
+
+    <div class="countdown-card" id="countdown-card" style="display:none">
+      <div class="cc-glow" id="cc-glow" style="display:none"></div>
+      <div class="cc-border" id="cc-border" style="display:none"></div>
+      <div class="cc-left">
+        <div class="cc-lbl" id="cc-lbl">Next signal</div>
+        <div class="cc-time" id="cc-time">--:--</div>
+        <div class="cc-sub" id="cc-sub">Signal incoming</div>
+      </div>
+      <div class="cc-right"><div class="cc-ring" id="cc-ring">⚡</div></div>
+    </div>
+
+    <div class="mood-bar">
+      <div class="mood-item"><div class="mood-asset" style="color:var(--gold)">GOLD</div><div class="mood-tag neutral" id="mood-gold-tag">Watching</div></div>
+      <div class="mood-divider"></div>
+      <div class="mood-item"><div class="mood-asset" style="color:var(--btc)">BTC</div><div class="mood-tag neutral" id="mood-btc-tag">Watching</div></div>
+      <div class="mood-divider"></div>
+      <div class="mood-item"><div class="mood-asset" style="color:var(--muted)">SESSION</div><div class="mood-tag neutral" id="mood-session-tag">—</div></div>
+    </div>
+
+    <div class="recap-card" id="recap-card" style="display:none">
+      <div class="recap-ico">📊</div>
+      <div class="recap-body">
+        <div class="recap-title">Yesterday's recap</div>
+        <div class="recap-desc" id="recap-desc"></div>
+      </div>
+    </div>
+
+    <div class="scanning-block" id="scanning-block">
+      <div class="scan-ring"><div class="scan-pulse"></div><div class="scan-icon">⚡</div></div>
+      <div class="scan-title">Scanning markets</div>
+      <div class="scan-dots">
+        <div class="scan-dot" style="animation-delay:0s"></div>
+        <div class="scan-dot" style="animation-delay:.2s"></div>
+        <div class="scan-dot" style="animation-delay:.4s"></div>
+      </div>
+      <div class="scan-sub">Stand by for next setup</div>
+    </div>
+
+    <div class="live-block" id="live-block" style="display:none">
+      <div class="live-top">
+        <div class="live-tag"><div class="blink green-dot"></div><span>Live trade</span></div>
+        <div class="live-asset" id="live-asset">GOLD</div>
+      </div>
+      <div class="live-mid">
+        <div class="live-dir" id="live-dir">BUY</div>
+        <div class="live-pnl">
+          <div class="pnl-val-live" id="pnl-val">+$0</div>
+          <div class="pnl-lbl" id="pnl-lbl">running</div>
+        </div>
+      </div>
+      <div class="prog-wrap">
+        <div class="prog-fill" id="prog-fill" style="width:5%"></div>
+        <div class="prog-cursor" id="prog-cursor" style="left:5%"></div>
+      </div>
+      <div class="levels-wrap">
+        <div class="sl-row" id="sl-row"><div class="sl-shine"></div><div class="sl-left"><div class="sl-dot"></div><div class="sl-label">Stop Loss</div><div class="sl-hit-lbl">Hit</div></div><div class="sl-right"><div class="sl-price" id="sl-price">—</div><div class="sl-x"><i class="ti ti-x"></i></div></div></div>
+        <div class="tp-row" id="tp1"><div class="tp-shine"></div><div class="tp-left"><div class="tp-num">TP 1</div><div class="hit-lbl">Hit</div></div><div class="tp-right"><div class="tp-pts">+10 pts</div><div class="tp-price" id="tp1-price">—</div><div class="tp-check"><i class="ti ti-check"></i></div></div></div>
+        <div class="tp-row" id="tp2"><div class="tp-shine"></div><div class="tp-left"><div class="tp-num">TP 2</div><div class="hit-lbl">Hit</div></div><div class="tp-right"><div class="tp-pts">+15 pts</div><div class="tp-price" id="tp2-price">—</div><div class="tp-check"><i class="ti ti-check"></i></div></div></div>
+        <div class="tp-row" id="tp3"><div class="tp-shine"></div><div class="tp-left"><div class="tp-num">TP 3</div><div class="hit-lbl">Hit</div></div><div class="tp-right"><div class="tp-pts">+20 pts</div><div class="tp-price" id="tp3-price">—</div><div class="tp-check"><i class="ti ti-check"></i></div></div></div>
+      </div>
+    </div>
+
+    <div class="fomo-card" id="fomo-card" style="display:none">
+      <div class="fomo-top"><div class="fomo-ico">📵</div><div class="fomo-body"><div class="fomo-title" id="fomo-title">You missed this one</div><div class="fomo-desc" id="fomo-desc">Keep notifications ON</div></div></div>
+      <div class="fomo-next">Next signal coming soon</div>
+    </div>
+
+    <div class="member-since">
+      <div class="ms-dot"></div>
+      <div class="ms-text">Member since <span id="ms-date">—</span> ·</div>
+      <div class="ms-days" id="ms-days">—</div>
+      <div class="ms-dot"></div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="hist-block">
+      <div class="hist-title">History</div>
+      <div id="hist-feed"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/i18n.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
