@@ -1,13 +1,4 @@
 {
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/public/$1" }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
-      ]
-    }
-  ]
+  "version": 2,
+  "outputDirectory": "public"
 }
