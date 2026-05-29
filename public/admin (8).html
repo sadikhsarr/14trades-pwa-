@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#C9A84C">
+<title>14 Trades — Admin</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({ appId: "534e2f6f-66fe-4d3d-904f-e86e603b904b" });
+  });
+</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--bg:#0C0C0C;--s1:#131313;--s2:#1A1A1A;--border:#222;--gold:#C9A84C;--gold2:#E8C96A;--white:#F0F0F0;--muted:#444;--green:#00C87A;--red:#FF3B4E;--yellow:#F5A800;--btc:#F0921A}
+body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--white);display:flex;justify-content:center;-webkit-font-smoothing:antialiased}
+.phone{width:100%;max-width:390px;min-height:100vh;display:flex;flex-direction:column}
+#pin-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:20px}
+.pin-brand{font-family:'Space Mono',monospace;font-size:36px;font-weight:700;color:var(--gold)}
+.pin-brand span{color:var(--gold2)}
+.pin-sub{font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-top:-20px}
+.pin-dots{display:flex;gap:14px}
+.pin-dot{width:13px;height:13px;border-radius:50%;border:1px solid var(--border);background:transparent;transition:all .2s}
+.pin-dot.filled{background:var(--gold);border-color:var(--gold)}
+.pin-dot.error{background:var(--red);border-color:var(--red);animation:shake .3s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.numpad{display:flex;flex-wrap:wrap;width:264px;gap:10px;justify-content:center}
+.num-btn{width:78px;height:78px;border-radius:39px;background:var(--s1);border:1px solid var(--border);font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.num-btn:active{background:var(--s2);transform:scale(.93)}
+.num-btn.del{font-size:18px;color:var(--muted)}
+.num-btn.empty{opacity:0;pointer-events:none}
+#admin-app{flex:1;display:none;flex-direction:column}
+.hdr{padding:16px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.brand{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--gold)}
+.brand span{color:var(--gold2)}
+.brand-sub{font-size:8px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.lock-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:9px;font-weight:700;letter-spacing:2px;color:var(--muted);cursor:pointer;text-transform:uppercase}
+.clock-bar{margin:12px 18px 0;background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:11px 16px;display:flex;align-items:center;justify-content:space-between}
+.cb-time{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--white)}
+.cb-right{display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.cb-lbl{font-size:9px;color:var(--muted)}
+.cb-next{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--gold)}
+.price-bar{margin:10px 18px 0;background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:12px 16px;display:flex;align-items:center}
+.price-item{flex:1;display:flex;flex-direction:column;gap:3px}
+.price-asset{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.price-val{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:var(--white)}
+.price-change{font-family:'Space Mono',monospace;font-size:10px;font-weight:600}
+.price-divider{width:1px;height:40px;background:var(--border);margin:0 16px;flex-shrink:0}
+.price-refresh{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite;flex-shrink:0;align-self:flex-start;margin-top:2px}
+.main{flex:1;padding:14px 18px 32px;display:flex;flex-direction:column;gap:14px;overflow-y:auto}
+.sec{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.win-tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
+.win-tab{background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:9px 6px;text-align:center;cursor:pointer;transition:all .2s}
+.win-tab:active{transform:scale(.95)}
+.win-tab.sel{border-color:#C9A84C50;background:#0F0E09}
+.wt-time{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#555;transition:color .2s}
+.win-tab.sel .wt-time{color:var(--gold)}
+.wt-name{font-size:8px;color:var(--muted);margin-top:2px}
+.asset-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.asset-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:14px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:8px}
+.asset-card:active{transform:scale(.97)}
+.asset-card.sel-gold{border-color:#C9A84C60;background:#0C0B00}
+.asset-card.sel-btc{border-color:#F0921A60;background:#0C0800}
+.ac-header{display:flex;align-items:center;justify-content:space-between}
+.ac-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:10px;font-weight:700}
+.ac-check{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;opacity:0;transition:all .3s}
+.asset-card.sel-gold .ac-check{opacity:1;background:var(--gold);color:#000}
+.asset-card.sel-btc .ac-check{opacity:1;background:var(--btc);color:#000}
+.ac-name{font-size:14px;font-weight:700;color:#555;transition:color .2s}
+.asset-card.sel-gold .ac-name{color:var(--gold)}
+.asset-card.sel-btc .ac-name{color:var(--btc)}
+.ac-pair{font-size:9px;color:var(--muted)}
+.ac-levels{display:flex;flex-direction:column;gap:3px}
+.acl-row{display:flex;justify-content:space-between}
+.acl-lbl{font-size:9px;color:var(--muted)}
+.acl-val{font-family:'Space Mono',monospace;font-size:9px;font-weight:700}
+.acl-val.sl{color:var(--red)}.acl-val.tp{color:var(--green)}.acl-val.tp2{color:#00A862}.acl-val.tp3{color:#007A48}
+.confirm-section{background:var(--s1);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.cs-top{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.cs-asset{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--gold2)}
+.cs-win{font-size:10px;color:var(--muted)}
+.cs-body{padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.steps-row{display:flex;align-items:center;gap:0}
+.step-item{display:flex;align-items:center;gap:6px;flex:1}
+.step-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:'Space Mono',monospace;flex-shrink:0}
+.step-num.done{background:var(--green);color:#001A0F}
+.step-num.active{background:var(--gold);color:#000}
+.step-num.todo{background:var(--s2);color:var(--muted);border:1px solid var(--border)}
+.step-label{font-size:10px;color:var(--muted)}
+.step-label.active{color:var(--white);font-weight:600}
+.step-line{flex:1;height:1px;background:var(--border);margin:0 4px}
+.dir-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dir-btn{border:none;border-radius:12px;padding:16px;font-family:'Space Mono',monospace;font-size:16px;font-weight:700;letter-spacing:1px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .15s;opacity:.4}
+.dir-btn.active-buy{background:var(--green);color:#001A0F;opacity:1}
+.dir-btn.active-sell{background:var(--red);color:#fff;opacity:1}
+.dir-btn:not(.active-buy):not(.active-sell){background:var(--s2);color:var(--muted);border:1px solid var(--border)}
+.dir-btn:active{transform:scale(.95)}
+.db-sub{font-size:9px;font-weight:400;opacity:.7}
+.confirm-fire-btn{border:none;border-radius:14px;padding:18px;font-family:'Space Mono',monospace;font-size:15px;font-weight:700;letter-spacing:1px;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .15s}
+.confirm-fire-btn:active{transform:scale(.97)}
+.confirm-fire-btn.buy{background:var(--green);color:#001A0F}
+.confirm-fire-btn.sell{background:var(--red);color:#fff}
+.confirm-fire-btn.disabled{background:var(--s2);color:var(--muted);border:1px solid var(--border);cursor:default;opacity:.5}
+
+/* ACTIVE TRADE — TP stays with checkmark */
+.active-trade{background:var(--s1);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;margin-bottom:8px}
+.at-top{display:flex;align-items:center;justify-content:space-between}
+.at-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.at-lbl{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-left:7px}
+.at-info{display:flex;align-items:center;gap:8px}
+.at-asset{font-family:'Space Mono',monospace;font-size:14px;font-weight:700}
+.at-dir{font-family:'Space Mono',monospace;font-size:14px;font-weight:700}
+.at-levels{display:flex;flex-direction:column;gap:6px}
+.at-level-row{display:flex;align-items:center;gap:8px;border-radius:9px;padding:10px 12px;transition:all .3s}
+.at-level-row.tp-row{background:#00C87A08;border:1px solid #00C87A18}
+.at-level-row.tp-row.hit{background:#00C87A18;border-color:#00C87A50}
+.at-level-row.sl-row{background:#FF3B4E08;border:1px solid #FF3B4E18}
+.at-level-row.sl-row.hit{background:#FF3B4E18;border-color:#FF3B4E50}
+.at-level-lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;min-width:32px}
+.at-level-row.tp-row .at-level-lbl{color:#006B42}
+.at-level-row.tp-row.hit .at-level-lbl{color:var(--green)}
+.at-level-row.sl-row .at-level-lbl{color:var(--red)}
+.at-pts{font-size:10px;color:var(--muted);flex:1}
+.at-level-row.hit .at-pts{color:var(--green)}
+.at-level-row.sl-row.hit .at-pts{color:var(--red)}
+.at-check{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;transition:all .3s}
+.at-level-row.tp-row .at-check{background:#00C87A15;border:1px solid #00C87A30;color:var(--muted)}
+.at-level-row.tp-row.hit .at-check{background:var(--green);border-color:var(--green);color:#001A0F}
+.at-level-row.sl-row .at-check{background:#FF3B4E15;border:1px solid #FF3B4E30;color:var(--muted)}
+.at-level-row.sl-row.hit .at-check{background:var(--red);border-color:var(--red);color:#fff}
+.at-fire-btn{border:none;border-radius:8px;padding:9px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Space Mono',monospace;flex-shrink:0;transition:all .15s}
+.at-fire-btn:active{transform:scale(.93)}
+.at-fire-btn.tp-fire{background:#00C87A15;color:var(--green);border:1px solid #00C87A30}
+.at-fire-btn.sl-fire{background:#FF3B4E15;color:var(--red);border:1px solid #FF3B4E30}
+.at-fire-btn.fired{opacity:.3;cursor:default;pointer-events:none}
+
+/* ORDER FILED */
+.order-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:80;flex-direction:column;align-items:center;justify-content:center;gap:18px}
+.order-overlay.show{display:flex}
+.order-ring{width:90px;height:90px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;animation:ring-in .4s ease}
+@keyframes ring-in{0%{transform:scale(0);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+.order-text{font-family:'Space Mono',monospace;font-size:24px;font-weight:700;letter-spacing:2px;animation:txt-in .5s ease .15s both}
+.order-sub{font-size:12px;color:var(--muted);letter-spacing:1px;animation:txt-in .5s ease .3s both}
+.order-chips{display:flex;gap:10px;animation:txt-in .5s ease .4s both}
+.oc-chip{padding:5px 14px;border-radius:20px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;border:1px solid}
+@keyframes txt-in{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
+.toast{position:fixed;bottom:36px;left:50%;transform:translateX(-50%);padding:11px 22px;border-radius:12px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;z-index:99;border:1px solid}
+.toast.show{opacity:1}
+.toast.buy{background:#001A0F;border-color:#00C87A40;color:var(--green)}
+.toast.sell{background:#1A0005;border-color:#FF3B4E40;color:var(--red)}
+.toast.info{background:var(--s1);border-color:var(--border);color:var(--muted)}
+.toast.warn{background:#1A0D00;border-color:#F5A80040;color:var(--yellow)}
+.bc-wrap{background:var(--s1);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.bc-btn{width:100%;background:none;border:none;padding:13px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;color:var(--white);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;text-align:left}
+.bc-btn:active{opacity:.7}
+.bc-arr{margin-left:auto;font-size:16px;color:var(--muted);transition:transform .2s}
+.bc-body{padding:0 14px 14px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--border)}
+.bc-textarea{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-family:'Inter',sans-serif;font-size:12px;color:var(--white);resize:none;outline:none;margin-top:10px}
+.bc-textarea:focus{border-color:#4A9EFF40}
+.bc-send{background:#4A9EFF;border:none;border-radius:8px;padding:8px 16px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#fff;cursor:pointer;letter-spacing:.5px;transition:all .15s}
+.bc-send:active{transform:scale(.95)}
+
+</style>
+</head>
+<body>
+
+<div class="phone" id="pin-screen">
+  <div class="pin-brand">14<span>⚡</span></div>
+  <div class="pin-sub">Admin access</div>
+  <div class="pin-dots" id="pin-dots">
+    <div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div>
+    <div class="pin-dot" id="d4"></div><div class="pin-dot" id="d5"></div>
+  </div>
+  <div class="numpad">
+    <div class="num-btn" onclick="pressPin('1')">1</div>
+    <div class="num-btn" onclick="pressPin('2')">2</div>
+    <div class="num-btn" onclick="pressPin('3')">3</div>
+    <div class="num-btn" onclick="pressPin('4')">4</div>
+    <div class="num-btn" onclick="pressPin('5')">5</div>
+    <div class="num-btn" onclick="pressPin('6')">6</div>
+    <div class="num-btn" onclick="pressPin('7')">7</div>
+    <div class="num-btn" onclick="pressPin('8')">8</div>
+    <div class="num-btn" onclick="pressPin('9')">9</div>
+    <div class="num-btn empty"></div>
+    <div class="num-btn" onclick="pressPin('0')">0</div>
+    <div class="num-btn del" onclick="deletePin()">⌫</div>
+  </div>
+</div>
+
+<div class="phone" id="admin-app">
+  <div class="hdr">
+    <div>
+      <div class="brand">14<span>⚡</span> Trades</div>
+      <div class="brand-sub">Admin · Sadikh Sarr</div>
+    </div>
+    <button class="lock-btn" onclick="lockAdmin()">LOCK</button>
+  </div>
+
+  <div class="clock-bar">
+    <div>
+      <div style="font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:3px">New York</div>
+      <div class="cb-time" id="ny-clock">--:--:--</div>
+    </div>
+    <div class="cb-right">
+      <div class="cb-lbl">Next window</div>
+      <div class="cb-next" id="next-win-lbl">--:--</div>
+      <div class="cb-lbl" id="next-name-lbl">--</div>
+    </div>
+  </div>
+
+  <div class="price-bar">
+    <div class="price-item">
+      <div class="price-asset" style="color:var(--gold)">XAU/USD</div>
+      <div class="price-val" id="live-price-gold">--</div>
+      <div class="price-change" id="live-change-gold"></div>
+    </div>
+    <div class="price-divider"></div>
+    <div class="price-item">
+      <div class="price-asset" style="color:var(--btc)">BTC/USD</div>
+      <div class="price-val" id="live-price-btc">--</div>
+      <div class="price-change" id="live-change-btc"></div>
+    </div>
+    <div class="price-refresh"></div>
+  </div>
+
+  <div class="main">
+    <div class="sec">Signal window</div>
+    <div style="font-size:9px;font-weight:600;letter-spacing:1px;color:var(--gold);text-transform:uppercase;margin-bottom:6px">⚡ Standard · CFA 57,000</div>
+    <div class="win-tabs">
+      <div class="win-tab sel" onclick="selWin('19:10','NY Close','standard',this)"><div class="wt-time">19:10</div><div class="wt-name">NY Close</div></div>
+      <div class="win-tab" onclick="selWin('00:10','Asia','standard',this)"><div class="wt-time">00:10</div><div class="wt-name">Asia</div></div>
+      <div class="win-tab" onclick="selWin('07:10','London','standard',this)"><div class="wt-time">07:10</div><div class="wt-name">London</div></div>
+      <div class="win-tab" onclick="selWin('12:10','NY Mid','standard',this)"><div class="wt-time">12:10</div><div class="wt-name">NY Mid</div></div>
+    </div>
+    <div style="font-size:9px;font-weight:600;letter-spacing:1px;color:#4A9EFF;text-transform:uppercase;margin-bottom:6px;margin-top:6px">💎 Premium+ · $200</div>
+    <div class="win-tabs">
+      <div class="win-tab" onclick="selWin('21:10','NY Premium','premium',this)"><div class="wt-time" style="color:#4A9EFF">21:10</div><div class="wt-name">NY Prem</div></div>
+      <div class="win-tab" onclick="selWin('00:10','Asia+','premium',this)"><div class="wt-time" style="color:#4A9EFF">00:10</div><div class="wt-name">Asia+</div></div>
+      <div class="win-tab" onclick="selWin('06:10','Pre-Lon','premium',this)"><div class="wt-time" style="color:#4A9EFF">06:10</div><div class="wt-name">Pre-Lon</div></div>
+    </div>
+
+    <div class="sec">Asset(s)</div>
+    <div class="asset-row">
+      <div class="asset-card sel-gold" id="ac-gold" onclick="toggleAsset('gold')">
+        <div class="ac-header">
+          <div class="ac-ico" style="background:#C9A84C15;color:var(--gold);border:1px solid #C9A84C25">XAU</div>
+          <div class="ac-check">✓</div>
+        </div>
+        <div><div class="ac-name">Gold</div><div class="ac-pair">XAU / USD</div></div>
+        <div class="ac-levels">
+          <div class="acl-row"><div class="acl-lbl">SL</div><div class="acl-val sl">12 pts</div></div>
+          <div class="acl-row"><div class="acl-lbl">TP1</div><div class="acl-val tp">10 pts</div></div>
+          <div class="acl-row"><div class="acl-lbl">TP2</div><div class="acl-val tp2">15 pts</div></div>
+          <div class="acl-row"><div class="acl-lbl">TP3</div><div class="acl-val tp3">20 pts</div></div>
+        </div>
+      </div>
+      <div class="asset-card" id="ac-btc" onclick="toggleAsset('btc')">
+        <div class="ac-header">
+          <div class="ac-ico" style="background:#F0921A15;color:var(--btc);border:1px solid #F0921A25">BTC</div>
+          <div class="ac-check">✓</div>
+        </div>
+        <div><div class="ac-name">Bitcoin</div><div class="ac-pair">BTC / USD</div></div>
+        <div class="ac-levels">
+          <div class="acl-row"><div class="acl-lbl">SL</div><div class="acl-val sl">200 pts</div></div>
+          <div class="acl-row"><div class="acl-lbl">TP1</div><div class="acl-val tp">200 pts</div></div>
+          <div class="acl-row"><div class="acl-lbl">TP2</div><div class="acl-val tp2">400 pts</div></div>
+          <div class="acl-row"><div class="acl-lbl">TP3</div><div class="acl-val tp3">600 pts</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="confirm-section">
+      <div class="cs-top">
+        <div class="cs-asset" id="cs-asset-lbl">GOLD</div>
+        <div class="cs-win" id="cs-win-lbl">19:10 NY Close</div>
+      </div>
+      <div class="cs-body">
+        <div class="steps-row">
+          <div class="step-item">
+            <div class="step-num active" id="step1-num">1</div>
+            <div class="step-label active" id="step1-lbl">Choose direction</div>
+          </div>
+          <div class="step-line"></div>
+          <div class="step-item">
+            <div class="step-num todo" id="step2-num">2</div>
+            <div class="step-label" id="step2-lbl">Confirm & send</div>
+          </div>
+        </div>
+        <div id="step1-body">
+          <div class="dir-row">
+            <button class="dir-btn" id="dir-buy" onclick="selectDir('BUY')">BUY<span class="db-sub">Long ↑</span></button>
+            <button class="dir-btn" id="dir-sell" onclick="selectDir('SELL')">SELL<span class="db-sub">Short ↓</span></button>
+          </div>
+        </div>
+        <div id="step2-body" style="display:none">
+          <button class="confirm-fire-btn disabled" id="confirm-fire-btn" onclick="fireSig()">
+            <span id="cfb-text">SELECT DIRECTION FIRST</span>
+          </button>
+          <div style="text-align:center;margin-top:8px">
+            <span style="font-size:10px;color:var(--muted);cursor:pointer" onclick="resetDir()">← Change direction</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- BROADCAST -->
+    <div class="sec">Broadcast</div>
+    <div class="bc-wrap" id="bc-wrap">
+      <button class="bc-btn" onclick="toggleBroadcast()">
+        <span style="font-size:15px">📢</span>
+        <span>Send message to all members</span>
+        <span class="bc-arr" id="bc-arr">›</span>
+      </button>
+      <div class="bc-body" id="bc-body" style="display:none">
+        <textarea class="bc-textarea" id="bc-msg" placeholder="Type your message..." rows="3" maxlength="160"></textarea>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
+          <span style="font-size:9px;color:var(--muted)" id="bc-count">0 / 160</span>
+          <button class="bc-send" onclick="sendBroadcast()">SEND ⚡</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="active-trades"></div>
+  </div>
+</div>
+
+<div class="order-overlay" id="order-overlay">
+  <div class="order-ring" id="order-ring"></div>
+  <div class="order-text" id="order-text">ORDER FILED</div>
+  <div class="order-sub" id="order-sub"></div>
+  <div class="order-chips" id="order-chips"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SERVER='https://14trades-server-production.up.railway.app';
+const ADMIN_SECRET='admin_14trades';
+const PIN='141414'; // ← CHANGE THIS
+
+const ASSETS_CFG={
+  gold:{label:'GOLD',pair:'XAU/USD',color:'var(--gold)',sl:12,tp1:10,tp2:15,tp3:20},
+  btc: {label:'BTC', pair:'BTC/USD',color:'var(--btc)', sl:200,tp1:200,tp2:400,tp3:600},
+};
+const WINDOWS=[
+  {t:'19:10',n:'NY Scalp'},{t:'00:10',n:'Asia Scalp'},
+  {t:'07:10',n:'London Scalp'},{t:'12:10',n:'NY Mid Scalp'},
+  {t:'21:10',n:'NY A+'},{t:'00:10',n:'Asia A+'},
+  {t:'06:10',n:'Pre-Lon A+'},
+];
+
+let selAssets=new Set(['gold']);
+let winTime='19:10',winName='NY Close',winTier='standard';
+let selectedDir=null,activeTrades=[],pinEntry='';
+
+// ── PIN ──────────────────────────────────────────────────────────
+function pressPin(d){if(pinEntry.length>=6)return;pinEntry+=d;updateDots();if(pinEntry.length===6)checkPin();}
+function deletePin(){pinEntry=pinEntry.slice(0,-1);updateDots();}
+function updateDots(){for(let i=0;i<6;i++){const dot=document.getElementById('d'+i);dot.classList.toggle('filled',i<pinEntry.length);dot.classList.remove('error');}}
+function checkPin(){
+  if(pinEntry===PIN){
+    document.getElementById('pin-screen').style.display='none';
+    document.getElementById('admin-app').style.display='flex';
+    startClock();fetchPrices();setInterval(fetchPrices,8000);
+    // Tag this device as admin in OneSignal for reminder push
+    tagAdminDevice();
+  } else {
+    for(let i=0;i<6;i++)document.getElementById('d'+i).classList.add('error');
+    setTimeout(()=>{pinEntry='';updateDots();},700);
+  }
+}
+function lockAdmin(){pinEntry='';updateDots();selectedDir=null;document.getElementById('pin-screen').style.display='flex';document.getElementById('admin-app').style.display='none';}
+
+// ── Clock ─────────────────────────────────────────────────────────
+function startClock(){tick();setInterval(tick,1000);}
+function toMins(s){const[h,m]=s.split(':').map(Number);return h*60+m;}
+function tick(){
+  const full=new Date().toLocaleTimeString('en-US',{timeZone:'America/New_York',hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('ny-clock').textContent=full;
+  const ny=new Date().toLocaleTimeString('en-US',{timeZone:'America/New_York',hour12:false,hour:'2-digit',minute:'2-digit'});
+  const nowMins=toMins(ny);
+  let best=null,bd=9999;
+  WINDOWS.forEach(w=>{let d=toMins(w.t)-nowMins;if(d<=0)d+=1440;if(d<bd){bd=d;best={...w,minsUntil:d};}});
+  if(best){document.getElementById('next-win-lbl').textContent=best.t;document.getElementById('next-name-lbl').textContent=best.n+' · '+best.minsUntil+'m';}
+}
+
+// ── Window ────────────────────────────────────────────────────────
+function selWin(t,n,tier,el){
+  winTime=t;winName=n;winTier=tier||'standard';
+  document.querySelectorAll('.win-tab').forEach(b=>{b.classList.remove('sel');b.querySelector('.wt-time').style.color='#555';});
+  el.classList.add('sel');
+  el.querySelector('.wt-time').style.color = tier==='premium' ? '#4A9EFF' : 'var(--gold)';
+  document.getElementById('cs-win-lbl').textContent=t+' '+n;
+  // Show tier badge
+  const tierBadge = tier==='premium'
+    ? '<span style="background:#4A9EFF18;color:#4A9EFF;border:1px solid #4A9EFF30;border-radius:6px;padding:2px 8px;font-size:9px;font-weight:700;margin-left:6px">PREMIUM+</span>'
+    : '<span style="background:#C9A84C18;color:var(--gold);border:1px solid #C9A84C30;border-radius:6px;padding:2px 8px;font-size:9px;font-weight:700;margin-left:6px">STANDARD</span>';
+  document.getElementById('cs-win-lbl').innerHTML = t+' '+n+tierBadge;
+  selectedDir=null;updateAssetLabel();
+}
+
+// ── Asset ──────────────────────────────────────────────────────────
+function toggleAsset(a){
+  const card=document.getElementById('ac-'+a);
+  if(selAssets.has(a)){if(selAssets.size===1){showToast('Select at least one asset','warn');return;}selAssets.delete(a);card.className='asset-card';card.querySelector('.ac-name').style.color='#555';}
+  else{selAssets.add(a);card.className='asset-card sel-'+a;card.querySelector('.ac-name').style.color=ASSETS_CFG[a].color;}
+  updateAssetLabel();
+}
+function updateAssetLabel(){document.getElementById('cs-asset-lbl').textContent=[...selAssets].map(a=>ASSETS_CFG[a].label).join(' + ')||'—';}
+
+// ── Direction ─────────────────────────────────────────────────────
+function selectDir(dir){
+  selectedDir=dir;const isBuy=dir==='BUY';
+  document.getElementById('dir-buy').className='dir-btn'+(isBuy?' active-buy':'');
+  document.getElementById('dir-sell').className='dir-btn'+(isBuy?'':' active-sell');
+  document.getElementById('step1-num').className='step-num done';document.getElementById('step1-num').textContent='✓';
+  document.getElementById('step2-num').className='step-num active';document.getElementById('step2-lbl').className='step-label active';
+  document.getElementById('step1-body').style.display='none';document.getElementById('step2-body').style.display='block';
+  const btn=document.getElementById('confirm-fire-btn');
+  btn.className='confirm-fire-btn '+(isBuy?'buy':'sell');
+  document.getElementById('cfb-text').textContent='SEND '+dir+' ⚡ — TAP TO CONFIRM';
+}
+function resetDir(){
+  selectedDir=null;
+  document.getElementById('dir-buy').className='dir-btn';document.getElementById('dir-sell').className='dir-btn';
+  document.getElementById('step1-num').className='step-num active';document.getElementById('step1-num').textContent='1';
+  document.getElementById('step2-num').className='step-num todo';document.getElementById('step2-lbl').className='step-label';
+  document.getElementById('step1-body').style.display='block';document.getElementById('step2-body').style.display='none';
+}
+
+// ── Fire signal ────────────────────────────────────────────────────
+async function fireSig(){
+  if(!selectedDir){showToast('Choose BUY or SELL first','warn');return;}
+  if(selAssets.size===0){showToast('Select at least one asset','warn');return;}
+  const isBuy=selectedDir==='BUY';
+  const assets=[...selAssets];
+  playSound(isBuy);
+  showOrderFiled(assets,selectedDir,isBuy);
+
+  for(const a of assets){
+    const cfg=ASSETS_CFG[a];
+    try{
+      await fetch(`${SERVER}/admin/fire`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-admin-token':ADMIN_SECRET},
+        body:JSON.stringify({direction:selectedDir,asset:a.toUpperCase(),slPoints:cfg.sl,window:winName,tier:winTier})
+      });
+    }catch(e){console.log('Server error',e);}
+  }
+
+  assets.forEach(a=>{
+    const c=ASSETS_CFG[a];
+    activeTrades.push({asset:a,label:c.label,dir:selectedDir,color:c.color,
+      tp1Hit:false,tp2Hit:false,tp3Hit:false,slHit:false});
+  });
+
+  setTimeout(()=>{renderTrades();resetDir();},2200);
+}
+
+// ── Render active trades — TP stays with checkmark ─────────────────
+function renderTrades(){
+  const el=document.getElementById('active-trades');
+  if(!activeTrades.length){el.innerHTML='';return;}
+  el.innerHTML=activeTrades.map((t,i)=>{
+    const isBuy=t.dir==='BUY';
+    const tpPts=ASSETS_CFG[t.asset]||ASSETS_CFG['gold'];
+    return`
+    <div class="active-trade" style="border:1px solid ${t.color}30" id="trade-${i}">
+      <div class="at-top">
+        <div style="display:flex;align-items:center"><div class="at-dot"></div><div class="at-lbl">Live</div></div>
+        <div class="at-info">
+          <div class="at-asset" style="color:${t.color}">${t.label}</div>
+          <div class="at-dir" style="color:${isBuy?'var(--green)':'var(--red)'}">${t.dir}</div>
+        </div>
+      </div>
+      <div class="at-levels">
+        <!-- TP1 -->
+        <div class="at-level-row tp-row ${t.tp1Hit?'hit':''}" id="trade-${i}-tp1">
+          <div class="at-level-lbl">TP1</div>
+          <div class="at-pts">+${tpPts.tp1} pts</div>
+          <div class="at-check">${t.tp1Hit?'✓':'·'}</div>
+          ${!t.tp1Hit?`<button class="at-fire-btn tp-fire" onclick="hitLevel(${i},'tp1')">Hit</button>`:''}
+        </div>
+        <!-- TP2 -->
+        <div class="at-level-row tp-row ${t.tp2Hit?'hit':''}" id="trade-${i}-tp2">
+          <div class="at-level-lbl">TP2</div>
+          <div class="at-pts">+${tpPts.tp2} pts</div>
+          <div class="at-check">${t.tp2Hit?'✓':'·'}</div>
+          ${!t.tp2Hit?`<button class="at-fire-btn tp-fire" onclick="hitLevel(${i},'tp2')">Hit</button>`:''}
+        </div>
+        <!-- TP3 -->
+        <div class="at-level-row tp-row ${t.tp3Hit?'hit':''}" id="trade-${i}-tp3">
+          <div class="at-level-lbl">TP3</div>
+          <div class="at-pts">+${tpPts.tp3} pts</div>
+          <div class="at-check">${t.tp3Hit?'✓':'·'}</div>
+          ${!t.tp3Hit?`<button class="at-fire-btn tp-fire" onclick="hitLevel(${i},'tp3')">Hit</button>`:''}
+        </div>
+        <!-- SL -->
+        <div class="at-level-row sl-row ${t.slHit?'hit':''}" id="trade-${i}-sl">
+          <div class="at-level-lbl">SL</div>
+          <div class="at-pts">-${tpPts.sl} pts</div>
+          <div class="at-check">${t.slHit?'✗':'·'}</div>
+          ${!t.slHit&&!t.tp1Hit&&!t.tp2Hit&&!t.tp3Hit?`<button class="at-fire-btn sl-fire" onclick="hitLevel(${i},'sl')">Hit</button>`:''}
+        </div>
+      </div>
+    <div style="margin-top:8px">
+      <button class="at-fire-btn" style="background:#FF3B4E15;color:var(--red);border:1px solid #FF3B4E30;width:48%;margin-right:4%" onclick="hitLevel(${i},'sl')">SL Hit</button>
+      <button class="at-fire-btn" style="background:#00C87A15;color:var(--green);border:1px solid #00C87A30;width:48%" onclick="closeAll(${i})">Close All TP ✓</button>
+    </div>
+    </div>\`;
+  }).join('');
+}
+
+// ── Hit level — TP/SL stays with checkmark ─────────────────────────
+async function hitLevel(i,outcome){
+  const t=activeTrades[i];
+  if(!t)return;
+  const isTP=outcome.startsWith('tp');
+
+  // Mark hit locally — button disappears, checkmark stays green
+  if(outcome==='tp1')t.tp1Hit=true;
+  else if(outcome==='tp2')t.tp2Hit=true;
+  else if(outcome==='tp3')t.tp3Hit=true;
+  else if(outcome==='sl')t.slHit=true;
+
+  // Re-render to show checkmark
+  renderTrades();
+
+  // Send to server
+  try{
+    await fetch(`${SERVER}/admin/close`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-admin-token':ADMIN_SECRET},
+      body:JSON.stringify({outcome,asset:t.asset.toUpperCase()})
+    });
+  }catch(e){}
+
+  showToast((isTP?outcome.toUpperCase()+' hit ✓':'SL hit')+' — '+t.label,isTP?'buy':'sell');
+
+  // Remove trade only if SL hit or TP3 hit
+  if(outcome==='sl'||outcome==='tp3'){
+    setTimeout(()=>{activeTrades.splice(i,1);renderTrades();},1500);
+  }
+}
+
+// ── Sound ──────────────────────────────────────────────────────────
+function playSound(isBuy){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const notes=isBuy?[523,659,784,1047]:[784,659,523,392];
+    notes.forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.value=f;const t=ctx.currentTime+i*.1;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.25,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+.2);o.start(t);o.stop(t+.25);});
+  }catch(e){}
+}
+
+// ── Order Filed ────────────────────────────────────────────────────
+function showOrderFiled(assets,dir,isBuy){
+  const ov=document.getElementById('order-overlay');
+  const color=isBuy?'var(--green)':'var(--red)';
+  document.getElementById('order-ring').style.cssText=`width:90px;height:90px;border-radius:50%;background:${isBuy?'#00C87A18':'#FF3B4E18'};border:2px solid ${isBuy?'#00C87A60':'#FF3B4E60'};display:flex;align-items:center;justify-content:center;font-size:34px;animation:ring-in .4s ease`;
+  document.getElementById('order-ring').textContent=isBuy?'↑':'↓';
+  document.getElementById('order-text').style.color=color;
+  document.getElementById('order-text').textContent='ORDER FILED';
+  document.getElementById('order-sub').textContent=dir+' — '+assets.map(a=>ASSETS_CFG[a].label).join(' + ');
+  document.getElementById('order-chips').innerHTML=assets.map(a=>`<div class="oc-chip" style="background:${ASSETS_CFG[a].color}18;color:${ASSETS_CFG[a].color};border-color:${ASSETS_CFG[a].color}40">${ASSETS_CFG[a].label}</div>`).join('');
+  ov.classList.add('show');setTimeout(()=>ov.classList.remove('show'),2200);
+}
+
+// ── Live prices ────────────────────────────────────────────────────
+async function fetchPrices(){
+  try{const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true');const d=await r.json();const p=d.bitcoin.usd;const c=parseFloat(d.bitcoin.usd_24h_change.toFixed(2));document.getElementById('live-price-btc').textContent='$'+p.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});const cel=document.getElementById('live-change-btc');cel.textContent=(c>=0?'+':'')+c+'%';cel.style.color=c>=0?'var(--green)':'var(--red)';}catch(e){}
+  try{const r=await fetch('https://api.metals.live/v1/spot/gold');const d=await r.json();const p=d[0]?.price;if(p)document.getElementById('live-price-gold').textContent='$'+parseFloat(p).toFixed(2);}catch(e){}
+}
+
+function showToast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type+' show';setTimeout(()=>t.classList.remove('show'),3000);}
+
+
+// ── Close All ─────────────────────────────────────────────────────
+async function closeAll(i){
+  const t=activeTrades[i];
+  if(!t)return;
+  t.tp1Hit=true;t.tp2Hit=true;t.tp3Hit=true;
+  renderTrades();
+  try{
+    await fetch(`${SERVER}/admin/close-all`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-admin-token':ADMIN_SECRET},
+    });
+  }catch(e){}
+  showToast('TP3 hit — trade closed ✓','buy');
+  setTimeout(()=>{activeTrades.splice(i,1);renderTrades();},1500);
+}
+
+// ── Broadcast ──────────────────────────────────────────────────────
+function toggleBroadcast(){
+  const body=document.getElementById('bc-body');
+  const arr=document.getElementById('bc-arr');
+  const open=body.style.display==='none';
+  body.style.display=open?'flex':'none';
+  arr.style.transform=open?'rotate(90deg)':'';
+}
+
+async function sendBroadcast(){
+  const msg=document.getElementById('bc-msg').value.trim();
+  if(!msg){showToast('Type a message first','warn');return;}
+  const btn=document.querySelector('.bc-send');
+  btn.textContent='SENDING...';
+  btn.disabled=true;
+  try{
+    await fetch(`${SERVER}/admin/broadcast`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-admin-token':ADMIN_SECRET},
+      body:JSON.stringify({message:msg})
+    });
+    showToast('Sent to all members ✓','buy');
+    document.getElementById('bc-msg').value='';
+    document.getElementById('bc-count').textContent='0 / 160';
+    toggleBroadcast();
+  }catch(e){showToast('Failed to send','warn');}
+  btn.textContent='SEND ⚡';
+  btn.disabled=false;
+}
+
+document.getElementById('bc-msg') && document.getElementById('bc-msg').addEventListener('input',function(){
+  document.getElementById('bc-count').textContent=this.value.length+' / 160';
+});
+// ── Tag device as admin in OneSignal ──────────────────────────────
+function tagAdminDevice(){
+  try{
+    if(typeof OneSignalDeferred!=='undefined'){
+      OneSignalDeferred.push(async function(OneSignal){
+        await OneSignal.User.addTag('role','admin');
+        console.log('[ADMIN] Tagged as admin in OneSignal');
+      });
+    }
+  }catch(e){}
+}
+
+updateAssetLabel();
+</script>
+</body>
+</html>
