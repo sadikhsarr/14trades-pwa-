@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="14 Trades">
+<meta name="theme-color" content="#C9A84C">
+<title>14 Trades Alert</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="stylesheet" href="/style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({ appId: "534e2f6f-66fe-4d3d-904f-e86e603b904b" });
+  });
+</script>
+<style>
+/* SIGNAL COUNTDOWN OVERLAY */
+.signal-countdown-overlay{position:fixed;inset:0;z-index:900;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:radial-gradient(ellipse at center,#0C0B00 0%,#060504 100%)}
+.sco-asset{font-size:11px;font-weight:700;letter-spacing:3px;color:var(--muted,#555);text-transform:uppercase}
+.sco-label{font-size:13px;font-weight:600;letter-spacing:2px;color:var(--gold,#C9A84C);text-transform:uppercase}
+.sco-ring{position:relative;width:160px;height:160px;display:flex;align-items:center;justify-content:center}
+.sco-ring-bg{position:absolute;inset:0;border-radius:50%;border:3px solid #1A1800}
+.sco-ring-fill{position:absolute;inset:0;border-radius:50%;border:3px solid var(--gold,#C9A84C);clip-path:inset(0 50% 0 0);animation:ring-glow 2s ease infinite}
+@keyframes ring-glow{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,.3)}50%{box-shadow:0 0 20px 4px rgba(201,168,76,.15)}}
+.sco-time{font-family:'Space Mono',monospace;font-size:52px;font-weight:700;letter-spacing:-3px;color:var(--white,#F0F0F0);line-height:1;z-index:1;transition:color .3s,font-size .3s}
+.sco-time.urgent{color:var(--red,#FF3B4E);font-size:64px;animation:urgent .4s ease infinite}
+@keyframes urgent{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.05)}}
+.sco-dir{display:flex;align-items:center;gap:12px;padding:10px 28px;border-radius:30px}
+.sco-dir.buy{background:#00C87A15;border:1px solid #00C87A40}
+.sco-dir.sell{background:#FF3B4E15;border:1px solid #FF3B4E40}
+.sco-dir-text{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;letter-spacing:2px}
+.sco-dir.buy .sco-dir-text{color:var(--green,#00C87A)}
+.sco-dir.sell .sco-dir-text{color:var(--red,#FF3B4E)}
+.sco-dir-dot{width:8px;height:8px;border-radius:50%;animation:blink 1s infinite}
+.sco-dir.buy .sco-dir-dot{background:var(--green,#00C87A)}
+.sco-dir.sell .sco-dir-dot{background:var(--red,#FF3B4E)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.sco-levels{background:rgba(0,0,0,.5);border:1px solid #2A2A2A;border-radius:14px;padding:12px 24px;display:flex;gap:22px}
+.scol-item{display:flex;flex-direction:column;align-items:center;gap:4px}
+.scol-lbl{font-size:9px;color:var(--muted,#555);text-transform:uppercase;letter-spacing:.8px}
+.scol-val{font-family:'Space Mono',monospace;font-size:13px;font-weight:700}
+.scol-val.sl{color:var(--red,#FF3B4E)}
+.scol-val.tp{color:var(--green,#00C87A)}
+.scol-val.tp2{color:#00A862}
+.scol-val.tp3{color:#007A48}
+.sco-sub{font-size:11px;color:var(--muted,#555);letter-spacing:.5px}
+.sco-live-price{display:none;font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:rgba(255,255,255,.25);letter-spacing:-1px;margin-top:-8px}
+.sco-price-lbl{font-size:9px;color:var(--muted,#555);letter-spacing:2px;text-transform:uppercase;margin-top:-14px}
+</style>
+</head>
+<body>
+
+<!-- ONBOARDING SCREEN — first time only -->
+<div id="onboarding" style="display:none;position:fixed;inset:0;z-index:990;background:#0C0C0C;flex-direction:column;align-items:center;justify-content:space-between;padding:60px 28px 48px">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+    <div style="font-family:'Space Mono',monospace;font-size:42px;font-weight:700;color:#C9A84C;position:relative">14<span style="color:#E8C96A">⚡</span></div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:5px;color:#F0F0F0">TRADES ALERT</div>
+    <div style="font-size:9px;letter-spacing:3px;color:#C9A84C">PREMIUM SIGNALS</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:16px;width:100%">
+    <div style="display:flex;gap:14px;align-items:flex-start">
+      <div style="width:36px;height:36px;border-radius:10px;background:#C9A84C15;border:1px solid #C9A84C25;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🔔</div>
+      <div><div style="font-size:13px;font-weight:600;color:#F0F0F0;margin-bottom:3px">Enable notifications</div><div style="font-size:11px;color:#555;line-height:1.5">Tap the bell icon to receive signals directly on your phone. Never miss a trade.</div></div>
+    </div>
+    <div style="display:flex;gap:14px;align-items:flex-start">
+      <div style="width:36px;height:36px;border-radius:10px;background:#00C87A15;border:1px solid #00C87A25;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">⚡</div>
+      <div><div style="font-size:13px;font-weight:600;color:#F0F0F0;margin-bottom:3px">Signal incoming</div><div style="font-size:11px;color:#555;line-height:1.5">When a signal fires, you get a push notification. Open the app to see the countdown and levels.</div></div>
+    </div>
+    <div style="display:flex;gap:14px;align-items:flex-start">
+      <div style="width:36px;height:36px;border-radius:10px;background:#4A9EFF15;border:1px solid #4A9EFF25;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📊</div>
+      <div><div style="font-size:13px;font-weight:600;color:#F0F0F0;margin-bottom:3px">Track your results</div><div style="font-size:11px;color:#555;line-height:1.5">Your P&L and win rate update automatically with every signal. See your performance grow.</div></div>
+    </div>
+  </div>
+  <button onclick="dismissOnboarding()" style="width:100%;background:linear-gradient(135deg,#C9A84C,#E8C96A);border:none;border-radius:14px;padding:18px;font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:#000;cursor:pointer;letter-spacing:1px">GET STARTED ⚡</button>
+</div>
+
+
+<!-- SIGNAL COUNTDOWN OVERLAY — shown after prep, before signal -->
+<div id="signal-countdown" style="display:none" class="signal-countdown-overlay">
+  <div class="sco-asset" id="sco-asset">GOLD · XAU/USD</div>
+  <div class="sco-label">Signal firing in</div>
+  <div class="sco-ring">
+    <div class="sco-ring-bg"></div>
+    <div class="sco-ring-fill"></div>
+    <div class="sco-time" id="sco-time">05:00</div>
+  </div>
+  <div class="sco-dir buy" id="sco-dir">
+    <div class="sco-dir-dot"></div>
+    <div class="sco-dir-text" id="sco-dir-text">BUY</div>
+  </div>
+  <div class="sco-price-lbl">Market price</div>
+  <div class="sco-live-price" id="sco-live-price"></div>
+  <div class="sco-levels" id="sco-levels"></div>
+  <div class="sco-sub">Get ready — signal fires automatically</div>
+</div>
+
+<!-- SIGNAL FLASH -->
+<div class="signal-flash" id="signal-flash" style="display:none" onclick="dismissFlash()">
+  <div class="sf-asset" id="sf-asset">GOLD</div>
+  <div class="sf-ring" id="sf-ring">↑</div>
+  <div class="sf-dir" id="sf-dir">BUY</div>
+  <div class="sf-sub">Signal confirmed</div>
+  <div class="sf-levels" id="sf-levels"></div>
+  <div class="sf-dismiss">Tap anywhere to continue</div>
+</div>
+
+<div id="install-banner" class="install-banner" style="display:none">
+  <div class="ib-text"><strong>Add to Home Screen</strong><span>for the best experience</span></div>
+  <button class="ib-btn" onclick="dismissInstall()">✕</button>
+</div>
+
+<div class="phone">
+  <div class="header">
+    <div class="logo-col">
+      <div class="logo-row"><span class="logo-num">14</span><span class="logo-bolt">⚡</span><div class="logo-shimmer"></div></div>
+      <div class="logo-trades">TRADES</div>
+      <div class="logo-sub">ALERT</div>
+    </div>
+    <div class="header-right">
+      <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+      </div>
+      <div class="dot-live"></div>
+      <button class="notif-btn" id="share-btn" onclick="shareApp()" style="margin-right:2px"><i class="ti ti-share"></i></button>
+      <button class="notif-btn" id="notif-btn" onclick="requestPush()"><i class="ti ti-bell"></i></button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- COMPACT TOP: STATS + PNL + PRICES all in one view -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 2fr;gap:5px">
+      <div class="stat-box"><div class="sb-val green" id="stat-winrate">—%</div><div class="sb-lbl">Win</div></div>
+      <div class="stat-box"><div class="sb-val gold" id="stat-signals">0</div><div class="sb-lbl">Sigs</div></div>
+      <div class="stat-box"><div class="sb-val blue" id="stat-days">—</div><div class="sb-lbl">Days</div></div>
+      <div class="stat-box" style="background:linear-gradient(135deg,#0A1200,#001A0F);border-color:#00C87A20">
+        <div class="sb-val green" id="pnl-total" style="font-size:14px">+$0</div>
+        <div class="sb-lbl">P&L · <span id="pnl-today" style="color:#00C87A80">+$0 today</span></div>
+      </div>
+    </div>
+
+    <!-- GOLD FEATURED -->
+    <div class="gold-featured">
+      <div class="gf-left">
+        <div class="gf-ico">XAU</div>
+        <div>
+          <div class="gf-name">GOLD</div>
+          <div class="gf-pair">XAU / USD</div>
+        </div>
+      </div>
+      <div class="gf-right">
+        <div class="gf-price" id="mood-gold-price">--</div>
+        <div class="gf-tag" id="mood-gold-tag">Watching</div>
+      </div>
+    </div>
+
+    <!-- 4 ASSET MINI GRID -->
+    <div class="mini-grid">
+      <div class="mg-card">
+        <div class="mg-top">
+          <div class="mg-ico" style="color:#F0921A;background:#F0921A12;border-color:#F0921A20">BTC</div>
+          <div class="mg-dot live"></div>
+        </div>
+        <div class="mg-price" id="mood-btc-price">--</div>
+        <div class="mg-name" style="color:#F0921A">Bitcoin</div>
+      </div>
+      <div class="mg-card">
+        <div class="mg-top">
+          <div class="mg-ico" style="color:#C0C0C0;background:#C0C0C012;border-color:#C0C0C020">XAG</div>
+          <div class="mg-dot"></div>
+        </div>
+        <div class="mg-price" id="mood-silver-price">--</div>
+        <div class="mg-name" style="color:#C0C0C0">Silver</div>
+      </div>
+      <div class="mg-card">
+        <div class="mg-top">
+          <div class="mg-ico" style="color:#4A9EFF;background:#4A9EFF12;border-color:#4A9EFF20">NAS</div>
+          <div class="mg-dot"></div>
+        </div>
+        <div class="mg-price" id="mood-nas-price">--</div>
+        <div class="mg-name" style="color:#4A9EFF">Nasdaq</div>
+      </div>
+      <div class="mg-card">
+        <div class="mg-top">
+          <div class="mg-ico" style="color:#9B59B6;background:#9B59B612;border-color:#9B59B620">US30</div>
+          <div class="mg-dot"></div>
+        </div>
+        <div class="mg-price" id="mood-us30-price">--</div>
+        <div class="mg-name" style="color:#9B59B6">US30</div>
+      </div>
+    </div>
+
+    <!-- SESSION STRIP -->
+    <div class="mini-session">
+      <div style="display:flex;align-items:center;gap:6px">
+        <div class="ms-live-dot"></div>
+        <div class="ms-session" id="mood-session-tag">NY Open</div>
+      </div>
+      <div class="ms-time" id="mood-session-price">--</div>
+    </div>
+
+    <!-- HIDDEN IDS for app.js compatibility -->
+    <div style="display:none">
+      <span id="mood-gold-tag"></span><span id="mood-btc-tag"></span>
+      <span id="mood-silver-tag"></span><span id="mood-nas-tag"></span>
+      <span id="mood-us30-tag"></span><span id="mood-session-tag"></span>
+      <span id="spark-line"></span>
+      <div id="streak-card"><span id="streak-title"></span><span id="streak-sub"></span><span id="streak-next"></span><span id="streak-num">0</span><span id="milestone-badge"></span><div class="streak-bar"><div class="streak-fill" id="streak-fill"></div></div></div>
+      <div id="recap-card"><div class="recap-desc" id="recap-desc"></div></div>
+    </div>
+
+    <!-- COUNTDOWN CARD (shown when signal confirmed) -->
+    <div class="countdown-card" id="countdown-card" style="display:none">
+      <div class="cc-glow" id="cc-glow" style="display:none"></div>
+      <div class="cc-border" id="cc-border" style="display:none"></div>
+      <div class="cc-left">
+        <div class="cc-lbl" id="cc-lbl">Signal confirmed</div>
+        <div class="cc-time" id="cc-time">--:--</div>
+        <div class="cc-sub" id="cc-sub">Get ready</div>
+      </div>
+      <div class="cc-right"><div class="cc-ring" id="cc-ring">⚡</div></div>
+    </div>
+    <div class="scanning-block" id="scanning-block">
+
+      <!-- RADAR -->
+      <div class="idle-scan">
+        <div class="idle-srw">
+          <div class="idle-sr"></div><div class="idle-sr2"></div><div class="idle-sr3"></div>
+          <div class="idle-sp"></div><div class="idle-sp idle-sp2"></div>
+          <div class="idle-sline"></div><div class="idle-scenter"></div>
+          <div class="idle-sblip"></div><div class="idle-sblip idle-sblip2"></div>
+        </div>
+        <div class="idle-scan-title">Scanning markets</div>
+        <div class="idle-scan-sub" id="idle-scan-sub">Analyzing Gold structure · No setup confirmed yet</div>
+        <div class="idle-dots"><div class="isd"></div><div class="isd"></div><div class="isd"></div></div>
+      </div>
+
+      <!-- INTEL BARS -->
+      <div class="idle-intel">
+        <div class="idle-intel-row">
+          <div class="idle-intel-lbl">Clarity</div>
+          <div class="idle-intel-track"><div class="idle-intel-fill" id="idle-b-c" style="width:72%;background:var(--gold)"></div></div>
+          <div class="idle-intel-val" style="color:var(--gold)" id="idle-v-c">72%</div>
+        </div>
+        <div class="idle-intel-row">
+          <div class="idle-intel-lbl">Momentum</div>
+          <div class="idle-intel-track"><div class="idle-intel-fill" id="idle-b-m" style="width:55%;background:#4A9EFF"></div></div>
+          <div class="idle-intel-val" style="color:#4A9EFF" id="idle-v-m">55%</div>
+        </div>
+        <div class="idle-intel-row">
+          <div class="idle-intel-lbl">Confidence</div>
+          <div class="idle-intel-track"><div class="idle-intel-fill" id="idle-b-conf" style="width:40%;background:var(--green)"></div></div>
+          <div class="idle-intel-val" style="color:var(--green)" id="idle-v-conf">40%</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- FEAR & GREED -->
+      <div class="idle-fg">
+        <div class="idle-fg-top">
+          <div class="idle-fg-lbl">Fear &amp; Greed Index</div>
+          <div class="idle-fg-live"><div class="idle-fg-dot"></div><span class="idle-fg-live-txt">LIVE</span></div>
+        </div>
+        <div class="idle-gauge-wrap">
+          <svg width="160" height="88" viewBox="0 0 160 88">
+            <path d="M 14 80 A 66 66 0 0 1 29 33" fill="none" stroke="#FF3B4E" stroke-width="7" stroke-linecap="round" opacity=".2"/>
+            <path d="M 29 33 A 66 66 0 0 1 62 11" fill="none" stroke="#FF8C42" stroke-width="7" stroke-linecap="round" opacity=".2"/>
+            <path d="M 62 11 A 66 66 0 0 1 98 11" fill="none" stroke="#F5A800" stroke-width="7" stroke-linecap="round" opacity=".2"/>
+            <path d="M 98 11 A 66 66 0 0 1 131 33" fill="none" stroke="#7EC636" stroke-width="7" stroke-linecap="round" opacity=".2"/>
+            <path d="M 131 33 A 66 66 0 0 1 146 80" fill="none" stroke="#00C87A" stroke-width="7" stroke-linecap="round" opacity=".2"/>
+            <g id="fg-needle" style="transform:rotate(-45deg);transform-origin:80px 80px;transition:transform 1.5s cubic-bezier(.34,1.56,.64,1)">
+              <line x1="80" y1="80" x2="80" y2="20" stroke="#F0F0F0" stroke-width="1.5" stroke-linecap="round" opacity=".9"/>
+              <circle cx="80" cy="80" r="4" fill="#F0F0F0"/>
+              <circle cx="80" cy="80" r="2" fill="#0C0C0C"/>
+            </g>
+          </svg>
+          <div class="idle-gauge-val">
+            <div class="idle-gauge-num" id="fg-num" style="color:#FF8C42">--</div>
+            <div class="idle-gauge-lbl" id="fg-lbl" style="color:#FF8C42">Loading</div>
+          </div>
+        </div>
+        <div class="idle-fg-zones">
+          <div class="idle-fgz" style="color:#FF3B4E"><span>Extreme Fear</span></div>
+          <div class="idle-fgz" style="color:#FF8C42"><span>Fear</span></div>
+          <div class="idle-fgz" style="color:#F5A800"><span>Neutral</span></div>
+          <div class="idle-fgz" style="color:#7EC636"><span>Greed</span></div>
+          <div class="idle-fgz" style="color:#00C87A"><span>Ext. Greed</span></div>
+        </div>
+        <div class="idle-fg-hist">
+          <div class="idle-fgh"><div class="idle-fgh-lbl">Yesterday</div><div class="idle-fgh-val" id="fg-yd" style="color:#888">--</div><div class="idle-fgh-sub" id="fg-yd-lbl" style="color:#888">--</div></div>
+          <div class="idle-fgh"><div class="idle-fgh-lbl">Last Week</div><div class="idle-fgh-val" id="fg-wk" style="color:#888">--</div><div class="idle-fgh-sub" id="fg-wk-lbl" style="color:#888">--</div></div>
+          <div class="idle-fgh"><div class="idle-fgh-lbl">Last Month</div><div class="idle-fgh-val" id="fg-mo" style="color:#888">--</div><div class="idle-fgh-sub" id="fg-mo-lbl" style="color:#888">--</div></div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- LAST SIGNAL -->
+      <div class="idle-last-sig" id="idle-last-sig" style="display:none">
+        <div class="ils-ico">✅</div>
+        <div class="ils-content">
+          <div class="ils-lbl">Last signal</div>
+          <div class="ils-main" id="ils-main">--</div>
+          <div class="ils-sub" id="ils-sub">--</div>
+        </div>
+        <div class="ils-badge" id="ils-badge">--</div>
+      </div>
+
+      <!-- SOCIAL ROW -->
+      <div class="idle-social">
+        <div class="idle-social-card">
+          <div class="isc-lbl">Members live</div>
+          <div class="isc-val" id="idle-mc">--</div>
+          <div class="isc-sub">trading right now</div>
+        </div>
+        <div class="idle-social-card">
+          <div class="isc-lbl">Your streak</div>
+          <div class="isc-val" id="idle-streak" style="color:var(--gold)">🔥 0</div>
+          <div class="isc-sub">signals followed</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- QUOTE -->
+      <div class="idle-quote">
+        <div class="idle-quote-text" id="idle-quote">The best traders know when NOT to trade. Patience is the real edge.</div>
+        <div class="idle-quote-by">14 Trades · Discipline</div>
+      </div>
+
+    </div>
+
+    <div class="live-block" id="live-block" style="display:none">
+      <div class="live-top">
+        <div class="live-tag"><div class="blink green-dot"></div><span>Live trade</span></div>
+        <div class="live-asset" id="live-asset">GOLD</div>
+      </div>
+      <div class="live-mid">
+        <div class="live-dir" id="live-dir">BUY</div>
+        <div class="live-pnl">
+          <div class="pnl-val-live" id="pnl-val">+$0</div>
+          <div class="pnl-lbl" id="pnl-lbl">running</div>
+        </div>
+      </div>
+      <div class="prog-wrap">
+        <div class="prog-fill" id="prog-fill" style="width:5%"></div>
+        <div class="prog-cursor" id="prog-cursor" style="left:5%"></div>
+      </div>
+      <div class="levels-wrap">
+        <div class="sl-row" id="sl-row"><div class="sl-shine"></div><div class="sl-left"><div class="sl-dot"></div><div class="sl-label">Stop Loss</div><div class="sl-hit-lbl">Hit</div></div><div class="sl-right"><div class="sl-price" id="sl-price">—</div><div class="sl-x"><i class="ti ti-x"></i></div></div></div>
+        <div class="tp-row" id="tp1"><div class="tp-shine"></div><div class="tp-left"><div class="tp-num">TP 1</div><div class="hit-lbl">Hit</div></div><div class="tp-right"><div class="tp-check"><i class="ti ti-check"></i></div></div></div>
+        <div class="tp-row" id="tp2"><div class="tp-shine"></div><div class="tp-left"><div class="tp-num">TP 2</div><div class="hit-lbl">Hit</div></div><div class="tp-right"><div class="tp-check"><i class="ti ti-check"></i></div></div></div>
+        <div class="tp-row" id="tp3"><div class="tp-shine"></div><div class="tp-left"><div class="tp-num">TP 3</div><div class="hit-lbl">Hit</div></div><div class="tp-right"><div class="tp-check"><i class="ti ti-check"></i></div></div></div>
+      </div>
+    </div>
+
+    <div class="fomo-card" id="fomo-card" style="display:none">
+      <div class="fomo-top"><div class="fomo-ico">📵</div><div class="fomo-body"><div class="fomo-title" id="fomo-title">You missed this one</div><div class="fomo-desc" id="fomo-desc">Keep notifications ON</div></div></div>
+      <div class="fomo-next">Next signal coming soon</div>
+    </div>
+
+    <div class="member-since">
+      <div class="ms-dot"></div>
+      <div class="ms-text">Member since <span id="ms-date">—</span> ·</div>
+      <div class="ms-days" id="ms-days">—</div>
+      <div class="ms-dot"></div>
+    </div>
+
+    <!-- PERFORMANCE CHART -->
+    <div class="perf-card" id="perf-card" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:10px;font-weight:600;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">Performance</div>
+        <div style="font-size:9px;color:var(--gold)" id="perf-winrate">—% win rate</div>
+      </div>
+      <canvas id="perf-chart" height="80"></canvas>
+    </div>
+
+    <!-- MEMBER COUNT -->
+    <div class="member-count-bar" id="member-count-bar" style="display:none">
+      <div class="mc-dot"></div>
+      <div class="mc-text" id="mc-text">— members trading live</div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="hist-block">
+      <div class="hist-title">History</div>
+      <div id="hist-feed"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/i18n.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
