@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "public/**", "use": "@vercel/static" },
+    { "src": "api/*.js",  "use": "@vercel/node"   }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/sw.js",    "dest": "/public/sw.js" },
+    { "src": "/OneSignalSDKWorker.js", "dest": "/public/OneSignalSDKWorker.js" },
+    { "src": "/(.*)",     "dest": "/public/$1" }
+  ]
+}
