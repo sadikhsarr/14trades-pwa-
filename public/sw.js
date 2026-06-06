@@ -1,7 +1,7 @@
 // 14 Trades Alert — Service Worker
 // Handles: push notifications, background sync, offline cache
 
-const CACHE   = '14trades-v71';
+const CACHE   = '14trades-v72';
 const ASSETS  = ['/', '/index.html', '/app.js', '/style.css', '/manifest.json', '/performance.html'];
 
 // ─── Install: cache core assets ───────────────────────────────────
