@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a0a">
+<title>14 Trades · Calculator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background: #0a0a0a; color: #f0f0f0; font-family: 'Space Grotesk', sans-serif; min-height: 100vh; padding-bottom: 40px; }
+  .topbar { height: 4px; background: linear-gradient(90deg, #C9A84C, #F0C060, #C9A84C); }
+  .header { background: #111; padding: 18px 20px 14px; padding-top: max(env(safe-area-inset-top) + 14px, 18px); border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 100; }
+  .header-inner { max-width: 420px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+  .back-btn { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 8px; padding: 7px 14px; font-size: 13px; color: #f0f0f0; cursor: pointer; font-family: 'Space Grotesk', sans-serif; font-weight: 600; }
+  .brand { display: inline-flex; align-items: center; gap: 8px; }
+  .brand-num { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; color: #C9A84C; line-height: 1; }
+  .lang-toggle { display: flex; gap: 4px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 8px; padding: 3px; }
+  .lang-btn { padding: 5px 10px; border: none; border-radius: 6px; background: transparent; color: #666; font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; cursor: pointer; letter-spacing: 1px; transition: all .2s; }
+  .lang-btn.active { background: linear-gradient(135deg, #C9A84C, #F0C060); color: #0a0a0a; }
+  .main { max-width: 420px; margin: 0 auto; padding: 20px 16px 48px; }
+  .bal-box { background: #111; border: 1px solid #222; border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+  .bal-q { font-size: 13px; color: #888; margin-bottom: 14px; line-height: 1.5; text-align: center; }
+  .bal-q strong { color: #f0f0f0; }
+  .input-wrap { display: flex; align-items: center; background: #1a1a1a; border: 1.5px solid #2a2a2a; border-radius: 10px; overflow: hidden; transition: border-color .2s; }
+  .input-wrap:focus-within { border-color: #C9A84C; }
+  .input-pre { padding: 0 14px; font-family: 'Space Mono', monospace; font-size: 15px; color: #C9A84C; background: #C9A84C10; height: 54px; display: flex; align-items: center; border-right: 1px solid #2a2a2a; flex-shrink: 0; }
+  .input-wrap input { background: transparent; border: none; outline: none; color: #f0f0f0; font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; padding: 0 14px; width: 100%; height: 54px; -moz-appearance: textfield; }
+  .input-wrap input::-webkit-inner-spin-button, .input-wrap input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .results { display: none; }
+  .results.show { display: block; }
+  .double-banner { background: linear-gradient(135deg, #C9A84C14, #F0C06008); border: 1px solid #C9A84C30; border-radius: 14px; padding: 16px 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .db-side { text-align: center; }
+  .db-label { font-size: 9px; font-family: 'Space Mono', monospace; color: #666; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
+  .db-val { font-family: 'Space Mono', monospace; font-size: 26px; font-weight: 700; }
+  .db-arrow { font-size: 22px; color: #C9A84C; }
+  .asset-card { background: #111; border: 1px solid #222; border-radius: 14px; overflow: hidden; margin-bottom: 10px; position: relative; transition: border-color .2s; }
+  .asset-card:hover { border-color: #333; }
+  .left-bar { position: absolute; left:0; top:0; bottom:0; width:3px; }
+  .ac-inner { padding: 14px 14px 14px 18px; display: flex; align-items: center; gap: 12px; }
+  .ac-rank { position: absolute; top: 10px; right: 10px; font-size: 9px; font-family: 'Space Mono', monospace; letter-spacing: 1px; padding: 2px 8px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+  .ac-icon { font-size: 22px; flex-shrink: 0; }
+  .ac-left { flex: 1; }
+  .ac-name { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .ac-full { font-size: 10px; color: #555; margin-bottom: 6px; font-family: 'Space Mono', monospace; }
+  .ac-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill { display: inline-flex; align-items: center; gap: 4px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px; padding: 3px 8px; font-family: 'Space Mono', monospace; font-size: 10px; }
+  .pill-label { color: #555; }
+  .pill-val { color: #f0f0f0; font-weight: 700; }
+  .pill-val.blue { color: #00AAFF; }
+  .ac-right { text-align: right; flex-shrink: 0; padding-top: 4px; }
+  .ac-profit { font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700; color: #00C853; }
+  .ac-sl { font-family: 'Space Mono', monospace; font-size: 12px; color: #FF3D3D; margin-top: 3px; }
+  .wins-pill { display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, #C9A84C, #F0C060); color: #0a0a0a; font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; margin-top: 6px; }
+  .verify-strip { border-top: 1px solid #1e1e1e; background: #0d0d0d; padding: 10px 18px; }
+  .vs-label { font-size: 9px; font-family: 'Space Mono', monospace; color: #444; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .vs-row { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
+  .vs-row:last-child { margin-bottom: 0; }
+  .vs-icon { font-size: 11px; flex-shrink: 0; }
+  .vs-math { font-family: 'Space Mono', monospace; font-size: 10px; color: #555; letter-spacing: 0.5px; }
+  .vs-math.red { color: #7a2020; }
+  .stress-line { margin-top: 12px; padding: 10px 14px; background: #1a0f00; border: 1px solid #C9A84C30; border-left: 3px solid #C9A84C; border-radius: 8px; font-size: 11px; color: #C9A84C; font-family: 'Space Mono', monospace; letter-spacing: 0.5px; line-height: 1.5; }
+  .roadmap-box { background: #111; border: 1px solid #222; border-radius: 16px; padding: 18px 16px 20px; margin-bottom: 20px; }
+  .rm-title { font-size: 11px; font-weight: 700; color: #C9A84C; font-family: 'Space Mono', monospace; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 18px; text-align: center; }
+  .rm-track-wrap { position: relative; margin-bottom: 10px; }
+  .rm-track { height: 6px; background: #1e1e1e; border-radius: 3px; position: relative; overflow: hidden; }
+  .rm-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #C9A84C, #F0C060); transition: width .6s ease; min-width: 0; }
+  .rm-dots-row { display: flex; justify-content: space-between; position: relative; margin-top: -14px; }
+  .rm-node { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; position: relative; }
+  .rm-node-dot { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; border: 2px solid #222; transition: all .3s; cursor: default; position: relative; z-index: 2; }
+  .rm-node-dot.reached { background: linear-gradient(135deg, #C9A84C, #F0C060); border-color: #C9A84C; font-size: 9px; }
+  .rm-node-dot.current { background: #1a1400; border-color: #C9A84C; box-shadow: 0 0 8px #C9A84C66; font-size: 10px; animation: pulse 2s infinite; }
+  .rm-node-dot.future { background: #161616; border-color: #1e1e1e; color: #333; font-size: 10px; }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 6px #C9A84C55; } 50% { box-shadow: 0 0 14px #C9A84C99; } }
+  .rm-node-label { font-family: 'Space Mono', monospace; font-size: 8px; text-align: center; line-height: 1.3; white-space: nowrap; }
+  .rm-node-label.reached { color: #C9A84C; }
+  .rm-node-label.current { color: #f0f0f0; font-weight: 700; }
+  .rm-node-label.future { color: #2a2a2a; }
+  .rm-here { text-align: center; margin-top: 12px; font-family: 'Space Mono', monospace; font-size: 10px; color: #888; letter-spacing: 1px; }
+  .motivation-box { border-radius: 12px; padding: 12px 16px; margin-bottom: 18px; display: flex; align-items: center; gap: 12px; background: #141008; border: 1px solid #C9A84C20; border-left: 3px solid #C9A84C; display: none; }
+  .motivation-box.show { display: flex; }
+  .mv-icon { font-size: 22px; flex-shrink: 0; }
+  .mv-text { font-size: 12px; color: #C9A84C; font-style: italic; line-height: 1.5; }
+  .tracker-box { background: #111; border: 1px solid #222; border-radius: 16px; overflow: hidden; margin-top: 20px; }
+  .tk-head { padding: 14px 16px; background: #161616; border-bottom: 1px solid #1e1e1e; display: flex; justify-content: space-between; align-items: center; }
+  .tk-title { font-size: 11px; font-weight: 700; font-family: 'Space Mono', monospace; color: #C9A84C; letter-spacing: 1px; }
+  .tk-reset { font-size: 9px; font-family: 'Space Mono', monospace; color: #333; cursor: pointer; letter-spacing: 1px; background: none; border: none; padding: 0; transition: color .2s; }
+  .tk-reset:hover { color: #666; }
+  .tk-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px; }
+  .tk-btn { height: 52px; border: none; border-radius: 10px; font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity .2s, transform .1s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .tk-btn:active { transform: scale(.96); }
+  .tk-win { background: linear-gradient(135deg, #00C853, #00a844); color: #fff; }
+  .tk-loss { background: #1a0808; border: 1px solid #FF3D3D30; color: #FF3D3D; }
+  .tk-stats { display: grid; grid-template-columns: repeat(3,1fr); border-top: 1px solid #1e1e1e; }
+  .tk-stat { padding: 12px 8px; text-align: center; border-right: 1px solid #1e1e1e; }
+  .tk-stat:last-child { border-right: none; }
+  .tk-stat-val { font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700; margin-bottom: 3px; }
+  .tk-stat-label { font-size: 9px; color: #444; font-family: 'Space Mono', monospace; letter-spacing: 1px; text-transform: uppercase; }
+  .tk-history { padding: 0 14px 14px; display: flex; flex-wrap: wrap; gap: 5px; min-height: 0; }
+  .tk-dot { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+  .tk-dot.w { background: #00C85320; border: 1px solid #00C85340; }
+  .tk-dot.l { background: #FF3D3D15; border: 1px solid #FF3D3D30; }
+</style>
+</head>
+<body>
+<div class="topbar"></div>
+<div class="header">
+  <div class="header-inner">
+    <button class="back-btn" onclick="history.back()">← Back</button>
+    <div class="brand"><div class="brand-num">14⚡</div></div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('fr')">FR</button>
+    </div>
+  </div>
+</div>
+<div class="main">
+  <div class="bal-box">
+    <p class="bal-q">
+      <strong id="t-title">How many trades to double your account?</strong><br/>
+      <span id="t-sub">Type your balance — your lot sizes appear instantly.</span>
+    </p>
+    <div class="input-wrap">
+      <span class="input-pre">USD $</span>
+      <input type="number" id="balance" value="" min="1" placeholder="0" oninput="go()" />
+    </div>
+    <div class="stress-line" id="t-stress">⚠️ Every dollar counts. Use the right lot. Every time.</div>
+  </div>
+  <div class="motivation-box" id="motivation-box">
+    <div class="mv-icon" id="mv-icon">💡</div>
+    <div class="mv-text" id="mv-text"></div>
+  </div>
+  <div class="roadmap-box">
+    <div class="rm-title" id="t-roadmap">🏆 Your Road to $1,000,000</div>
+    <div class="rm-track-wrap">
+      <div class="rm-track"><div class="rm-fill" id="rm-fill"></div></div>
+      <div class="rm-dots-row" id="roadmap-steps"></div>
+    </div>
+    <div class="rm-here" id="rm-here"></div>
+  </div>
+  <div class="results" id="results">
+    <div class="double-banner" id="banner"></div>
+    <div id="cards"></div>
+  </div>
+  <div class="tracker-box">
+    <div class="tk-head">
+      <div class="tk-title" id="tk-title">📊 WIN TRACKER</div>
+      <button class="tk-reset" onclick="resetTracker()" id="tk-reset">RESET</button>
+    </div>
+    <div class="tk-stats">
+      <div class="tk-stat"><div class="tk-stat-val" style="color:#00C853" id="tk-wins">0</div><div class="tk-stat-label" id="tk-w-label">WINS</div></div>
+      <div class="tk-stat"><div class="tk-stat-val" style="color:#FF3D3D" id="tk-losses">0</div><div class="tk-stat-label" id="tk-l-label">LOSSES</div></div>
+      <div class="tk-stat"><div class="tk-stat-val" style="color:#FFA502" id="tk-streak">0</div><div class="tk-stat-label" id="tk-s-label">STREAK</div></div>
+    </div>
+    <div class="tk-btns">
+      <button class="tk-btn tk-win" onclick="addResult('w')" id="tk-win-btn">✅ WIN</button>
+      <button class="tk-btn tk-loss" onclick="addResult('l')" id="tk-loss-btn">❌ LOSS</button>
+    </div>
+    <div class="tk-history" id="tk-history"></div>
+  </div>
+</div>
+<div style="text-align:center;padding:20px;font-size:9px;font-family:'Space Mono',monospace;color:#2a2a2a;letter-spacing:1px"><span style="color:#C9A84C">14 TRADES</span> · SADIKH SARR</div>
+<script>
+const r2=n=>Math.round(n*100)/100;
+const T={
+  en:{title:'How many trades to double your account?',sub:'Type your balance — your lot sizes appear instantly.',stress:'Every dollar counts. Use the right lot. Every time.',balance:'Balance',target:'Target to Double',lot:'Lot',tp1:'TP1',sl:'SL',wins:'wins',verify:'Verification',roadmap:'Your Road to $1,000,000',tkTitle:'WIN TRACKER',tkWins:'WINS',tkLosses:'LOSSES',tkStreak:'STREAK',tkWinBtn:'✅ WIN',tkLossBtn:'❌ LOSS',tkReset:'RESET',r1:'#1 · PRIORITY',r2:'#2 · GOLD',r3:'#3 · DJ30',r4:'#4 · SILVER',r5:'#5 · BTC'},
+  fr:{title:'Combien de trades pour doubler votre compte ?',sub:'Tapez votre solde — vos tailles de lot apparaissent instantanément.',stress:'Chaque dollar compte. Utilisez le bon lot. À chaque fois.',balance:'Solde',target:'Objectif x2',lot:'Lot',tp1:'TP1',sl:'SL',wins:'trades',verify:'Vérification',roadmap:'Votre Route vers $1 000 000',tkTitle:'SUIVI DES TRADES',tkWins:'GAINS',tkLosses:'PERTES',tkStreak:'SÉRIE',tkWinBtn:'✅ GAGNÉ',tkLossBtn:'❌ PERDU',tkReset:'RESET',r1:'#1 · PRIORITÉ',r2:'#2 · OR',r3:'#3 · DJ30',r4:'#4 · ARGENT',r5:'#5 · BTC'}
+};
+let lang=localStorage.getItem('14t_lang')||'fr';
+const ASSETS=[
+  {icon:'📊',name:'NAS100',full:'Nasdaq 100',color:'#00AAFF',rankColor:'#00AAFF22',rankBorder:'#00AAFF40',rankKey:'r1',standardLot:0.12,lotStep:0.01,pipVal:1,slPts:150,tp1Pts:250},
+  {icon:'🥇',name:'XAUUSD',full:'Gold Spot',color:'#C9A84C',rankColor:'#C9A84C22',rankBorder:'#C9A84C40',rankKey:'r2',standardLot:0.01,lotStep:0.01,pipVal:100,slPts:30,tp1Pts:50},
+  {icon:'🏛',name:'US30',full:'Dow Jones',color:'#00C853',rankColor:'#00C85322',rankBorder:'#00C85340',rankKey:'r3',standardLot:0.10,lotStep:0.01,pipVal:1,slPts:100,tp1Pts:400},
+  {icon:'🥈',name:'XAGUSD',full:'Silver Spot',color:'#a855f7',rankColor:'#a855f722',rankBorder:'#a855f740',rankKey:'r4',standardLot:0.01,lotStep:0.01,pipVal:100,slPts:15,tp1Pts:30},
+  {icon:'₿',name:'BTCUSD',full:'Bitcoin',color:'#ff4757',rankColor:'#ff475722',rankBorder:'#ff475740',rankKey:'r5',standardLot:0.01,lotStep:0.01,pipVal:1,slPts:1500,tp1Pts:3000}
+];
+function calcLot(a,bal){if(bal<=100)return a.standardLot;const raw=a.standardLot*(bal/100);let lot=Math.floor(raw/a.lotStep)*a.lotStep;lot=Math.round(lot*100)/100;return lot<a.standardLot?a.standardLot:lot;}
+function calcProfit(a,lot){return r2(lot*a.tp1Pts*a.pipVal);}
+function calcLoss(a,lot){return r2(lot*a.slPts*a.pipVal);}
+function winsNeeded(tp1,bal){const t=bal*2;let b=bal,w=0;while(b<t&&w<50){b=r2(b+tp1);w++;}return w;}
+const MILESTONES=[
+  {amount:100,en:'Starting point',fr:'Point de départ',icon:'🚀'},
+  {amount:200,en:'First double',fr:'Premier doublement',icon:'2×'},
+  {amount:500,en:'Growing strong',fr:'En pleine croissance',icon:'📈'},
+  {amount:1000,en:'10× from start',fr:'10× du départ',icon:'🔥'},
+  {amount:5000,en:'Serious capital',fr:'Capital sérieux',icon:'💪'},
+  {amount:10000,en:'100× from start',fr:'100× du départ',icon:'⭐'},
+  {amount:50000,en:'Elite level',fr:'Niveau élite',icon:'🏅'},
+  {amount:100000,en:'6 figures',fr:'6 chiffres',icon:'💎'},
+  {amount:500000,en:'Half a million',fr:'Demi-million',icon:'👑'},
+  {amount:1000000,en:'$1,000,000',fr:'$1 000 000',icon:'🏆'}
+];
+function renderRoadmap(bal){
+  const logMin=Math.log10(100),logMax=Math.log10(1000000);
+  const logBal=bal>0?Math.log10(Math.max(bal,100)):logMin;
+  const fillPct=Math.min(100,Math.max(0,((logBal-logMin)/(logMax-logMin))*100));
+  document.getElementById('rm-fill').style.width=fillPct+'%';
+  let html='',curLabel='',curFmt='',curSet=false;
+  MILESTONES.forEach(m=>{
+    let state;
+    if(bal>=m.amount){state='reached';}else if(!curSet){state='current';curSet=true;}else{state='future';}
+    if(state==='current'){curLabel=lang==='fr'?m.fr:m.en;curFmt=m.amount>=1000000?'$1M':m.amount>=1000?'$'+(m.amount/1000)+'K':'$'+m.amount;}
+    const fmt=m.amount>=1000000?'$1M':m.amount>=1000?'$'+(m.amount/1000)+'K':'$'+m.amount;
+    html+=`<div class="rm-node"><div class="rm-node-dot ${state}">${m.icon}</div><div class="rm-node-label ${state}">${fmt}</div></div>`;
+  });
+  document.getElementById('roadmap-steps').innerHTML=html;
+  const hereEN=curFmt?`Next: <span style="color:#C9A84C;font-weight:700">${curFmt} — ${curLabel}</span>`:'<span style="color:#C9A84C">🏆 GOAL REACHED!</span>';
+  const hereFR=curFmt?`Prochain : <span style="color:#C9A84C;font-weight:700">${curFmt} — ${curLabel}</span>`:'<span style="color:#C9A84C">🏆 OBJECTIF ATTEINT !</span>';
+  document.getElementById('rm-here').innerHTML=lang==='fr'?hereFR:hereEN;
+  document.getElementById('t-roadmap').textContent=T[lang].roadmap;
+}
+function go(){
+  const raw=document.getElementById('balance').value;
+  if(!raw||parseFloat(raw)<=0){document.getElementById('results').classList.remove('show');renderRoadmap(0);showMotivation(0);return;}
+  const bal=parseFloat(raw),target=r2(bal*2),t=T[lang];
+  renderRoadmap(bal);showMotivation(bal);
+  document.getElementById('banner').innerHTML=`<div class="db-side"><div class="db-label">${t.balance}</div><div class="db-val" style="color:#f0f0f0">$${bal}</div></div><div class="db-arrow">⚡</div><div class="db-side"><div class="db-label">${t.target}</div><div class="db-val" style="color:#C9A84C">$${target}</div></div>`;
+  let html='';
+  ASSETS.forEach(a=>{
+    const lot=calcLot(a,bal),tp1=calcProfit(a,lot),sl=calcLoss(a,lot),w=winsNeeded(tp1,bal);
+    html+=`<div class="asset-card"><div class="left-bar" style="background:${a.color}"></div><div class="ac-rank" style="background:${a.rankColor};border:1px solid ${a.rankBorder};color:${a.color}">${t[a.rankKey]}</div><div class="ac-inner"><div class="ac-icon">${a.icon}</div><div class="ac-left"><div class="ac-name" style="color:${a.color}">${a.name}</div><div class="ac-full">${a.full}</div><div class="ac-pills"><div class="pill"><span class="pill-label">${t.lot}</span><span class="pill-val blue">${lot}</span></div><div class="pill"><span class="pill-label">${t.tp1}</span><span class="pill-val" style="color:#00C853">+$${tp1}</span></div><div class="pill"><span class="pill-label">${t.sl}</span><span class="pill-val" style="color:#FF3D3D">-$${sl}</span></div></div></div><div class="ac-right"><div class="ac-profit">+$${tp1}</div><div class="ac-sl">-$${sl}</div><div class="wins-pill">⚡ ${w} ${t.wins}</div></div></div><div class="verify-strip"><div class="vs-label">${t.verify}</div><div class="vs-row"><span class="vs-icon">🎯</span><span class="vs-math">${lot} × ${a.tp1Pts}pts × $${a.pipVal} = $${tp1}</span></div><div class="vs-row"><span class="vs-icon">🛑</span><span class="vs-math red">${lot} × ${a.slPts}pts × $${a.pipVal} = $${sl}</span></div></div></div>`;
+  });
+  document.getElementById('cards').innerHTML=html;
+  document.getElementById('results').classList.add('show');
+}
+function showMotivation(bal){
+  const box=document.getElementById('motivation-box');
+  if(!bal||bal<=0){box.classList.remove('show');return;}
+  const msgs={en:[{max:100,ic:'🚀',msg:'Your journey starts here. Stay disciplined.'},{max:200,ic:'💪',msg:'First double done. The system works. Keep compounding.'},{max:500,ic:'📈',msg:'Growing strong. The lot is scaling with you.'},{max:1000,ic:'🔥',msg:'Serious capital now. Protect every dollar.'},{max:5000,ic:'⭐',msg:'You are in the elite tier. Discipline got you here.'},{max:10000,ic:'💎',msg:'5 figures. The roadmap is working. Stay the course.'},{max:999999,ic:'👑',msg:'You are close to the goal. Do not change what works.'},{max:Infinity,ic:'🏆',msg:'$1,000,000 reached. You are the system.'}],fr:[{max:100,ic:'🚀',msg:'Votre voyage commence ici. Restez discipliné.'},{max:200,ic:'💪',msg:'Premier doublement atteint. Le système fonctionne.'},{max:500,ic:'📈',msg:'En pleine croissance. Le lot évolue avec vous.'},{max:1000,ic:'🔥',msg:'Capital sérieux maintenant. Protégez chaque dollar.'},{max:5000,ic:'⭐',msg:"Vous êtes dans l'élite. La discipline vous a amené ici."},{max:10000,ic:'💎',msg:'5 chiffres. La roadmap fonctionne. Tenez le cap.'},{max:999999,ic:'👑',msg:'Vous approchez du but. Ne changez pas ce qui fonctionne.'},{max:Infinity,ic:'🏆',msg:"$1 000 000 atteint. Vous êtes le système."}]};
+  const found=msgs[lang].find(m=>bal<=m.max)||msgs[lang][msgs[lang].length-1];
+  document.getElementById('mv-icon').textContent=found.ic;
+  document.getElementById('mv-text').textContent=found.msg;
+  box.classList.add('show');
+}
+function setLang(l){lang=l;localStorage.setItem('14t_lang',l);document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));document.querySelector(`.lang-btn[onclick="setLang('${l}')"]`).classList.add('active');document.getElementById('t-title').textContent=T[l].title;document.getElementById('t-sub').textContent=T[l].sub;document.getElementById('t-stress').textContent='⚠️ '+T[l].stress;go();}
+let results=[],streak=0;
+function addResult(type){results.push(type);if(type==='w')streak=streak>=0?streak+1:1;else streak=streak<=0?streak-1:-1;renderTracker();}
+function resetTracker(){results=[];streak=0;renderTracker();}
+function renderTracker(){
+  const wins=results.filter(r=>r==='w').length,losses=results.filter(r=>r==='l').length,t=T[lang];
+  document.getElementById('tk-wins').textContent=wins;document.getElementById('tk-losses').textContent=losses;
+  document.getElementById('tk-streak').textContent=streak>0?'+'+streak:streak;
+  document.getElementById('tk-streak').style.color=streak>0?'#00C853':streak<0?'#FF3D3D':'#FFA502';
+  document.getElementById('tk-w-label').textContent=t.tkWins;document.getElementById('tk-l-label').textContent=t.tkLosses;
+  document.getElementById('tk-s-label').textContent=t.tkStreak;document.getElementById('tk-win-btn').textContent=t.tkWinBtn;
+  document.getElementById('tk-loss-btn').textContent=t.tkLossBtn;document.getElementById('tk-reset').textContent=t.tkReset;
+  document.getElementById('tk-title').textContent='📊 '+t.tkTitle;
+  document.getElementById('tk-history').innerHTML=results.slice(-20).map(r=>`<div class="tk-dot ${r}">${r==='w'?'✅':'❌'}</div>`).join('');
+}
+window.onload=()=>{
+  // Apply saved language
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  const lb=document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`);
+  if(lb)lb.classList.add('active');
+  document.getElementById('t-title').textContent=T[lang].title;
+  document.getElementById('t-sub').textContent=T[lang].sub;
+  document.getElementById('t-stress').textContent='⚠️ '+T[lang].stress;
+  renderRoadmap(0);renderTracker();
+};
+</script>
+</body>
+</html>
