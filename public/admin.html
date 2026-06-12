@@ -397,11 +397,33 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--white);disp
           <div class="acd-bar"><div class="acd-bar-fill" id="acd-bar-fill"></div></div>
         </div>
 
-        <!-- MANUAL PRICE INPUTS -->
+        <!-- PRICE INPUTS WITH AUTO-CALC -->
         <div class="price-inputs">
+          <!-- ENTRY PRICE -->
+          <div class="pi-row">
+            <div class="pi-label" style="color:var(--gold)">Entry</div>
+            <input class="pi-input" id="pi-entry" type="number" placeholder="Entry price" step="0.01" oninput="autoCalcLevels()">
+          </div>
+          <!-- SL -->
           <div class="pi-row">
             <div class="pi-label" style="color:var(--red)">SL</div>
-            <input class="pi-input" id="pi-sl" type="number" placeholder="e.g. 2306.00" step="0.01">
+            <input class="pi-input" id="pi-sl" type="number" placeholder="Stop loss" step="0.01">
+          </div>
+          <!-- AUTO-CALCULATED TPs -->
+          <div id="tp-preview" style="display:none;background:#071507;border:1px solid #30D15820;border-radius:10px;padding:10px 12px;margin-top:4px;display:flex;flex-direction:column;gap:5px">
+            <div style="font-size:8px;font-weight:700;color:#30D15870;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px">Auto-calculated targets</div>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div style="font-size:10px;color:#636366">TP1</div>
+              <div style="font-family:Space Mono,monospace;font-size:12px;font-weight:700;color:#30D158" id="prev-tp1">--</div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div style="font-size:10px;color:#636366">TP2</div>
+              <div style="font-family:Space Mono,monospace;font-size:12px;font-weight:700;color:#30D158" id="prev-tp2">--</div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div style="font-size:10px;color:#636366">TP3</div>
+              <div style="font-family:Space Mono,monospace;font-size:12px;font-weight:700;color:#30D158" id="prev-tp3">--</div>
+            </div>
           </div>
         </div>
 
@@ -631,7 +653,7 @@ const WINDOWS=[
 
 let selAssets=new Set(['gold']);
 let winTime='19:10',winName='NY Close',winTier='standard';
-let selectedDir=null,activeTrades=[],pinEntry='';
+let selectedDir=null,activeTrades=[],pinEntry='',selectedAsset='gold';
 
 // ── PIN ──────────────────────────────────────────────────────────
 function pressPin(d){if(pinEntry.length>=6)return;pinEntry+=d;updateDots();if(pinEntry.length===6)checkPin();}
@@ -687,6 +709,9 @@ function toggleAsset(a){
   const card=document.getElementById('ac-'+a);
   if(selAssets.has(a)){if(selAssets.size===1){showToast('Select at least one asset','warn');return;}selAssets.delete(a);card.className='asset-card';card.querySelector('.ac-name').style.color='#555';}
   else{selAssets.add(a);card.className='asset-card sel-'+a;card.querySelector('.ac-name').style.color=ASSETS_CFG[a].color;}
+  // Update selectedAsset to last selected
+  selectedAsset = [...selAssets][selAssets.size-1] || 'gold';
+  setTimeout(autoCalcLevels, 50);
   updateAssetLabel();
 }
 function updateAssetLabel(){document.getElementById('cs-asset-lbl').textContent=[...selAssets].map(a=>ASSETS_CFG[a].label).join(' + ')||'—';}
@@ -704,6 +729,13 @@ function selectDir(dir){
   document.getElementById('cfb-text').textContent='SEND '+dir+' ⚡ — TAP TO CONFIRM';
 }
 function resetDir(){
+  const entry = document.getElementById('pi-entry');
+  const sl = document.getElementById('pi-sl');
+  const prev = document.getElementById('tp-preview');
+  if (entry) entry.value = '';
+  if (sl) sl.value = '';
+  if (prev) prev.style.display = 'none';
+  window._calcTP1 = null; window._calcTP2 = null; window._calcTP3 = null;
   selectedDir=null;
   document.getElementById('dir-buy').className='dir-btn';document.getElementById('dir-sell').className='dir-btn';
   document.getElementById('step1-num').className='step-num active';document.getElementById('step1-num').textContent='1';
@@ -1340,7 +1372,10 @@ async function createRefCode() {
 
 async function loadReferrals() {
   try {
-    const res = await fetch(`${SERVER}/admin/referrals`, { headers:{'x-admin-token':ADMIN_SECRET} });
+    const res = await fetch(`${SERVER}/admin/referrals`, {
+      headers:{'x-admin-token':ADMIN_SECRET},
+      signal: AbortSignal.timeout(5000)
+    });
     const d   = await res.json();
     const refs = d.referrals || [];
 
@@ -1450,6 +1485,55 @@ async function toggleMaintenance() {
     showToast('Error toggling maintenance', 'warn');
   }
 }
+
+
+// ── Auto-calculate TP levels ───────────────────────────────────────
+const TP3_DISTANCES = {
+  gold:   50,
+  silver: 30,
+  btc:    6000,
+  nas100: 400,
+  us30:   600,
+};
+
+function autoCalcLevels() {
+  const entryEl = document.getElementById('pi-entry');
+  if (!entryEl) return;
+  const entry = parseFloat(entryEl.value);
+  if (!entry || !selectedAsset || !selectedDir) return;
+
+  const asset    = selectedAsset.toLowerCase();
+  const distance = TP3_DISTANCES[asset] || 50;
+  const step     = distance / 3;
+  const isBuy    = selectedDir === 'BUY';
+  const round    = v => Math.round(v * 100) / 100;
+
+  const tp1 = round(isBuy ? entry + step     : entry - step);
+  const tp2 = round(isBuy ? entry + step * 2 : entry - step * 2);
+  const tp3 = round(isBuy ? entry + distance : entry - distance);
+  const sl  = round(isBuy ? entry - distance : entry + distance);
+
+  // Update preview
+  const prev = document.getElementById('tp-preview');
+  if (prev) { prev.style.display = 'flex'; prev.style.flexDirection = 'column'; }
+
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('prev-tp1', tp1);
+  set('prev-tp2', tp2);
+  set('prev-tp3', tp3);
+
+  // Auto-fill SL if empty
+  const slEl = document.getElementById('pi-sl');
+  if (slEl && !slEl.value) slEl.value = sl;
+
+  // Store calculated values for use in fireSig
+  window._calcTP1 = tp1;
+  window._calcTP2 = tp2;
+  window._calcTP3 = tp3;
+}
+
+// Call autoCalcLevels when direction or asset changes
+const _origSetDir = typeof setDir === 'function' ? setDir : null;
 
 // ── Expiring codes ─────────────────────────────────────────────────
 async function loadExpiring() {
