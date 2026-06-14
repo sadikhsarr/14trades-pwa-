@@ -269,7 +269,7 @@ const L = {
     lbl_code: 'Access code',
     btn:      'ACCESS ⚡',
     err_email:'Please enter a valid email',
-    err_invalid:'Invalid code — contact us to subscribe',
+    err_invalid:'❌ Invalid code — contact Sadikh on WhatsApp to subscribe',
     err_used: 'Code already used on another device',
     err_expired:'Code expired — contact us to renew',
     loading:  'VERIFYING...',
@@ -286,7 +286,7 @@ const L = {
     lbl_code: "Code d'accès",
     btn:      'ACCÉDER ⚡',
     err_email:'Entrez un email valide',
-    err_invalid:'Code invalide — contactez-nous pour vous abonner',
+    err_invalid:'❌ Code invalide — contactez Sadikh sur WhatsApp pour vous abonner',
     err_used: 'Code déjà utilisé sur un autre appareil',
     err_expired:'Code expiré — contactez-nous pour renouveler',
     loading:  'VÉRIFICATION...',
@@ -335,7 +335,7 @@ async function submitAccess() {
   const t      = L[lang];
 
   if (!email || !email.includes('@')) { document.getElementById('email-input').classList.add('error'); errEl.textContent = t.err_email; return; }
-  if (!code || code.length < 4) { document.getElementById('code-input').classList.add('error'); errEl.textContent = t.err_invalid; return; }
+  if (!code || code.length < 4) { document.getElementById('code-input').classList.add('error'); errEl.innerHTML = t.err_invalid + ' <a href="https://wa.me/221778255099" target="_blank" style="color:#FFD700;font-weight:700;text-decoration:underline">→ WhatsApp</a>'; return; }
 
   btn.disabled = true;
   btn.childNodes[0].textContent = t.loading + ' ';
@@ -361,7 +361,8 @@ async function submitAccess() {
       setTimeout(() => { window.location.href = '/'; }, 1200);
     } else {
       const errMap = { invalid: t.err_invalid, used: t.err_used, expired: t.err_expired };
-      errEl.textContent = errMap[d.reason] || t.err_invalid;
+      const errMsg = errMap[d.reason] || t.err_invalid;
+      errEl.innerHTML = errMsg + ' <a href="https://wa.me/221778255099" target="_blank" style="color:#FFD700;font-weight:700;text-decoration:underline">→ WhatsApp</a>';
       document.getElementById('code-input').classList.add('error');
       btn.disabled = false;
       btn.childNodes[0].textContent = t.btn;
