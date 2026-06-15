@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>14 Trades — Paiement</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;600;700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0A0A0A;--bg2:#111;--bg3:#1A1A1A;--border:#2A2A2A;
+  --gold:#C9A84C;--gold2:#FFD700;--green:#00C87A;
+  --red:#FF3D3D;--blue:#4A9EFF;--white:#F0F0F0;--muted:#636366;
+}
+html,body{min-height:100vh;background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;display:flex;justify-content:center;padding:0 0 40px}
+.wrap{width:100%;max-width:420px;padding:0 16px}
+
+/* HEADER */
+.header{text-align:center;padding:28px 0 20px}
+.header-logo{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:var(--gold2);margin-bottom:4px}
+.header-sub{font-size:10px;color:var(--muted);letter-spacing:3px;text-transform:uppercase}
+
+/* AMOUNT HERO */
+.amount-hero{background:linear-gradient(135deg,#1A1400,#0F0F00);border:1px solid #C9A84C20;border-radius:16px;padding:20px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.amount-left{}
+.amount-usd{font-family:'Space Mono',monospace;font-size:40px;font-weight:700;color:var(--gold2);line-height:1}
+.amount-period{font-size:12px;color:var(--muted);margin-top:4px}
+.amount-right{text-align:right}
+.amount-badge{display:inline-flex;align-items:center;gap:5px;background:#00C87A15;border:1px solid #00C87A25;border-radius:20px;padding:5px 12px;font-size:10px;font-weight:700;color:var(--green);margin-bottom:8px}
+.amount-features{font-size:9px;color:var(--muted);line-height:1.8;text-align:right}
+
+/* CARD */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:12px}
+.card-hdr{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
+.card-body{padding:14px 16px}
+
+/* CURRENCY TABS */
+.cur-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.cur-tab{border:1.5px solid var(--border);background:var(--bg3);border-radius:12px;padding:12px 10px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.cur-tab.active-usdt{border-color:#00C87A;background:#00C87A08}
+.cur-tab.active-btc{border-color:#F7931A;background:#F7931A08}
+.cur-tab-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.cur-ico{font-size:22px}
+.cur-name{font-size:13px;font-weight:700;color:var(--white)}
+.cur-net-badge{display:inline-flex;align-items:center;gap:4px;border-radius:6px;padding:3px 8px;font-size:9px;font-weight:700;letter-spacing:.5px}
+.cur-net-trc{background:#FF060615;border:1px solid #FF060625;color:#FF4B4B}
+.cur-net-btc{background:#F7931A15;border:1px solid #F7931A25;color:#F7931A}
+.cur-check{position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;display:none}
+.cur-tab.active-usdt .cur-check{display:flex;background:#00C87A;color:#000}
+.cur-tab.active-btc .cur-check{display:flex;background:#F7931A;color:#000}
+
+/* NETWORK WARNING */
+.net-warning{border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:10px;line-height:1.6}
+.net-warning-usdt{background:#0A0A00;border:1px solid #FF3D3D20}
+.net-warning-btc{background:#0A0500;border:1px solid #F7931A20}
+.net-warning-title{font-weight:700;margin-bottom:4px}
+.net-row{display:flex;align-items:center;gap:6px;margin-top:4px}
+.net-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+/* PAY BUTTON */
+.pay-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:12px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.pay-btn:disabled{opacity:.5;cursor:not-allowed}
+.pay-btn:active{transform:scale(.98)}
+
+/* PAYMENT DETAILS */
+#payment-card{display:none}
+
+/* WAITING */
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ADDRESS */
+.addr-label{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.addr-box{background:#050505;border:1.5px solid var(--gold);border-radius:10px;padding:12px;margin-bottom:10px}
+.addr-val{font-family:'Space Mono',monospace;font-size:11px;color:var(--gold2);word-break:break-all;line-height:1.6;margin-bottom:8px}
+.copy-btn{width:100%;background:var(--gold);color:#000;border:none;border-radius:7px;padding:9px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.copy-btn:active{opacity:.8}
+
+/* AMOUNT BOX */
+.send-box{background:#071507;border:1px solid #00C87A20;border-radius:10px;padding:12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.send-lbl{font-size:10px;color:var(--muted)}
+.send-val{font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:var(--green)}
+
+/* TIMER */
+.timer-wrap{display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border-radius:10px;padding:10px 14px;margin-bottom:10px}
+.timer-lbl{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.timer-val{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--gold)}
+.timer-val.urgent{color:var(--red);animation:pulse .5s ease infinite alternate}
+@keyframes pulse{to{opacity:.4}}
+
+/* STATUS */
+.status{border-radius:8px;padding:10px 14px;font-size:11px;font-weight:600;text-align:center;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px}
+.status-wait{background:var(--bg3);color:var(--muted)}
+.status-detect{background:#071507;color:var(--green);border:1px solid #00C87A30}
+.status-done{background:#071507;color:var(--green);border:1px solid #00C87A50}
+.status-fail{background:#150505;color:var(--red);border:1px solid #FF3D3D30}
+
+/* STEPS */
+.steps{display:flex;flex-direction:column;gap:6px}
+.step{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--bg3);border-radius:8px}
+.step-n{width:18px;height:18px;border-radius:50%;background:var(--gold);color:#000;font-size:8px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-t{font-size:10px;color:var(--muted);line-height:1.5}
+.step-t strong{color:var(--white)}
+
+/* SUCCESS */
+#success-state{display:none;text-align:center;padding:8px 0}
+.success-ico{font-size:50px;margin-bottom:12px}
+.success-title{font-size:20px;font-weight:800;margin-bottom:6px}
+.success-sub{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6}
+.code-reveal{background:#050505;border:2px solid var(--gold);border-radius:12px;padding:16px;margin-bottom:14px}
+.code-lbl{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.code-val{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:var(--gold2);letter-spacing:4px}
+.go-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:12px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif}
+
+/* ERROR */
+#error-state{display:none;text-align:center;padding:8px 0}
+.retry-btn{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px;font-size:13px;font-weight:700;color:var(--white);cursor:pointer;font-family:'Inter',sans-serif;margin-top:8px}
+
+/* FOOTER */
+.footer{text-align:center;font-size:10px;color:#333;line-height:1.8;padding:0 10px;margin-top:4px}
+.footer a{color:var(--gold);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-logo">14⚡</div>
+    <div class="header-sub">Abonnement · Paiement sécurisé</div>
+  </div>
+
+  <!-- AMOUNT HERO -->
+  <div class="amount-hero">
+    <div class="amount-left">
+      <div class="amount-usd">$100</div>
+      <div class="amount-period">par mois</div>
+    </div>
+    <div class="amount-right">
+      <div class="amount-badge">✓ Accès complet</div>
+      <div class="amount-features">
+        Signaux illimités · Or, BTC, NAS<br>
+        Push notification · 30 jours
+      </div>
+    </div>
+  </div>
+
+  <!-- CURRENCY SELECTION -->
+  <div class="card" id="select-card">
+    <div class="card-hdr">
+      <div class="card-title">Choisir votre crypto</div>
+    </div>
+    <div class="card-body">
+      <div class="cur-grid">
+        <!-- USDT TRC20 -->
+        <div class="cur-tab active-usdt" id="tab-usdt" onclick="selectCurrency('USDTTRC20')">
+          <div class="cur-check">✓</div>
+          <div class="cur-tab-top">
+            <div class="cur-ico">💵</div>
+            <div class="cur-name">USDT</div>
+          </div>
+          <div class="cur-net-badge cur-net-trc">TRON · TRC20</div>
+        </div>
+        <!-- USDC ERC20 -->
+        <div class="cur-tab" id="tab-usdc" onclick="selectCurrency('USDCERC20')">
+          <div class="cur-check">✓</div>
+          <div class="cur-tab-top">
+            <div class="cur-ico">🔵</div>
+            <div class="cur-name">USDC</div>
+          </div>
+          <div class="cur-net-badge" style="background:#2775CA15;border:1px solid #2775CA25;color:#2775CA">ETH · ERC20</div>
+        </div>
+      </div>
+
+      <!-- NETWORK WARNING -->
+      <div class="net-warning net-warning-usdt" id="net-warn">
+        <div class="net-warning-title" style="color:#FF8C00">⚠️ Réseau important</div>
+        <div id="net-warn-text">
+          <div class="net-row"><div class="net-dot" style="background:#00C87A"></div><span style="color:var(--white)"><strong>TRC20</strong> — ✅ Correct pour cette adresse</span></div>
+          <div class="net-row"><div class="net-dot" style="background:#FF3D3D"></div><span style="color:#FF8C00"><strong>BEP20 / ERC20</strong> — ❌ Ne pas utiliser — fonds perdus</span></div>
+          <div class="net-row"><div class="net-dot" style="background:#FF3D3D"></div><span style="color:#FF8C00"><strong>BEP2</strong> — ❌ Ne pas utiliser — fonds perdus</span></div>
+        </div>
+      </div>
+
+      <button class="pay-btn" id="pay-btn" onclick="createPayment()">
+        ⚡ Créer l'adresse de paiement
+      </button>
+    </div>
+  </div>
+
+  <!-- PAYMENT DETAILS -->
+  <div class="card" id="payment-card">
+    <div class="card-hdr">
+      <div class="card-title" id="pay-card-title">Adresse de paiement</div>
+      <div id="pay-cur-badge" style="font-size:9px;font-weight:700;padding:3px 8px;border-radius:6px;background:#C9A84C15;color:var(--gold)">USDT TRC20</div>
+    </div>
+    <div class="card-body">
+
+      <!-- WAITING -->
+      <div id="waiting-state" style="text-align:center;padding:16px 0">
+        <div class="spinner"></div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:4px">Génération de l'adresse...</div>
+        <div style="font-size:10px;color:var(--muted)">Connexion à la blockchain</div>
+      </div>
+
+      <!-- ADDRESS -->
+      <div id="address-state" style="display:none">
+        <div class="addr-label">Envoyer exactement à cette adresse :</div>
+        <div class="addr-box">
+          <div class="addr-val" id="pay-address">--</div>
+          <button class="copy-btn" onclick="copyAddress()" id="copy-btn">📋 Copier l'adresse</button>
+        </div>
+
+        <div class="send-box">
+          <div class="send-lbl">Montant exact</div>
+          <div class="send-val" id="pay-amount">-- USDT</div>
+        </div>
+
+        <div class="timer-wrap">
+          <div class="timer-lbl">⏱️ Adresse expire dans</div>
+          <div class="timer-val" id="pay-timer">30:00</div>
+        </div>
+
+        <div class="status status-wait" id="pay-status">
+          <span>⌛</span><span>En attente du paiement...</span>
+        </div>
+
+        <div class="steps">
+          <div class="step"><div class="step-n">1</div><div class="step-t">Copiez l'adresse ci-dessus dans votre wallet</div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-t">Envoyez <strong id="step-amount">$100 USDT</strong> — montant exact</div></div>
+          <div class="step"><div class="step-n">3</div><div class="step-t">Confirmation blockchain : <strong>1 à 3 minutes</strong></div></div>
+          <div class="step"><div class="step-n">4</div><div class="step-t">Votre code d'accès apparaît <strong>automatiquement</strong> ✅</div></div>
+        </div>
+      </div>
+
+      <!-- SUCCESS -->
+      <div id="success-state">
+        <div class="success-ico">🎉</div>
+        <div class="success-title">Paiement confirmé !</div>
+        <div class="success-sub">Bienvenue dans 14 Trades Alert.<br>Voici votre code d'accès :</div>
+        <div class="code-reveal">
+          <div class="code-lbl">Votre code d'accès</div>
+          <div class="code-val" id="success-code">----</div>
+        </div>
+        <button class="go-btn" onclick="goToApp()">Ouvrir l'app →</button>
+      </div>
+
+      <!-- ERROR -->
+      <div id="error-state">
+        <div style="font-size:38px;margin-bottom:10px;text-align:center">⚠️</div>
+        <div style="font-size:14px;font-weight:700;text-align:center;margin-bottom:6px" id="error-msg">Erreur</div>
+        <div style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:14px">Contactez Sadikh si le problème persiste.</div>
+        <a href="https://wa.me/221788255099" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;background:#25D36615;border:1px solid #25D36625;border-radius:10px;padding:11px;font-size:12px;font-weight:700;color:#25D366;text-decoration:none;margin-bottom:8px">
+          💬 Contacter Sadikh
+        </a>
+        <button class="retry-btn" onclick="resetPayment()">↩ Réessayer</button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- WAVE / ORANGE MONEY -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-title">Wave · Orange Money</div>
+      <div style="font-size:9px;font-weight:700;padding:3px 8px;border-radius:6px;background:#FF8C0015;color:#FF8C00">Manuel · 24h</div>
+    </div>
+    <div class="card-body">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.6">
+        Envoyez <strong style="color:var(--white)">100$</strong> en équivalent CFA à ce numéro puis envoyez le reçu sur WhatsApp.
+      </div>
+
+      <!-- NUMBER BOX -->
+      <div style="background:#050505;border:1.5px solid #FF8C0040;border-radius:10px;padding:14px;margin-bottom:10px">
+        <div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Numéro Wave & Orange Money</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div style="font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:#FF8C00">+221 78 825 50 99</div>
+          <button onclick="copyNumber()" id="copy-num-btn" style="background:#FF8C0015;border:1px solid #FF8C0030;border-radius:7px;padding:8px 12px;font-size:10px;font-weight:800;color:#FF8C00;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap">📋 Copy</button>
+        </div>
+      </div>
+
+      <!-- STEPS -->
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px">
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--bg3);border-radius:8px">
+          <div style="width:18px;height:18px;border-radius:50%;background:#FF8C00;color:#000;font-size:8px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">1</div>
+          <div style="font-size:10px;color:var(--muted);line-height:1.5">Envoyez <strong style="color:var(--white)">l'équivalent de $100</strong> via Wave ou Orange Money au <strong style="color:#FF8C00">+221788255099</strong></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--bg3);border-radius:8px">
+          <div style="width:18px;height:18px;border-radius:50%;background:#FF8C00;color:#000;font-size:8px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">2</div>
+          <div style="font-size:10px;color:var(--muted);line-height:1.5">Prenez une <strong style="color:var(--white)">capture d'écran</strong> du reçu de paiement</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--bg3);border-radius:8px">
+          <div style="width:18px;height:18px;border-radius:50%;background:#FF8C00;color:#000;font-size:8px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">3</div>
+          <div style="font-size:10px;color:var(--muted);line-height:1.5">Envoyez le reçu sur <strong style="color:var(--white)">WhatsApp</strong> — votre code arrive dans les <strong style="color:var(--white)">24h</strong></div>
+        </div>
+      </div>
+
+      <!-- WHATSAPP BUTTON -->
+      <a href="https://wa.me/221788255099?text=Bonjour%20Sadikh%2C%20je%20viens%20de%20payer%20%24100%20via%20Wave/Orange%20Money%20pour%20m%27abonner%20%C3%A0%2014%20Trades%20Alert.%20Voici%20mon%20re%C3%A7u%20%3A" target="_blank"
+        style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#25D36615;border:1px solid #25D36625;border-radius:12px;padding:13px;font-size:14px;font-weight:700;color:#25D366;text-decoration:none;font-family:'Inter',sans-serif">
+        <span style="font-size:18px">💬</span> Envoyer le reçu sur WhatsApp
+      </a>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    Paiement sécurisé via NOWPayments · Confirmé sur blockchain<br>
+    Problème ? <a href="https://wa.me/221788255099">WhatsApp Sadikh</a>
+  </div>
+
+</div>
+<script>
+const SERVER = 'https://14trades-server-production.up.railway.app';
+const EMAIL  = new URLSearchParams(location.search).get('email') || '';
+let selectedCurrency = 'USDTTRC20';
+let paymentId = null, pollInterval = null, timerInterval = null;
+
+const NETWORK_WARNINGS = {
+  USDTTRC20: `
+    <div class="net-row"><div class="net-dot" style="background:#00C87A"></div><span style="color:var(--white)"><strong>TRC20</strong> — ✅ Correct pour cette adresse</span></div>
+    <div class="net-row"><div class="net-dot" style="background:#FF3D3D"></div><span style="color:#FF8C00"><strong>BEP20 / ERC20</strong> — ❌ Ne pas utiliser — fonds perdus</span></div>
+    <div class="net-row"><div class="net-dot" style="background:#FF3D3D"></div><span style="color:#FF8C00"><strong>BEP2</strong> — ❌ Ne pas utiliser — fonds perdus</span></div>`,
+  USDCERC20: `
+    <div class="net-row"><div class="net-dot" style="background:#00C87A"></div><span style="color:var(--white)"><strong>ERC20</strong> — ✅ Correct pour cette adresse (Ethereum)</span></div>
+    <div class="net-row"><div class="net-dot" style="background:#FF3D3D"></div><span style="color:#FF8C00"><strong>BEP20 / TRC20</strong> — ❌ Ne pas utiliser — fonds perdus</span></div>
+    <div class="net-row"><div class="net-dot" style="background:#FF3D3D"></div><span style="color:#FF8C00"><strong>Polygon / Arbitrum</strong> — ❌ Ne pas utiliser ici</span></div>`
+};
+
+function selectCurrency(cur) {
+  selectedCurrency = cur;
+  document.getElementById('tab-usdt').className = 'cur-tab' + (cur==='USDTTRC20' ? ' active-usdt' : '');
+  document.getElementById('tab-usdc').className = 'cur-tab' + (cur==='USDCERC20' ? ' active-btc' : '');
+  document.getElementById('net-warn-text').innerHTML = NETWORK_WARNINGS[cur];
+  document.getElementById('net-warn').className = 'net-warning net-warning-usdt';
+}
+
+async function createPayment() {
+  const btn = document.getElementById('pay-btn');
+  btn.disabled = true; btn.textContent = 'Création en cours...';
+  document.getElementById('payment-card').style.display = 'block';
+  document.getElementById('waiting-state').style.display = 'block';
+  document.getElementById('address-state').style.display = 'none';
+  document.getElementById('success-state').style.display = 'none';
+  document.getElementById('error-state').style.display   = 'none';
+  document.getElementById('pay-cur-badge').textContent   = selectedCurrency === 'USDTTRC20' ? 'USDT TRC20' : 'USDC ERC20';
+
+  try {
+    const res = await fetch(`${SERVER}/api/payment/create`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ currency: selectedCurrency, email: EMAIL })
+    });
+    const d = await res.json();
+    if (!d.ok || !d.address) throw new Error(d.error || 'Échec création paiement');
+
+    paymentId = d.paymentId;
+    document.getElementById('waiting-state').style.display = 'none';
+    document.getElementById('address-state').style.display = 'block';
+    document.getElementById('pay-address').textContent     = d.address;
+    document.getElementById('pay-amount').textContent      = d.amount + ' ' + d.currency;
+    document.getElementById('step-amount').textContent     = d.amount + ' ' + d.currency;
+
+    startTimer(30 * 60);
+    startPolling(d.paymentId);
+  } catch(e) {
+    document.getElementById('waiting-state').style.display = 'none';
+    document.getElementById('error-msg').textContent       = e.message;
+    document.getElementById('error-state').style.display  = 'block';
+    btn.disabled = false;
+    btn.innerHTML = '⚡ Créer l\'adresse de paiement';
+  }
+}
+
+function startTimer(seconds) {
+  clearInterval(timerInterval);
+  let s = seconds;
+  timerInterval = setInterval(() => {
+    s--;
+    const el = document.getElementById('pay-timer');
+    if (el) {
+      el.textContent = `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
+      if (s < 300) el.classList.add('urgent');
+    }
+    if (s <= 0) {
+      clearInterval(timerInterval); clearInterval(pollInterval);
+      const st = document.getElementById('pay-status');
+      if (st) { st.className='status status-fail'; st.innerHTML='<span>❌</span><span>Adresse expirée — réessayez</span>'; }
+    }
+  }, 1000);
+}
+
+function startPolling(pid) {
+  clearInterval(pollInterval);
+  pollInterval = setInterval(async () => {
+    try {
+      const res = await fetch(`${SERVER}/api/payment/status/${pid}`);
+      const d   = await res.json();
+      const st  = document.getElementById('pay-status');
+      if (d.status === 'waiting') {
+        if (st) { st.className='status status-wait'; st.innerHTML='<span>⌛</span><span>En attente du paiement...</span>'; }
+      } else if (d.status === 'confirming' || d.status === 'sending') {
+        if (st) { st.className='status status-detect'; st.innerHTML='<span>🔍</span><span>Paiement détecté — confirmation...</span>'; }
+      } else if (d.status === 'finished') {
+        clearInterval(pollInterval); clearInterval(timerInterval);
+        showSuccess(d.code);
+      } else if (d.status === 'failed' || d.status === 'expired') {
+        clearInterval(pollInterval); clearInterval(timerInterval);
+        document.getElementById('error-msg').textContent = 'Paiement expiré ou échoué';
+        showState('error');
+      }
+    } catch(e) {}
+  }, 5000);
+}
+
+function showSuccess(code) {
+  ['waiting','address','error'].forEach(s => { const el=document.getElementById(s+'-state'); if(el) el.style.display='none'; });
+  document.getElementById('success-state').style.display = 'block';
+  document.getElementById('success-code').textContent    = code || '...';
+  if (code) {
+    localStorage.setItem('14t_access', code);
+    const exp = new Date(Date.now() + 30*24*60*60*1000);
+    localStorage.setItem('14t_access_exp', exp.getTime());
+  }
+}
+
+function showState(state) {
+  ['waiting','address','success','error'].forEach(s => {
+    const el = document.getElementById(s+'-state');
+    if (el) el.style.display = s===state ? 'block' : 'none';
+  });
+}
+
+function copyAddress() {
+  const addr = document.getElementById('pay-address').textContent;
+  navigator.clipboard.writeText(addr).then(() => {
+    const btn = document.getElementById('copy-btn');
+    if (btn) { btn.textContent='✅ Adresse copiée !'; setTimeout(()=>btn.textContent='📋 Copier l\'adresse',2500); }
+  });
+}
+
+function resetPayment() {
+  clearInterval(pollInterval); clearInterval(timerInterval);
+  document.getElementById('payment-card').style.display = 'none';
+  const btn = document.getElementById('pay-btn');
+  btn.disabled = false; btn.innerHTML = '⚡ Créer l\'adresse de paiement';
+}
+
+function copyNumber() {
+  navigator.clipboard.writeText('+221788255099').then(() => {
+    const btn = document.getElementById('copy-num-btn');
+    if (btn) { btn.textContent='✅ Copié!'; setTimeout(()=>btn.textContent='📋 Copy',2000); }
+  });
+}
+
+function goToApp() {
+  window.location.href = 'https://14trades-pwa.vercel.app/';
+}
+</script>
+</body>
+</html>
