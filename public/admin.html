@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0A0A0A">
+<title>14 Trades — Admin</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0A0A0A;--bg2:#111;--bg3:#1A1A1A;--bg4:#222;
+  --border:#2A2A2A;--border2:#333;
+  --gold:#C9A84C;--gold2:#FFD700;
+  --green:#00C87A;--red:#FF3D3D;--blue:#4A9EFF;
+  --white:#F0F0F0;--muted:#555;--dim:#333;
+  --font:'Inter',sans-serif;--mono:'Space Mono',monospace;
+}
+html,body{background:var(--bg);color:var(--white);font-family:var(--font);min-height:100vh}
+
+/* ── PIN SCREEN ── */
+#pin-screen{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:20px}
+.pin-logo{font-family:var(--mono);font-size:36px;font-weight:700;color:var(--gold2)}
+.pin-sub{font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase}
+.pin-dots{display:flex;gap:12px}
+.pin-dot{width:12px;height:12px;border-radius:50%;background:var(--border2);border:1px solid var(--border);transition:all .2s}
+.pin-dot.filled{background:var(--gold2);border-color:var(--gold2)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:240px}
+.pin-btn{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px;font-size:20px;font-weight:700;color:var(--white);cursor:pointer;text-align:center;transition:all .15s;font-family:var(--mono)}
+.pin-btn:active{background:var(--bg4);transform:scale(.96)}
+.pin-btn.del{font-size:14px;color:var(--muted)}
+.pin-error{font-size:12px;color:var(--red);display:none}
+
+/* ── LAYOUT ── */
+#admin-app{display:none;min-height:100vh}
+
+/* SIDEBAR — desktop */
+.sidebar{display:none;position:fixed;left:0;top:0;bottom:0;width:220px;background:var(--bg2);border-right:1px solid var(--border);flex-direction:column;padding:20px 0;z-index:100}
+.sidebar-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:12px}
+.sidebar-logo-txt{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--gold2)}
+.sidebar-logo-sub{font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;border-radius:0;transition:all .2s;border-left:3px solid transparent;margin-bottom:2px}
+.nav-item:hover{background:var(--bg3)}
+.nav-item.active{background:var(--bg3);border-left-color:var(--gold2);color:var(--gold2)}
+.nav-item.active .nav-ico{color:var(--gold2)}
+.nav-ico{font-size:16px;width:20px;text-align:center}
+.nav-lbl{font-size:13px;font-weight:500}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;display:none}
+.nav-badge.show{display:block}
+.sidebar-bottom{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border)}
+.lock-btn{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;font-family:var(--font);transition:all .2s}
+.lock-btn:hover{color:var(--white)}
+
+/* MAIN CONTENT */
+.main-content{padding:16px;min-height:100vh}
+.page{display:none}
+.page.active{display:block}
+
+/* MOBILE HEADER */
+.mobile-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;padding-top:max(env(safe-area-inset-top) + 8px, 12px);background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.mobile-logo{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--gold2)}
+.mobile-lock{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:11px;color:var(--muted);cursor:pointer}
+
+/* BOTTOM NAV — mobile */
+.bottom-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom);z-index:100}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;cursor:pointer;transition:all .2s;border:none;background:none}
+.bnav-ico{font-size:18px}
+.bnav-lbl{font-size:9px;color:var(--muted);font-weight:500;letter-spacing:.3px}
+.bnav-item.active .bnav-lbl{color:var(--gold2)}
+.bnav-item.active .bnav-ico{filter:drop-shadow(0 0 4px var(--gold2))}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px}
+.card-hdr{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:11px;font-weight:700;color:var(--gold);letter-spacing:1px;text-transform:uppercase}
+.card-body{padding:14px 16px}
+
+/* PAGE TITLE */
+.page-title{font-size:20px;font-weight:700;color:var(--white);margin-bottom:4px}
+.page-sub{font-size:12px;color:var(--muted);margin-bottom:16px}
+
+/* SIGNAL PAGE */
+.asset-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.asset-btn{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 8px;text-align:center;cursor:pointer;transition:all .2s}
+.asset-btn.sel-gold{background:#C9A84C15;border-color:#C9A84C50;color:#C9A84C}
+.asset-btn.sel-silver{background:#C0C0C015;border-color:#C0C0C050;color:#C0C0C0}
+.asset-btn.sel-btc{background:#F0921A15;border-color:#F0921A50;color:#F0921A}
+.asset-btn.sel-nas100{background:#4A9EFF15;border-color:#4A9EFF50;color:#4A9EFF}
+.asset-btn.sel-us30{background:#BF5AF215;border-color:#BF5AF250;color:#BF5AF2}
+.asset-ico{font-size:18px;margin-bottom:4px}
+.asset-name{font-size:10px;font-weight:700;letter-spacing:.5px}
+.asset-lbl{font-size:8px;color:var(--muted);margin-top:2px}
+
+.dir-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.dir-btn{padding:14px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg3);font-size:15px;font-weight:800;cursor:pointer;font-family:var(--mono);transition:all .2s;letter-spacing:1px}
+.dir-btn.buy{border-color:#00C87A50;color:#00C87A;background:#00C87A10}
+.dir-btn.sell{border-color:#FF3D3D50;color:#FF3D3D;background:#FF3D3D10}
+.dir-btn.active-buy{background:#00C87A;color:#000;border-color:#00C87A}
+.dir-btn.active-sell{background:#FF3D3D;color:#fff;border-color:#FF3D3D}
+
+.input-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.input-lbl{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;width:42px;flex-shrink:0}
+.input-field{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:14px;font-weight:700;color:var(--white);font-family:var(--mono);outline:none;transition:border-color .2s}
+.input-field:focus{border-color:var(--gold)}
+.input-field.readonly{color:var(--green);background:#00C87A08;border-color:#00C87A20}
+
+.tp-preview-box{background:#071507;border:1px solid #00C87A20;border-radius:10px;padding:12px;margin-bottom:12px;display:none}
+.tp-preview-title{font-size:8px;font-weight:700;color:#00C87A60;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.tp-preview-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.tp-preview-row:last-child{margin-bottom:0}
+.tp-preview-lbl{font-size:10px;color:var(--muted)}
+.tp-preview-val{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--green)}
+
+.send-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:12px;padding:16px;font-size:15px;font-weight:800;cursor:pointer;font-family:var(--font);letter-spacing:.5px;transition:all .2s;margin-top:4px}
+.send-btn:active{transform:scale(.98);opacity:.9}
+.send-btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* ACTIVE TRADES */
+.active-trade{border-radius:12px;padding:14px;margin-bottom:10px}
+.at-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.at-asset{font-size:14px;font-weight:700}
+.at-dir{font-family:var(--mono);font-size:18px;font-weight:700;margin-left:8px}
+.at-badge{font-size:8px;font-weight:700;padding:3px 8px;border-radius:6px;letter-spacing:1px}
+.at-levels{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.at-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:var(--bg)}
+.at-row.tp{background:#00C87A08;border:1px solid #00C87A15}
+.at-row.tp.hit{background:#00C87A18;border-color:#00C87A40}
+.at-row.sl-r{background:#FF3D3D08;border:1px solid #FF3D3D20}
+.at-lbl{font-size:9px;font-weight:700;letter-spacing:1px;width:24px;flex-shrink:0}
+.at-val{font-family:var(--mono);font-size:12px;font-weight:700;flex:1}
+.at-check{font-size:12px;color:var(--green);width:16px}
+.at-hit-btn{background:var(--green);color:#000;border:none;border-radius:6px;padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;transition:all .2s}
+.at-hit-btn:active{transform:scale(.95)}
+.at-be-btn{background:#F5A80015;border:1px solid #F5A80030;color:#F5A800;border-radius:6px;padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font)}
+.at-sl-btn{background:#FF3D3D15;border:1px solid #FF3D3D30;color:#FF3D3D;border-radius:6px;padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font)}
+.at-actions{display:flex;gap:6px;flex-wrap:wrap}
+
+/* ANALYTICS */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px}
+.stat-val{font-family:var(--mono);font-size:24px;font-weight:700;line-height:1;margin-bottom:4px}
+.stat-lbl{font-size:9px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.bar-name{font-size:9px;font-weight:600;width:50px;flex-shrink:0}
+.bar-track{flex:1;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.bar-fill{height:100%;border-radius:2px;transition:width 1s ease}
+.bar-pct{font-family:var(--mono);font-size:9px;font-weight:700;width:28px;text-align:right}
+
+/* BROADCAST */
+.bc-textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:14px;color:var(--white);font-family:var(--font);resize:none;outline:none;min-height:100px;line-height:1.6}
+.bc-textarea:focus{border-color:var(--gold)}
+.bc-send-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;margin-top:8px}
+.template-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.tmpl-btn{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:11px;color:var(--white);cursor:pointer;text-align:left;font-family:var(--font);transition:all .2s;line-height:1.4}
+.tmpl-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* MEMBERS */
+.member-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.member-item:last-child{border-bottom:none}
+.member-code{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--white)}
+.member-email{font-size:10px;color:var(--muted);margin-top:2px}
+.member-badge{font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;margin-left:auto}
+
+/* SETTINGS */
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)}
+.setting-row:last-child{border-bottom:none}
+.setting-lbl{font-size:13px;font-weight:500;color:var(--white)}
+.setting-sub{font-size:10px;color:var(--muted);margin-top:2px}
+.toggle{width:46px;height:26px;border-radius:13px;background:var(--bg4);border:1px solid var(--border);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle-dot{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:all .2s}
+.toggle.on{background:#F5A800}
+.toggle.on .toggle-dot{left:23px;background:#000}
+
+/* INPUT */
+.text-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--white);font-family:var(--font);outline:none;margin-bottom:8px}
+.text-input:focus{border-color:var(--gold)}
+.small-btn{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:700;color:var(--gold);cursor:pointer;font-family:var(--font)}
+
+/* TOAST */
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 20px;font-size:13px;font-weight:600;color:var(--white);opacity:0;transition:all .3s;z-index:9999;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.buy{border-color:#00C87A40;color:#00C87A}
+#toast.warn{border-color:#FF3D3D40;color:#FF3D3D}
+
+/* DESKTOP LAYOUT */
+@media(min-width:768px){
+  .mobile-header{display:none}
+  .bottom-nav{display:none}
+  .sidebar{display:flex}
+  .main-content{margin-left:220px;padding:24px}
+  .stats-grid{grid-template-columns:repeat(4,1fr)}
+  .asset-grid{grid-template-columns:repeat(5,1fr)}
+  .dir-row{grid-template-columns:1fr 1fr;max-width:300px}
+  #toast{bottom:24px}
+  .page-title{font-size:24px}
+  .template-grid{grid-template-columns:repeat(3,1fr)}
+}
+
+/* MOBILE */
+@media(max-width:767px){
+  .mobile-header{display:flex}
+  .bottom-nav{display:flex}
+  .main-content{padding:12px 14px 80px}
+}
+</style>
+</head>
+<body>
+
+<!-- PIN SCREEN -->
+<div id="pin-screen">
+  <div class="pin-logo">14⚡</div>
+  <div class="pin-sub">Admin Panel</div>
+  <div class="pin-dots">
+    <div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div>
+    <div class="pin-dot" id="d3"></div>
+    <div class="pin-dot" id="d4"></div>
+    <div class="pin-dot" id="d5"></div>
+    <div class="pin-dot" id="d6"></div>
+  </div>
+  <div class="pin-pad">
+    <div class="pin-btn" onclick="pinTap('1')">1</div>
+    <div class="pin-btn" onclick="pinTap('2')">2</div>
+    <div class="pin-btn" onclick="pinTap('3')">3</div>
+    <div class="pin-btn" onclick="pinTap('4')">4</div>
+    <div class="pin-btn" onclick="pinTap('5')">5</div>
+    <div class="pin-btn" onclick="pinTap('6')">6</div>
+    <div class="pin-btn" onclick="pinTap('7')">7</div>
+    <div class="pin-btn" onclick="pinTap('8')">8</div>
+    <div class="pin-btn" onclick="pinTap('9')">9</div>
+    <div class="pin-btn" onclick="pinTap('')"></div>
+    <div class="pin-btn" onclick="pinTap('0')">0</div>
+    <div class="pin-btn del" onclick="pinDel()">⌫</div>
+  </div>
+  <div class="pin-error" id="pin-error">Wrong PIN. Try again.</div>
+</div>
+
+<!-- ADMIN APP -->
+<div id="admin-app">
+
+  <!-- SIDEBAR (desktop) -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-txt">14⚡ Admin</div>
+      <div class="sidebar-logo-sub">Trading Dashboard</div>
+    </div>
+    <div class="nav-item active" onclick="showPage('signal')" id="nav-signal">
+      <div class="nav-ico">🎯</div>
+      <div class="nav-lbl">Signal</div>
+      <div class="nav-badge" id="nb-signal"></div>
+    </div>
+    <div class="nav-item" onclick="showPage('broadcast')" id="nav-broadcast">
+      <div class="nav-ico">📢</div>
+      <div class="nav-lbl">Broadcast</div>
+    </div>
+    <div class="nav-item" onclick="showPage('analytics')" id="nav-analytics">
+      <div class="nav-ico">📊</div>
+      <div class="nav-lbl">Analytics</div>
+    </div>
+    <div class="nav-item" onclick="showPage('members')" id="nav-members">
+      <div class="nav-ico">👥</div>
+      <div class="nav-lbl">Members</div>
+    </div>
+    <div class="nav-item" onclick="showPage('referrals')" id="nav-referrals">
+      <div class="nav-ico">🤝</div>
+      <div class="nav-lbl">Referrals</div>
+    </div>
+    <div class="nav-item" onclick="showPage('settings')" id="nav-settings">
+      <div class="nav-ico">⚙️</div>
+      <div class="nav-lbl">Settings</div>
+    </div>
+    <div class="sidebar-bottom">
+      <button class="lock-btn" onclick="lockAdmin()">🔒 Lock admin</button>
+    </div>
+  </div>
+
+  <!-- MOBILE HEADER -->
+  <div class="mobile-header">
+    <div class="mobile-logo">14⚡</div>
+    <button class="mobile-lock" onclick="lockAdmin()">Lock 🔒</button>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <!-- ── SIGNAL PAGE ── -->
+    <div class="page active" id="page-signal">
+
+      <!-- BIG REVENUE NUMBER -->
+      <div style="background:linear-gradient(135deg,#1A1400,#0F0F00);border:1px solid #C9A84C25;border-radius:16px;padding:16px 20px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#636366;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Revenue ce mois</div>
+          <div id="dash-revenue" style="font-family:var(--mono);font-size:32px;font-weight:700;color:#FFD700;line-height:1">$0</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:9px;color:#636366;margin-bottom:4px">dernière mise à jour</div>
+          <div id="dash-updated" style="font-size:9px;color:#C9A84C;font-family:var(--mono)">--</div>
+        </div>
+      </div>
+
+      <!-- 3 STAT CARDS -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+        <div style="background:var(--bg2);border:1px solid #00C87A20;border-radius:12px;padding:12px;text-align:center">
+          <div id="dash-paid" style="font-family:var(--mono);font-size:22px;font-weight:700;color:#00C87A;line-height:1;margin-bottom:4px">--</div>
+          <div style="font-size:8px;color:#636366;text-transform:uppercase;letter-spacing:.5px">Paid</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid #4A9EFF20;border-radius:12px;padding:12px;text-align:center">
+          <div id="dash-trials" style="font-family:var(--mono);font-size:22px;font-weight:700;color:#4A9EFF;line-height:1;margin-bottom:4px">--</div>
+          <div style="font-size:8px;color:#636366;text-transform:uppercase;letter-spacing:.5px">Trials</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid #FF3D3D20;border-radius:12px;padding:12px;text-align:center;cursor:pointer" onclick="showPage('members')">
+          <div id="dash-expiring" style="font-family:var(--mono);font-size:22px;font-weight:700;color:#FF3D3D;line-height:1;margin-bottom:4px">--</div>
+          <div style="font-size:8px;color:#636366;text-transform:uppercase;letter-spacing:.5px">Expirent</div>
+        </div>
+      </div>
+
+      <div class="page-title">Send Signal</div>
+      <div class="page-sub">Select asset, direction and entry price</div>
+
+      <!-- ACTIVE TRADES -->
+      <div id="active-trades-wrap" style="display:none">
+        <div class="card">
+          <div class="card-hdr">
+            <div class="card-title">🔴 Live Trades</div>
+            <div id="trade-count" style="font-size:11px;color:var(--muted)"></div>
+          </div>
+          <div class="card-body" style="padding:10px">
+            <div id="active-trades"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NEW SIGNAL -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title">New Signal</div>
+          <div id="cs-asset-lbl" style="font-size:11px;color:var(--gold)">GOLD</div>
+        </div>
+        <div class="card-body">
+          <!-- ASSETS -->
+          <div class="asset-grid" id="asset-grid">
+            <div class="asset-btn sel-gold" id="ac-gold" onclick="toggleAsset('gold')">
+              <div class="asset-ico">🥇</div>
+              <div class="asset-name">GOLD</div>
+            </div>
+            <div class="asset-btn" id="ac-silver" onclick="toggleAsset('silver')">
+              <div class="asset-ico">🥈</div>
+              <div class="asset-name">SILVER</div>
+            </div>
+            <div class="asset-btn" id="ac-btc" onclick="toggleAsset('btc')">
+              <div class="asset-ico">₿</div>
+              <div class="asset-name">BTC</div>
+            </div>
+            <div class="asset-btn" id="ac-nas100" onclick="toggleAsset('nas100')">
+              <div class="asset-ico">📊</div>
+              <div class="asset-name">NAS100</div>
+            </div>
+            <div class="asset-btn" id="ac-us30" onclick="toggleAsset('us30')">
+              <div class="asset-ico">🏛</div>
+              <div class="asset-name">US30</div>
+            </div>
+          </div>
+
+          <!-- DIRECTION -->
+          <div class="dir-row">
+            <button class="dir-btn buy" id="btn-buy" onclick="setDir('BUY')">↑ BUY</button>
+            <button class="dir-btn sell" id="btn-sell" onclick="setDir('SELL')">↓ SELL</button>
+          </div>
+
+          <!-- ENTRY + SL -->
+          <div class="input-row">
+            <div class="input-lbl">Entry</div>
+            <input class="input-field" id="pi-entry" type="number" placeholder="e.g. 2306.00" step="0.01" oninput="autoCalcLevels()">
+          </div>
+          <div class="input-row">
+            <div class="input-lbl">SL</div>
+            <input class="input-field" id="pi-sl" type="number" placeholder="Stop loss" step="0.01">
+          </div>
+          <div class="input-row">
+            <div class="input-lbl" style="color:var(--gold)">Dist</div>
+            <input class="input-field" id="pi-distance" type="number" placeholder="Distance TP3 (défaut auto)" step="0.01" oninput="autoCalcLevels()">
+          </div>
+          <div style="font-size:9px;color:var(--muted);margin:-4px 0 8px 50px">Laisser vide = distance normale. Remplir = mouvement plus grand.</div>
+
+          <!-- TP PREVIEW -->
+          <div class="tp-preview-box" id="tp-preview">
+            <div class="tp-preview-title">Auto-calculated targets</div>
+            <div class="tp-preview-row"><div class="tp-preview-lbl">TP1</div><div class="tp-preview-val" id="prev-tp1">--</div></div>
+            <div class="tp-preview-row"><div class="tp-preview-lbl">TP2</div><div class="tp-preview-val" id="prev-tp2">--</div></div>
+            <div class="tp-preview-row"><div class="tp-preview-lbl">TP3</div><div class="tp-preview-val" id="prev-tp3">--</div></div>
+          </div>
+
+          <!-- SEND -->
+          <button class="send-btn" id="send-btn" onclick="fireSig()">⚡ SEND SIGNAL</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BROADCAST PAGE ── -->
+    <div class="page" id="page-broadcast">
+      <div class="page-title">Broadcast</div>
+      <div class="page-sub">Send a message to all members instantly</div>
+      <div class="card">
+        <div class="card-body">
+          <textarea class="bc-textarea" id="bc-msg" placeholder="Write your message..." maxlength="300"></textarea>
+          <div style="display:flex;justify-content:space-between;margin-top:4px">
+            <div style="font-size:10px;color:var(--muted)">Max 300 chars</div>
+            <div id="bc-count" style="font-size:10px;color:var(--muted)">0 / 300</div>
+          </div>
+          <button class="bc-send-btn" onclick="sendBroadcast()">📢 Send to all members</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-title">Quick Templates</div></div>
+        <div class="card-body">
+          <div class="template-grid">
+            <div class="tmpl-btn" onclick="setTemplate('⚡ Restez prêts — signal possible dans les prochaines heures.')">⚡ Signal bientôt</div>
+            <div class="tmpl-btn" onclick="setTemplate('🔒 Déplacez le SL au Break Even maintenant.')">🔒 Move to BE</div>
+            <div class="tmpl-btn" onclick="setTemplate('✅ TP1 touché — déplacez votre SL au BE et laissez courir.')">✅ TP1 hit</div>
+            <div class="tmpl-btn" onclick="setTemplate('💰 TP2 touché — vous pouvez fermer une partie de la position.')">💰 TP2 hit</div>
+            <div class="tmpl-btn" onclick="setTemplate('🌅 Bonjour à tous. Je surveille les marchés. Restez prêts.')">🌅 Good morning</div>
+            <div class="tmpl-btn" onclick="setTemplate('🎁 Rappel — invitez 3 amis et recevez 1 mois gratuit. Votre code est dans l\'app.')">🎁 Referral</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ANALYTICS PAGE ── -->
+    <div class="page" id="page-analytics">
+      <div class="page-title">Analytics</div>
+      <div class="page-sub">Your trading performance</div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-val" id="an-winrate" style="color:var(--green)">--%</div><div class="stat-lbl">Win Rate</div></div>
+        <div class="stat-card"><div class="stat-val" id="an-signals" style="color:var(--gold2)">--</div><div class="stat-lbl">Signals</div></div>
+        <div class="stat-card"><div class="stat-val" id="an-wins" style="color:var(--green)">--</div><div class="stat-lbl">Wins</div></div>
+        <div class="stat-card"><div class="stat-val" id="an-pnl" style="color:var(--gold2)">--</div><div class="stat-lbl">P&L / lot</div></div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-title">By Asset</div></div>
+        <div class="card-body" id="asset-perf"><div style="font-size:12px;color:var(--muted)">Loading...</div></div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-title">Best Session</div></div>
+        <div class="card-body">
+          <div id="session-grid" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MEMBERS PAGE ── -->
+    <div class="page" id="page-members">
+      <div class="page-title">Members</div>
+      <div class="page-sub" id="member-count-lbl">Loading...</div>
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title">Generate Code</div>
+          <div style="font-size:10px;color:var(--muted)">For paid members</div>
+        </div>
+        <div class="card-body">
+          <input class="text-input" id="member-email" placeholder="Member email (optional)">
+          <select id="code-duration" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--white);outline:none;margin-bottom:8px;font-family:var(--font)">
+            <option value="30">1 month — 30 days</option>
+            <option value="60">2 months — 60 days</option>
+            <option value="90">3 months — 90 days</option>
+            <option value="365">1 year — 365 days</option>
+            <option value="0">Lifetime — no expiry</option>
+          </select>
+          <!-- GENERATED CODE DISPLAY -->
+          <div id="gen-code-box" style="display:none;background:#0A0A0A;border:1.5px solid var(--gold);border-radius:10px;padding:14px;margin-bottom:10px;text-align:center">
+            <div style="font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Generated Code</div>
+            <div id="gen-code-val" style="font-family:var(--mono);font-size:22px;font-weight:700;color:var(--gold2);letter-spacing:3px;margin-bottom:10px">--</div>
+            <div id="gen-code-exp" style="font-size:10px;color:var(--muted);margin-bottom:10px">--</div>
+            <div style="display:flex;gap:6px">
+              <button onclick="copyGenCode()" style="flex:1;background:var(--gold)15;border:1px solid var(--gold)30;border-radius:8px;padding:8px;font-size:11px;font-weight:700;color:var(--gold);cursor:pointer;font-family:var(--font)">📋 Copy code</button>
+              <button onclick="shareGenCode()" style="flex:1;background:#25D36615;border:1px solid #25D36625;border-radius:8px;padding:8px;font-size:11px;font-weight:700;color:#25D366;cursor:pointer;font-family:var(--font)">💬 WhatsApp</button>
+            </div>
+          </div>
+          <button onclick="generateCode()" id="gen-btn" style="width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:var(--font)">⚡ Generate code</button>
+        </div>
+      </div>
+      <!-- FOLLOW-UP SECTION -->
+      <div class="card" id="followup-card" style="display:none;border-color:#FF3D3D30">
+        <div class="card-hdr" style="border-color:#FF3D3D20">
+          <div class="card-title" style="color:#FF3D3D">Needs follow-up</div>
+          <div id="followup-count" style="font-size:9px;font-weight:700;color:#FF3D3D;background:#FF3D3D15;padding:2px 8px;border-radius:10px"></div>
+        </div>
+        <div id="followup-list" style="max-height:300px;overflow-y:auto"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr"><div class="card-title">Active Members</div></div>
+        <div class="card-body" id="member-list" style="max-height:300px;overflow-y:auto"></div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-title">🆓 Free Trials</div></div>
+        <div class="card-body" id="trial-list" style="max-height:200px;overflow-y:auto">
+          <div style="font-size:12px;color:var(--muted)">Loading...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── REFERRALS PAGE ── -->
+    <div class="page" id="page-referrals">
+      <div class="page-title">Referrals</div>
+      <div class="page-sub">Manage member and influencer codes</div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-title">Create Code</div></div>
+        <div class="card-body">
+          <input class="text-input" id="ref-name" placeholder="Name (e.g. Aminata)">
+          <select id="ref-type" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--white);outline:none;margin-bottom:8px">
+            <option value="member">Member — 3 refs = free month</option>
+            <option value="influencer">Influencer — $20 per conversion</option>
+          </select>
+          <input class="text-input" id="ref-email" placeholder="Email (optional)">
+          <button class="small-btn" style="width:100%;padding:10px" onclick="createRefCode()">Create code</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title">Active Codes</div>
+          <div id="ref-total" style="font-size:11px;color:var(--muted)"></div>
+        </div>
+        <div id="ref-list" style="max-height:400px;overflow-y:auto"></div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS PAGE ── -->
+    <div class="page" id="page-settings">
+      <div class="page-title">Settings</div>
+      <div class="page-sub">App configuration</div>
+      <div class="card">
+        <div class="card-body">
+          <div class="setting-row">
+            <div>
+              <div class="setting-lbl">Maintenance Mode</div>
+              <div class="setting-sub" id="maint-sub">Users see the normal app</div>
+            </div>
+            <div class="toggle" id="maint-toggle" onclick="toggleMaintenance()">
+              <div class="toggle-dot" id="maint-dot"></div>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-lbl">Change PIN</div>
+              <div class="setting-sub">Update your admin PIN</div>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-lbl">Test renewal push</div>
+              <div class="setting-sub">Send test push to expiring trial members</div>
+            </div>
+            <button onclick="testRenewalPush()" class="small-btn">Test</button>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <input class="text-input" type="password" id="pin-new" placeholder="New PIN" maxlength="6" style="margin:0;flex:1">
+            <input class="text-input" type="password" id="pin-confirm" placeholder="Confirm" maxlength="6" style="margin:0;flex:1">
+            <button class="small-btn" onclick="changePin()">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end main-content -->
+
+  <!-- BOTTOM NAV (mobile) -->
+  <div class="bottom-nav">
+    <button class="bnav-item active" onclick="showPage('signal')" id="bnav-signal">
+      <div class="bnav-ico">🎯</div>
+      <div class="bnav-lbl">Signal</div>
+    </button>
+    <button class="bnav-item" onclick="showPage('broadcast')" id="bnav-broadcast">
+      <div class="bnav-ico">📢</div>
+      <div class="bnav-lbl">Broadcast</div>
+    </button>
+    <button class="bnav-item" onclick="showPage('analytics')" id="bnav-analytics">
+      <div class="bnav-ico">📊</div>
+      <div class="bnav-lbl">Analytics</div>
+    </button>
+    <button class="bnav-item" onclick="showPage('members')" id="bnav-members">
+      <div class="bnav-ico">👥</div>
+      <div class="bnav-lbl">Members</div>
+    </button>
+    <button class="bnav-item" onclick="showPage('settings')" id="bnav-settings">
+      <div class="bnav-ico">⚙️</div>
+      <div class="bnav-lbl">Settings</div>
+    </button>
+  </div>
+
+</div><!-- end admin-app -->
+
+<div id="toast"></div>
+
+<script>
+// ── Config ─────────────────────────────────────────────────────────
+const SERVER       = 'https://14trades-server-production.up.railway.app';
+const ADMIN_SECRET = 'admin_14trades';
+const TP3_DISTANCES = { gold:50, silver:30, btc:6000, nas100:400, us30:600 };
+const ASSETS_CFG = {
+  gold:   { label:'GOLD',   color:'#C9A84C', fullName:'XAU/USD' },
+  silver: { label:'SILVER', color:'#C0C0C0', fullName:'XAG/USD' },
+  btc:    { label:'BTC',    color:'#F0921A', fullName:'BTC/USD' },
+  nas100: { label:'NAS100', color:'#4A9EFF', fullName:'NAS100' },
+  us30:   { label:'US30',   color:'#BF5AF2', fullName:'US30' },
+};
+
+// ── State ──────────────────────────────────────────────────────────
+let pinEntry = '', selectedDir = null, selAssets = new Set(['gold']);
+let activeTrades = [], maintenanceOn = false, selectedAsset = 'gold';
+let currentPage = 'signal';
+
+// ── PIN ────────────────────────────────────────────────────────────
+function pinTap(n) {
+  if (!n) return;
+  if (pinEntry.length >= 6) return;
+  pinEntry += n;
+  updateDots();
+  if (pinEntry.length === 6) setTimeout(checkPin, 100);
+}
+function pinDel() { if (pinEntry.length) { pinEntry = pinEntry.slice(0,-1); updateDots(); } }
+function updateDots() {
+  for (let i=1;i<=6;i++) {
+    const d = document.getElementById('d'+i);
+    if (d) d.className = 'pin-dot' + (i <= pinEntry.length ? ' filled' : '');
+  }
+}
+function checkPin() {
+  if (pinEntry === '141414') {
+    document.getElementById('pin-screen').style.display = 'none';
+    document.getElementById('admin-app').style.display = 'block';
+    onLogin();
+  } else {
+    document.getElementById('pin-error').style.display = 'block';
+    pinEntry = ''; updateDots();
+    setTimeout(() => document.getElementById('pin-error').style.display='none', 2000);
+  }
+}
+function lockAdmin() {
+  pinEntry = ''; updateDots();
+  document.getElementById('admin-app').style.display = 'none';
+  document.getElementById('pin-screen').style.display = 'flex';
+}
+
+// ── Navigation ─────────────────────────────────────────────────────
+function showPage(name) {
+  currentPage = name;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.bnav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById('page-'+name);
+  if (page) page.classList.add('active');
+  const nav = document.getElementById('nav-'+name);
+  if (nav) nav.classList.add('active');
+  const bnav = document.getElementById('bnav-'+name);
+  if (bnav) bnav.classList.add('active');
+  // Load data for page
+  if (name==='analytics') loadAnalytics();
+  if (name==='members')   { loadMembers(); loadTrials(); loadFollowups(); }
+  if (name==='referrals') loadReferrals();
+}
+
+// ── Toast ──────────────────────────────────────────────────────────
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show ' + type;
+  setTimeout(() => t.className = '', 5000);
+}
+
+// ── Assets ─────────────────────────────────────────────────────────
+function toggleAsset(a) {
+  const card = document.getElementById('ac-'+a);
+  if (!card) return;
+  if (selAssets.has(a)) {
+    if (selAssets.size === 1) { showToast('Select at least one asset', 'warn'); return; }
+    selAssets.delete(a);
+    card.className = 'asset-btn';
+  } else {
+    selAssets.add(a);
+    card.className = 'asset-btn sel-'+a;
+  }
+  selectedAsset = [...selAssets][selAssets.size-1] || 'gold';
+  document.getElementById('cs-asset-lbl').textContent = [...selAssets].map(x=>ASSETS_CFG[x].label).join(' + ');
+  setTimeout(autoCalcLevels, 50);
+}
+
+// ── Direction ──────────────────────────────────────────────────────
+function setDir(d) {
+  selectedDir = d;
+  const buyBtn = document.getElementById('btn-buy');
+  const sellBtn = document.getElementById('btn-sell');
+  if (buyBtn)  buyBtn.className  = 'dir-btn buy'  + (d==='BUY'  ? ' active-buy'  : '');
+  if (sellBtn) sellBtn.className = 'dir-btn sell' + (d==='SELL' ? ' active-sell' : '');
+  setTimeout(autoCalcLevels, 50);
+}
+
+// ── Auto-calc TPs ──────────────────────────────────────────────────
+function autoCalcLevels() {
+  const entryEl = document.getElementById('pi-entry');
+  if (!entryEl) return;
+  const entry = parseFloat(entryEl.value);
+  if (!entry || isNaN(entry)) return;
+  const asset = (selectedAsset || [...selAssets][0] || 'gold').toLowerCase();
+
+  // Use custom distance if provided, otherwise default for asset
+  const customDistEl = document.getElementById('pi-distance');
+  const customDist = customDistEl ? parseFloat(customDistEl.value) : NaN;
+  const distance = (!isNaN(customDist) && customDist > 0) ? customDist : (TP3_DISTANCES[asset] || 50);
+  const step     = Math.round((distance/3)*100)/100;
+  const isBuy    = selectedDir ? selectedDir==='BUY' : true;
+  const round    = v => Math.round(v*100)/100;
+  const tp1 = round(isBuy ? entry+step     : entry-step);
+  const tp2 = round(isBuy ? entry+step*2   : entry-step*2);
+  const tp3 = round(isBuy ? entry+distance : entry-distance);
+  const sl  = round(isBuy ? entry-distance : entry+distance);
+  const prev = document.getElementById('tp-preview');
+  if (prev) prev.style.display = 'flex';
+  const color = isBuy ? '#00C87A' : '#FF3D3D';
+  ['prev-tp1','prev-tp2','prev-tp3'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = [tp1,tp2,tp3][i]; el.style.color = color; }
+  });
+  const slEl = document.getElementById('pi-sl');
+  if (slEl && !slEl.value) slEl.value = sl;
+  window._calcTP1 = tp1; window._calcTP2 = tp2; window._calcTP3 = tp3;
+}
+
+// ── Fire Signal ────────────────────────────────────────────────────
+async function fireSig() {
+  if (maintenanceOn) { showToast('⚙️ Turn off maintenance first','warn'); return; }
+  if (!selectedDir)  { showToast('Choose BUY or SELL first','warn'); return; }
+  if (!selAssets.size){ showToast('Select an asset','warn'); return; }
+  const sl    = document.getElementById('pi-sl')?.value || null;
+  const entry = document.getElementById('pi-entry')?.value || null;
+  const tp1   = window._calcTP1 || null;
+  const tp2   = window._calcTP2 || null;
+  const tp3   = window._calcTP3 || null;
+  const btn   = document.getElementById('send-btn');
+  btn.disabled = true; btn.textContent = 'Sending...';
+  for (const a of [...selAssets]) {
+    try {
+      const r = await fetch(`${SERVER}/admin/fire`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-admin-token':ADMIN_SECRET},
+        body:JSON.stringify({direction:selectedDir,asset:a.toUpperCase(),sl,tp1,tp2,tp3,entry,window:'NY Close',tier:'standard'})
+      });
+      if (!r.ok) { const e=await r.json(); showToast('❌ '+e.error,'warn'); }
+      // Don't push locally — fetchAdminState will sync from server in 4s
+    } catch(e) { showToast('❌ Network error','warn'); }
+  }
+  setTimeout(() => {
+    btn.disabled=false; btn.textContent='⚡ SEND SIGNAL';
+    renderTrades(); resetSignalForm();
+    showToast('Signal sent ⚡','buy');
+  }, 500);
+}
+
+function resetSignalForm() {
+  const entryEl = document.getElementById('pi-entry');
+  const slEl    = document.getElementById('pi-sl');
+  const distEl  = document.getElementById('pi-distance');
+  const prev    = document.getElementById('tp-preview');
+  if (entryEl) entryEl.value = '';
+  if (slEl)    slEl.value    = '';
+  if (distEl)  distEl.value  = '';
+  if (prev)    prev.style.display = 'none';
+  window._calcTP1 = null; window._calcTP2 = null; window._calcTP3 = null;
+}
+
+// ── Render Trades ──────────────────────────────────────────────────
+function renderTrades() {
+  const wrap = document.getElementById('active-trades-wrap');
+  const el   = document.getElementById('active-trades');
+  const cnt  = document.getElementById('trade-count');
+  if (!el) return;
+  if (!activeTrades.length) { if(wrap) wrap.style.display='none'; el.innerHTML=''; return; }
+  if (wrap) wrap.style.display = 'block';
+  if (cnt) cnt.textContent = activeTrades.length + ' active';
+  el.innerHTML = activeTrades.map((t,i) => {
+    const isBuy = t.dir==='BUY';
+    const c = isBuy ? 'var(--green)' : 'var(--red)';
+    const bg = isBuy ? '#00C87A08;border:1px solid #00C87A20' : '#FF3D3D08;border:1px solid #FF3D3D20';
+    return `<div style="background:${bg};border-radius:12px;padding:12px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="font-size:14px;font-weight:700;color:${t.color}">${t.label}</div>
+          <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:${c}">${t.dir}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <div style="width:6px;height:6px;border-radius:50%;background:${c}"></div>
+          <div style="font-size:8px;font-weight:700;color:${c};letter-spacing:1px">LIVE</div>
+        </div>
+      </div>
+      ${t.entry ? `<div style="font-size:10px;color:var(--muted);margin-bottom:6px">Entry: <span style="font-family:var(--mono);color:var(--white)">${t.entry}</span></div>` : ''}
+      <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px">
+        ${[1,2,3].map(n => `
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;background:${t['tp'+n+'Hit']?'#00C87A15;border:1px solid #00C87A40':'var(--bg);border:1px solid var(--border)'}">
+          <div style="font-size:8px;font-weight:700;color:${t['tp'+n+'Hit']?'var(--green)':'var(--muted)'};width:22px">TP${n}</div>
+          <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:${t['tp'+n+'Hit']?'var(--green)':'var(--white)'};flex:1">${t['tp'+n]||'—'}</div>
+          ${t['tp'+n+'Hit']
+            ? '<div style="font-size:11px;color:var(--green)">✓</div>'
+            : `<button onclick="hitLevel(${i},'tp${n}')" style="background:var(--green);color:#000;border:none;border-radius:6px;padding:4px 10px;font-size:9px;font-weight:700;cursor:pointer">✓ TP${n}</button>`
+          }
+        </div>`).join('')}
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;background:#FF3D3D08;border:1px solid #FF3D3D20">
+          <div style="font-size:8px;font-weight:700;color:#FF3D3D;width:22px">SL</div>
+          <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:#FF3D3D;flex:1">${t.sl||'—'}</div>
+          ${!t.slHit?`<button onclick="hitLevel(${i},'sl')" style="background:#FF3D3D15;border:1px solid #FF3D3D30;color:#FF3D3D;border-radius:6px;padding:4px 8px;font-size:9px;font-weight:700;cursor:pointer">✗ SL</button>`:''}
+        </div>
+      </div>
+      <div style="display:flex;gap:6px">
+        ${!t.beHit?`<button onclick="hitLevel(${i},'be')" style="background:#F5A80015;border:1px solid #F5A80030;color:#F5A800;border-radius:6px;padding:6px 10px;font-size:9px;font-weight:700;cursor:pointer">🔒 BE</button>`:'<div style="font-size:9px;color:#F5A800;padding:6px 10px;background:#F5A80010;border-radius:6px">🔒 BE Active</div>'}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Hit Level ──────────────────────────────────────────────────────
+async function hitLevel(i, outcome) {
+  const t = activeTrades[i];
+  if (!t) return;
+  try {
+    const r = await fetch(`${SERVER}/admin/close`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-admin-token':ADMIN_SECRET},
+      body:JSON.stringify({ outcome, asset:t.asset.toUpperCase(), tradeId:t.tradeId||null })
+    });
+    if (!r.ok) { showToast('❌ Error','warn'); return; }
+    if (outcome==='tp1') { t.tp1Hit=true; showToast('✅ TP1 Hit','buy'); }
+    if (outcome==='tp2') { t.tp2Hit=true; showToast('✅ TP2 Hit','buy'); }
+    if (outcome==='tp3') {
+      t.tp3Hit=true;
+      showToast('🏆 TP3 — Full run!','buy');
+      setTimeout(()=>{ activeTrades.splice(i,1); renderTrades(); },2000);
+    }
+    if (outcome==='sl')  {
+      t.slHit=true;
+      showToast('🛑 SL Hit','warn');
+      setTimeout(()=>{ activeTrades.splice(i,1); renderTrades(); },2000);
+    }
+    if (outcome==='be')  { t.beHit=true; showToast('🔒 Break Even set','buy'); }
+    renderTrades();
+  } catch(e) { showToast('❌ Network error','warn'); }
+}
+
+// ── Broadcast ──────────────────────────────────────────────────────
+function setTemplate(msg) {
+  const el = document.getElementById('bc-msg');
+  if (el) { el.value = msg; el.focus(); updateCount(); }
+}
+function updateCount() {
+  const el  = document.getElementById('bc-msg');
+  const cnt = document.getElementById('bc-count');
+  if (el && cnt) cnt.textContent = el.value.length + ' / 300';
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const el = document.getElementById('bc-msg');
+  if (el) el.addEventListener('input', updateCount);
+});
+
+async function sendBroadcast() {
+  const msg = document.getElementById('bc-msg')?.value.trim();
+  if (!msg) { showToast('Type a message first','warn'); return; }
+  try {
+    const r = await fetch(`${SERVER}/admin/broadcast`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-admin-token':ADMIN_SECRET},
+      body:JSON.stringify({message:msg})
+    });
+    if (r.ok) {
+      showToast('📢 Sent to all members ✓','buy');
+      document.getElementById('bc-msg').value = '';
+      updateCount();
+    } else {
+      const e = await r.json().catch(()=>({}));
+      showToast('❌ '+(e.error||'Failed'),'warn');
+    }
+  } catch(e) { showToast('❌ Network error: '+e.message,'warn'); }
+}
+
+// ── Analytics ──────────────────────────────────────────────────────
+async function loadAnalytics() {
+  try {
+    const res = await fetch(`${SERVER}/admin/analytics`,{headers:{'x-admin-token':ADMIN_SECRET}});
+    if (!res.ok) return;
+    const d = await res.json();
+    const wr = d.total>0 ? Math.round((d.wins/d.total)*100) : 0;
+    const set = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+    set('an-winrate', d.total>0 ? wr+'%' : '--%');
+    set('an-signals', d.total||'--');
+    set('an-wins',    d.wins||'--');
+    set('an-pnl',     d.pnl>0 ? '+$'+d.pnl.toLocaleString() : '--');
+    const colors = {GOLD:'#C9A84C',BTC:'#F0921A',SILVER:'#C0C0C0',NAS100:'#4A9EFF',US30:'#BF5AF2'};
+    const ap = document.getElementById('asset-perf');
+    if (ap && d.assets?.length) {
+      ap.innerHTML = d.assets.map(a => {
+        const rate = a.total>0 ? Math.round(a.wins/a.total*100) : 0;
+        const c = a.color || colors[a.name] || '#888';
+        return `<div class="bar-row">
+          <div class="bar-name" style="color:${c}">${a.name}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${rate}%;background:${c}"></div></div>
+          <div class="bar-pct" style="color:${c}">${rate}%</div>
+        </div>`;
+      }).join('');
+    }
+  } catch(e) {}
+}
+
+// ── Members ────────────────────────────────────────────────────────
+async function loadMembers() {
+  try {
+    const res = await fetch(`${SERVER}/api/members`,{headers:{'x-admin-token':ADMIN_SECRET,'Content-Type':'application/json'}});
+    if (!res.ok) return;
+    const d = await res.json();
+    const lbl = document.getElementById('member-count-lbl');
+    if (lbl) lbl.textContent = (d.total||0) + ' active members';
+    const list = document.getElementById('member-list');
+    if (!list) return;
+    if (!d.members?.length) { list.innerHTML='<div style="font-size:12px;color:var(--muted)">No members yet</div>'; return; }
+    list.innerHTML = d.members.map(m => `
+      <div class="member-item">
+        <div>
+          <div class="member-code">${m.code}</div>
+          <div class="member-email">${m.email||'—'}</div>
+        </div>
+        <div class="member-badge" style="background:#00C87A20;color:var(--green);border:1px solid #00C87A30">Active</div>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+// Store last generated code
+let lastGenCode = null;
+let lastGenEmail = null;
+
+async function generateCode() {
+  const email = document.getElementById('member-email')?.value.trim() || null;
+  const days  = parseInt(document.getElementById('code-duration')?.value || '30');
+  const btn   = document.getElementById('gen-btn');
+
+  // Auto-generate 8-char code format XXXX-XXXX e.g. "14TR-X7K2"
+  const p1   = Math.random().toString(36).substr(2,4).toUpperCase();
+  const p2   = Math.random().toString(36).substr(2,4).toUpperCase();
+  const code = p1 + '-' + p2;
+
+  btn.textContent = 'Generating...'; btn.disabled = true;
+  try {
+    const r = await fetch(`${SERVER}/admin/generate-code`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-admin-token':ADMIN_SECRET},
+      body:JSON.stringify({ code, email, days })
+    });
+    const d = await r.json();
+    if (d.ok || d.code) {
+      const finalCode = d.code || code;
+      lastGenCode  = finalCode;
+      lastGenEmail = email;
+
+      // Show code box
+      const box    = document.getElementById('gen-code-box');
+      const valEl  = document.getElementById('gen-code-val');
+      const expEl  = document.getElementById('gen-code-exp');
+      if (box)    { box.style.display = 'block'; box.style.opacity = '1'; }
+      if (valEl)  valEl.textContent = finalCode;
+      if (expEl)  expEl.textContent = days === 0 ? 'Lifetime access' : 'Expires in '+days+' days';
+
+      if (email) document.getElementById('member-email').value = '';
+      loadMembers();
+    } else {
+      showToast('❌ '+(d.error||'Error'),'warn');
+    }
+  } catch(e) { showToast('❌ Network error','warn'); }
+  btn.textContent = '⚡ Generate code'; btn.disabled = false;
+}
+
+function copyGenCode() {
+  if (!lastGenCode) return;
+  navigator.clipboard.writeText(lastGenCode).then(() => showToast('✅ Code copied!','buy'));
+}
+
+function shareGenCode() {
+  if (!lastGenCode) return;
+  const msg = encodeURIComponent(
+    '✅ Votre accès 14 Trades Alert\n\n' +
+    'Code : *' + lastGenCode + '*\n\n' +
+    'Activez votre accès ici : app.14trade.com\n\n' +
+    'Moi je fais le travail. Toi tu exécutes. ⚡'
+  );
+  window.open('https://wa.me/?text='+msg,'_blank');
+}
+
+// ── Trials ─────────────────────────────────────────────────────────
+async function loadTrials() {
+  try {
+    const res = await fetch(`${SERVER}/admin/trials`,{headers:{'x-admin-token':ADMIN_SECRET}});
+    const d   = await res.json();
+    const el  = document.getElementById('trial-list');
+    if (!el) return;
+    const trials = d.trials||[];
+    if (!trials.length) { el.innerHTML='<div style="font-size:12px;color:var(--muted)">No trials yet</div>'; return; }
+    el.innerHTML = trials.map(t => {
+      const exp      = new Date(t.expires_at);
+      const expired  = exp < new Date();
+      const daysLeft = Math.ceil((exp-new Date())/86400000);
+      return `<div class="member-item">
+        <div><div class="member-code">${t.code}</div><div class="member-email">${t.email||'—'}</div></div>
+        <div class="member-badge" style="background:${expired?'#FF3D3D20':'#00C87A20'};color:${expired?'var(--red)':'var(--green)'};border:1px solid ${expired?'#FF3D3D30':'#00C87A30'}">${expired?'Expired':daysLeft+'d left'}</div>
+      </div>`;
+    }).join('');
+  } catch(e) {}
+}
+
+// ── Referrals ──────────────────────────────────────────────────────
+async function createRefCode() {
+  const name  = document.getElementById('ref-name')?.value.trim();
+  const type  = document.getElementById('ref-type')?.value;
+  const email = document.getElementById('ref-email')?.value.trim();
+  if (!name) { showToast('Enter a name','warn'); return; }
+  try {
+    const r = await fetch(`${SERVER}/admin/referral/create`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-admin-token':ADMIN_SECRET},
+      body:JSON.stringify({name,type,email})
+    });
+    const d = await r.json();
+    if (d.ok) { showToast('✅ Code: '+d.code,'buy'); document.getElementById('ref-name').value=''; document.getElementById('ref-email').value=''; loadReferrals(); }
+    else showToast('❌ '+d.error,'warn');
+  } catch(e) { showToast('❌ Network error','warn'); }
+}
+
+async function loadReferrals() {
+  try {
+    let res;
+    try { res = await fetch(`${SERVER}/admin/referrals`,{headers:{'x-admin-token':ADMIN_SECRET,'Content-Type':'application/json'}}); }
+    catch(e) { document.getElementById('ref-list').innerHTML='<div style="font-size:12px;color:var(--muted);padding:14px">Could not load — check server</div>'; return; }
+    if (!res.ok) { document.getElementById('ref-list').innerHTML='<div style="font-size:12px;color:var(--muted);padding:14px">Server error '+res.status+'</div>'; return; }
+    const d = await res.json();
+    const refs = d.referrals||[];
+    const tot = document.getElementById('ref-total');
+    if (tot) tot.textContent = refs.length+' codes';
+    const el = document.getElementById('ref-list');
+    if (!el) return;
+    if (!refs.length) { el.innerHTML='<div style="font-size:12px;color:var(--muted);padding:14px">No codes yet</div>'; return; }
+    el.innerHTML = refs.map(r => {
+      const isInf = r.type==='influencer';
+      const owed  = parseFloat(r.amount_owed||0);
+      const link  = `https://14trades-pwa.vercel.app/trial.html?ref=${r.code}`;
+      return `<div style="padding:12px 16px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--white)">${r.name}</div>
+            <div style="font-family:var(--mono);font-size:10px;color:${isInf?'#BF5AF2':'var(--gold)'};margin-top:2px">${r.code}</div>
+          </div>
+          <div style="font-size:8px;font-weight:700;padding:3px 8px;border-radius:5px;background:${isInf?'#BF5AF215':'#C9A84C15'};color:${isInf?'#BF5AF2':'var(--gold)'}">
+            ${isInf?'INFLUENCER':'MEMBER'}
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:8px">
+          <div style="flex:1;text-align:center;background:var(--bg3);border-radius:7px;padding:7px">
+            <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--white)">${r.trials||0}</div>
+            <div style="font-size:7px;color:var(--muted);text-transform:uppercase;margin-top:2px">Trials</div>
+          </div>
+          <div style="flex:1;text-align:center;background:var(--bg3);border-radius:7px;padding:7px">
+            <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--green)">${r.paid_conversions||0}</div>
+            <div style="font-size:7px;color:var(--muted);text-transform:uppercase;margin-top:2px">Paid</div>
+          </div>
+          <div style="flex:1;text-align:center;background:var(--bg3);border-radius:7px;padding:7px">
+            <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:${isInf?'var(--gold2)':'var(--gold)'}">${isInf?'$'+owed:Math.floor((r.paid_conversions||0)/3)}</div>
+            <div style="font-size:7px;color:var(--muted);text-transform:uppercase;margin-top:2px">${isInf?'Owed':'Free mo'}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button onclick="navigator.clipboard.writeText('${link}').then(()=>showToast('Link copied ✓','buy'))" style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:7px;font-size:9px;font-weight:700;color:var(--muted);cursor:pointer">📋 Copy link</button>
+          ${isInf&&owed>0?`<button onclick="markPaid('${r.code}',${owed})" style="flex:1;background:#00C87A15;border:1px solid #00C87A25;border-radius:7px;padding:7px;font-size:9px;font-weight:700;color:var(--green);cursor:pointer">✅ Paid $${owed}</button>`:''}
+          ${!isInf&&(r.paid_conversions||0)%3===0&&(r.paid_conversions||0)>0?`<div style="flex:1;background:#C9A84C15;border:1px solid #C9A84C25;border-radius:7px;padding:7px;font-size:9px;font-weight:700;color:var(--gold);text-align:center">🎁 Give free month!</div>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) { console.error('[REFERRALS]',e); }
+}
+
+async function markPaid(code, amount) {
+  try {
+    await fetch(`${SERVER}/admin/referral/mark-paid`,{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':ADMIN_SECRET},body:JSON.stringify({code,amount})});
+    showToast('✅ Marked $'+amount+' paid','buy');
+    loadReferrals();
+  } catch(e) { showToast('❌ Error','warn'); }
+}
+
+// ── Test Renewal Push ──────────────────────────────────────────────
+async function testRenewalPush() {
+  showToast('Sending...', '');
+  try {
+    const r = await fetch(`${SERVER}/admin/test-renewal`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-admin-token':ADMIN_SECRET},
+      body: JSON.stringify({})
+    });
+    const d = await r.json();
+    if (d.error) { showToast('❌ ' + d.error, 'warn'); return; }
+    const sent   = d.results.filter(x => x.push === 'push sent').length;
+    const noId   = d.results.filter(x => x.push === 'no push ID').length;
+
+    // Show result in alert with full details
+    let msg = `📊 Renewal Test Results\n`;
+    msg += `─────────────────────\n`;
+    msg += `Total tested: ${d.tested}\n`;
+    msg += `Push sent:    ${sent}\n`;
+    msg += `No player ID: ${noId}\n\n`;
+    if (d.results.length) {
+      msg += `Details:\n`;
+      d.results.forEach(x => {
+        msg += `• ${x.email||x.code} — ${x.daysLeft}d left — ${x.push}\n`;
+      });
+    }
+    alert(msg);
+  } catch(e) { showToast('❌ Error: ' + e.message, 'warn'); }
+}
+
+// ── Settings ───────────────────────────────────────────────────────
+async function toggleMaintenance() {
+  maintenanceOn = !maintenanceOn;
+  const toggle = document.getElementById('maint-toggle');
+  const sub    = document.getElementById('maint-sub');
+  if (toggle) toggle.className = 'toggle' + (maintenanceOn ? ' on' : '');
+  if (sub) sub.textContent = maintenanceOn ? 'Users see maintenance screen' : 'Users see the normal app';
+  try {
+    await fetch(`${SERVER}/admin/maintenance`,{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':ADMIN_SECRET},body:JSON.stringify({enabled:maintenanceOn})});
+    showToast(maintenanceOn ? '⚙️ Maintenance ON' : '✅ Maintenance OFF', maintenanceOn?'warn':'buy');
+  } catch(e) { showToast('❌ Error','warn'); }
+}
+
+async function changePin() {
+  const n = document.getElementById('pin-new')?.value;
+  const c = document.getElementById('pin-confirm')?.value;
+  if (!n||n.length<4) { showToast('Min 4 digits','warn'); return; }
+  if (n!==c) { showToast('PINs do not match','warn'); return; }
+  try {
+    const r = await fetch(`${SERVER}/admin/change-pin`,{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':ADMIN_SECRET},body:JSON.stringify({newPin:n})});
+    const d = await r.json();
+    if(d.ok) { showToast('✅ PIN updated','buy'); document.getElementById('pin-new').value=''; document.getElementById('pin-confirm').value=''; }
+    else showToast('❌ '+d.error,'warn');
+  } catch(e) { showToast('❌ Error','warn'); }
+}
+
+
+// ── Dashboard Stats ────────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const res = await fetch(`${SERVER}/admin/dashboard`, {
+      headers: {'x-admin-token': ADMIN_SECRET}
+    });
+    if (!res.ok) return;
+    const d = await res.json();
+
+    const paid     = d.paid     || 0;
+    const trials   = d.trials   || 0;
+    const expiring = d.expiring || 0;
+    const revenue  = paid * 100;
+
+    const set = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
+    set('dash-revenue',  '$' + revenue.toLocaleString());
+    set('dash-paid',     paid);
+    set('dash-trials',   trials);
+    set('dash-expiring', expiring);
+    set('dash-updated',  new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}));
+
+    // Red badge on members nav if follow-ups needed
+    if (d.followups > 0) {
+      const nb = document.getElementById('nb-members') || document.getElementById('bnav-members');
+      const badge = document.getElementById('nb-signal');
+      // Add badge to members tab
+      const mNav = document.getElementById('nav-members');
+      if (mNav) {
+        let b = mNav.querySelector('.nav-badge');
+        if (!b) { b = document.createElement('div'); b.className='nav-badge show'; mNav.appendChild(b); }
+        b.textContent = d.followups;
+        b.style.display = 'block';
+      }
+    }
+  } catch(e) { console.log('[DASHBOARD]', e.message); }
+}
+
+// ── Follow-up List ─────────────────────────────────────────────────
+async function loadFollowups() {
+  try {
+    const res = await fetch(`${SERVER}/admin/followups`, {
+      headers: {'x-admin-token': ADMIN_SECRET}
+    });
+    if (!res.ok) return;
+    const d = await res.json();
+    const list = d.followups || [];
+
+    const card  = document.getElementById('followup-card');
+    const el    = document.getElementById('followup-list');
+    const count = document.getElementById('followup-count');
+    if (!el) return;
+
+    if (!list.length) {
+      if (card) card.style.display = 'none';
+      return;
+    }
+
+    if (card) card.style.display = 'block';
+    if (count) count.textContent = list.length + ' à contacter';
+
+    el.innerHTML = list.map(f => {
+      const days    = f.days_since_expiry || 0;
+      const isDay1  = days <= 2;
+      const msgType = isDay1 ? 'day1' : 'day3';
+      const email   = f.email || f.code || 'Membre';
+      const name    = email.split('@')[0];
+
+      // Pre-written messages
+      const msg1 = encodeURIComponent(
+        `Ton accès 14 Trades a expiré.
+
+Tu as suivi les signaux cette semaine ?
+
+Je t'offre 3 jours de plus pour que tu puisses voir les résultats par toi-même.
+
+— Sadikh ⚡`
+      );
+      const msg3 = encodeURIComponent(
+        `Cette semaine on a touché TP1 et TP2 sur l'or.
+
+Sur 0.1 lot, ça représente environ 150$.
+
+L'abonnement coûte 100$ par mois.
+
+Un seul trade a payé l'abonnement — et il en reste.
+
+Tu veux reprendre ton accès ?`
+      );
+      const waMsg = isDay1 ? msg1 : msg3;
+
+      // Email subjects and bodies
+      const extendLink = `https://app.14trade.com/?extend=${f.code}`;
+      const emailSubj1 = encodeURIComponent("Ton accès 14 Trades a expiré");
+      const emailBody1 = encodeURIComponent(`Bonjour,\n\nTon accès 14 Trades a expiré.\n\nTu as suivi les signaux cette semaine ?\n\nJe t'offre 3 jours supplémentaires gratuits pour que tu puisses voir les résultats par toi-même.\n\nClique ici pour activer tes 3 jours gratuits — tu seras connecté automatiquement :\n👉 ${extendLink}\n\n— Sadikh ⚡\napp.14trade.com\n\n💬 WhatsApp : https://wa.me/221788255099\n📊 Telegram : https://t.me/+dmul6Q--Apc3YzQ0`);
+      const emailSubj3 = encodeURIComponent("Un seul trade a payé l'abonnement 💰");
+      const emailBody3 = encodeURIComponent(`Bonjour,\n\nJe vais te montrer les chiffres de cette semaine.\n\nSignal GOLD BUY — résultats :\nTP1 touché → +$83 sur 0.1 lot\nTP2 touché → +$97 sur 0.1 lot\n\nTotal : +$180 en une semaine\nAbonnement : $100/mois\nNet : +$80 cette semaine.\n\nLe service se paye lui-même dès le premier signal.\n\nPour s'abonner maintenant :\n👉 https://14trades-pwa.vercel.app/payment.html\n\n— Sadikh ⚡\napp.14trade.com\n\n💬 WhatsApp : https://wa.me/221788255099\n📊 Telegram : https://t.me/+dmul6Q--Apc3YzQ0`);
+
+      const mailLink = isDay1
+        ? `mailto:${email}?subject=${emailSubj1}&body=${emailBody1}`
+        : `mailto:${email}?subject=${emailSubj3}&body=${emailBody3}`;
+
+      return `<div style="padding:12px 16px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--white)">${name}</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px">expiré il y a ${days} jour${days>1?'s':''}</div>
+          </div>
+          <button onclick="dismissFollowup('${f.code}')"
+            style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:5px 10px;font-size:9px;font-weight:700;color:var(--muted);cursor:pointer">
+            ✅ Done
+          </button>
+        </div>
+        <div style="display:flex;gap:6px">
+          <a href="https://wa.me/?text=${waMsg}" target="_blank"
+            style="flex:1;background:#25D36615;border:1px solid #25D36625;border-radius:8px;padding:8px;font-size:10px;font-weight:700;color:#25D366;text-decoration:none;text-align:center">
+            💬 WhatsApp
+          </a>
+          <a href="${mailLink}"
+            style="flex:1;background:#4A9EFF15;border:1px solid #4A9EFF25;border-radius:8px;padding:8px;font-size:10px;font-weight:700;color:#4A9EFF;text-decoration:none;text-align:center">
+            ✉️ Email
+          </a>
+          <button onclick="sendPushToMember('${f.code}','${f.player_id||''}')"
+            style="flex:1;background:#FFD70015;border:1px solid #FFD70025;border-radius:8px;padding:8px;font-size:10px;font-weight:700;color:#FFD700;cursor:pointer;font-family:var(--font)">
+            🔔 Push
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) { console.log('[FOLLOWUPS]', e.message); }
+}
+
+async function sendPushToMember(code, playerId) {
+  if (!playerId) {
+    showToast('📧 No push ID — use Email or WhatsApp instead','warn');
+    return;
+  }
+  try {
+    const r = await fetch(`${SERVER}/admin/test-renewal`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-admin-token':ADMIN_SECRET},
+      body: JSON.stringify({ code })
+    });
+    const d = await r.json();
+    if (d.results?.[0]?.push === 'push sent') showToast('🔔 Push sent!','buy');
+    else showToast('❌ Push failed','warn');
+  } catch(e) { showToast('❌ Error','warn'); }
+}
+
+async function closeTradeManually(i) {
+  const t = activeTrades[i];
+  if (!t) return;
+
+  // Determine best TP hit
+  const bestTp = t.tp3Hit ? 3 : t.tp2Hit ? 2 : t.tp1Hit ? 1 : 0;
+  const resultLabel = bestTp > 0 ? `TP${bestTp} atteint ✓` : 'Break Even';
+  const isWin = bestTp > 0;
+
+  const confirmed = confirm(`Fermer le trade ${t.label} ?\nRésultat : ${resultLabel}\n\nUn message sera envoyé aux membres.`);
+  if (!confirmed) return;
+
+  try {
+    const r = await fetch(`${SERVER}/admin/close-manual`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-admin-token':ADMIN_SECRET},
+      body: JSON.stringify({
+        tradeId: t.tradeId || null,
+        asset:   t.asset.toUpperCase(),
+        outcome: bestTp > 0 ? 'tp'+bestTp : 'be',
+        isWin,
+        bestTp,
+        label:   t.label
+      })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      showToast(`✅ Trade fermé — ${resultLabel}`, 'buy');
+      setTimeout(() => { activeTrades.splice(i,1); renderTrades(); }, 1500);
+    } else {
+      showToast('❌ ' + (d.error||'Error'), 'warn');
+    }
+  } catch(e) { showToast('❌ Network error', 'warn'); }
+}
+
+async function dismissFollowup(code) {
+  try {
+    await fetch(`${SERVER}/admin/followup/dismiss`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-admin-token':ADMIN_SECRET},
+      body: JSON.stringify({ code })
+    });
+    loadFollowups();
+    loadDashboard();
+  } catch(e) {}
+}
+
+// ── On Login ───────────────────────────────────────────────────────
+async function onLogin() {
+  fetchAdminState();
+  setInterval(fetchAdminState, 4000);
+  loadDashboard();
+  setInterval(loadDashboard, 60000); // refresh every minute
+  loadAnalytics();
+  loadReferrals();
+  setTimeout(()=>{ loadMembers(); loadTrials(); loadFollowups(); }, 1000);
+}
+
+async function fetchAdminState() {
+  try {
+    const res = await fetch(`${SERVER}/api/state`);
+    if (!res.ok) return;
+    const d = await res.json();
+    const serverTrades = d.activeTrades||(d.activeTrade?[d.activeTrade]:[]);
+    const openTrades   = serverTrades.filter(t=>t.status==='open'||t.status==='confirmed');
+    openTrades.forEach(st => {
+      const exists = activeTrades.find(x=>
+        x.tradeId===st.id ||
+        (x.asset && x.asset.toLowerCase()===st.asset.toLowerCase() && !x.tradeId)
+      );
+      if (!exists) {
+        const assetKey = (st.asset||'GOLD').toLowerCase();
+        const cfg = ASSETS_CFG[assetKey]||{label:st.asset,color:'#FFD700'};
+        activeTrades.push({tradeId:st.id,asset:assetKey,label:cfg.label,dir:st.direction,color:cfg.color,sl:st.sl,tp1:st.tp1,tp2:st.tp2,tp3:st.tp3,entry:st.entry||null,tp1Hit:st.tp1_hit||false,tp2Hit:st.tp2_hit||false,tp3Hit:st.tp3_hit||false,beHit:st.be_hit||false,slHit:st.sl_hit||false,be_active:st.be_hit||false});
+        renderTrades();
+      } else {
+        const idx=activeTrades.indexOf(exists);let changed=false;
+        if(st.tp1_hit&&!activeTrades[idx].tp1Hit){activeTrades[idx].tp1Hit=true;changed=true;}
+        if(st.tp2_hit&&!activeTrades[idx].tp2Hit){activeTrades[idx].tp2Hit=true;changed=true;}
+        if(st.tp3_hit&&!activeTrades[idx].tp3Hit){activeTrades[idx].tp3Hit=true;changed=true;}
+        if(st.be_hit&&!activeTrades[idx].beHit){activeTrades[idx].beHit=true;changed=true;}
+        if(changed) renderTrades();
+      }
+    });
+    const serverIds = openTrades.map(t=>t.id);
+    const before = activeTrades.length;
+    activeTrades = activeTrades.filter(t=>!t.tradeId||serverIds.includes(t.tradeId));
+    if(activeTrades.length!==before) renderTrades();
+    // Maintenance sync
+    if(typeof d.maintenance!=='undefined'){
+      maintenanceOn=d.maintenance;
+      const toggle=document.getElementById('maint-toggle');
+      const sub=document.getElementById('maint-sub');
+      if(toggle) toggle.className='toggle'+(maintenanceOn?' on':'');
+      if(sub) sub.textContent=maintenanceOn?'Users see maintenance screen':'Users see the normal app';
+    }
+  } catch(e){}
+}
+</script>
+</body>
+</html>
