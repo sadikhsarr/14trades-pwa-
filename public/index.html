@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="14 Trades — Signaux premium Gold, BTC, Nasdaq. Essai gratuit 7 jours. Academy. Challenge Cup mensuel. Par Sadikh Sarr.">
+<meta name="theme-color" content="#FFD700">
+<title>14 Trades — Signaux Premium & Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;background:#080808}
+body{font-family:'Inter',sans-serif;background:#080808;color:#F0F0F0;line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{font-family:'Inter',sans-serif;cursor:pointer}
+.site{max-width:920px;margin:0 auto;padding:0 24px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── NAV ── */
+.nav{height:58px;border-bottom:1px solid #141414;position:sticky;top:0;background:rgba(8,8,8,.96);backdrop-filter:blur(20px);z-index:100}
+.nav-inner{max-width:920px;margin:0 auto;padding:0 24px;height:100%;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:#FFD700}
+.nav-links{display:flex;align-items:center;gap:4px}
+.nav-link{font-size:12px;color:#555;padding:7px 12px;border-radius:8px;transition:all .15s;white-space:nowrap}
+.nav-link:hover{color:#F0F0F0;background:#111}
+.nav-link.gold{color:#C9A84C}
+.nav-link.live{color:#FFD700;display:flex;align-items:center;gap:6px}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:#FFD700;animation:pulse 2s infinite;flex-shrink:0}
+.nav-cta{background:linear-gradient(135deg,#C9A84C,#FFD700);color:#000;border:none;border-radius:8px;padding:9px 20px;font-size:12px;font-weight:700;white-space:nowrap;margin-left:4px}
+.nav-cta:hover{opacity:.9}
+
+/* ── HERO ── */
+.hero{padding:80px 0 64px;text-align:center;position:relative}
+.hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:800px;height:400px;background:radial-gradient(ellipse at 50% 0%,#1A1400 0%,transparent 65%);pointer-events:none}
+.hero-pill{display:inline-flex;align-items:center;gap:8px;background:#0F0F0F;border:1px solid #FFD70020;border-radius:40px;padding:6px 16px;margin-bottom:28px;position:relative}
+.hero-pill-txt{font-size:11px;color:#C9A84C;font-weight:600;letter-spacing:.5px}
+.hero-h1{font-size:clamp(38px,7vw,64px);font-weight:800;line-height:1.04;letter-spacing:-2.5px;margin-bottom:18px;position:relative}
+.hero-h1 span{color:#FFD700}
+.hero-sub{font-size:16px;color:#555;line-height:1.75;max-width:460px;margin:0 auto 44px;font-weight:400}
+.hero-cta-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:52px}
+.btn-trial{background:linear-gradient(135deg,#C9A84C,#FFD700);color:#000;border:none;border-radius:12px;padding:18px 40px;font-size:16px;font-weight:800;letter-spacing:-.3px;display:inline-flex;align-items:center;gap:10px}
+.btn-trial:hover{opacity:.92}
+.btn-trial-note{font-size:12px;color:#333}
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);background:#0D0D0D;border:1px solid #141414;border-radius:14px;overflow:hidden}
+.hs{padding:18px;text-align:center;border-right:1px solid #141414}
+.hs:last-child{border-right:none}
+.hs-val{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;margin-bottom:3px}
+.hs-lbl{font-size:10px;color:#3A3A3A;letter-spacing:1px;text-transform:uppercase}
+
+/* ── PROOF STRIP ── */
+.proof{padding:32px 0;border-top:1px solid #111;border-bottom:1px solid #111;overflow:hidden}
+.proof-inner{display:flex;gap:10px;animation:scroll 25s linear infinite}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.proof-item{background:#0D0D0D;border:1px solid #141414;border-radius:8px;padding:8px 14px;white-space:nowrap;font-size:12px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.proof-asset{font-family:'Space Mono',monospace;font-size:10px;color:#444;font-weight:700}
+.proof-dir{font-family:'Space Mono',monospace;font-size:11px;font-weight:700}
+.proof-result{font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px}
+.pr-win{background:#00C87A12;color:#00C87A;border:1px solid #00C87A20}
+.pr-sl{background:#FF3B4E12;color:#FF3B4E;border:1px solid #FF3B4E20}
+
+/* ── SECTION ── */
+.section{padding:80px 0}
+.section+.section{border-top:1px solid #111}
+.s-tag{display:inline-block;background:#0D0D0D;border:1px solid #FFD70018;border-radius:40px;padding:4px 14px;font-size:10px;color:#C9A84C;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px}
+.s-h2{font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-1.5px;line-height:1.08;margin-bottom:10px}
+.s-sub{font-size:14px;color:#555;line-height:1.75;margin-bottom:32px}
+
+/* ── APP PREVIEW ── */
+.app-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:60px;align-items:center}
+.phone{background:#0D0D0D;border:1px solid #1A1A1A;border-radius:26px;padding:18px;width:210px;margin:0 auto}
+.ph-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.ph-logo{font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:#FFD700}
+.ph-live{background:#00C87A12;border:1px solid #00C87A20;border-radius:8px;padding:3px 8px;font-size:9px;font-weight:700;color:#00C87A;display:flex;align-items:center;gap:4px}
+.ph-dot{width:4px;height:4px;border-radius:50%;background:#00C87A;animation:pulse 1.5s infinite}
+.ph-cd{background:#0C0B00;border:1px solid #FFD70018;border-radius:10px;padding:12px;text-align:center;margin-bottom:10px}
+.ph-cd-lbl{font-size:8px;color:#C9A84C;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
+.ph-cd-time{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:#FFD700;letter-spacing:-1px}
+.ph-trade{background:#071507;border:1px solid #00C87A18;border-radius:10px;padding:12px}
+.ph-dir{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:#00C87A;margin-bottom:8px}
+.ph-tp{border:1px solid #00C87A15;border-radius:6px;padding:5px 10px;display:flex;justify-content:space-between;font-size:10px;margin-bottom:4px}
+.ph-tp.hit{background:#00C87A08;border-color:#00C87A25}
+.ph-tp-l{color:#1A4A2A;font-weight:700}.ph-tp.hit .ph-tp-l{color:#00C87A}
+.ph-tp-r{color:#333}.ph-tp.hit .ph-tp-r{color:#00C87A}
+.app-feat{display:flex;gap:12px;align-items:flex-start;margin-bottom:16px}
+.app-feat-ico{width:36px;height:36px;border-radius:9px;background:#141400;border:1px solid #FFD70015;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.app-feat-title{font-size:14px;font-weight:600;margin-bottom:2px}
+.app-feat-sub{font-size:12px;color:#555}
+
+/* ── RESULTS ── */
+.results-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.rc{background:#0D0D0D;border:1px solid #141414;border-radius:12px;padding:12px;text-align:center}
+.rc.win{border-color:#00C87A18}.rc.loss{border-color:#FF3B4E18}
+.rc-day{font-size:10px;color:#333;margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px}
+.rc-dir{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;margin-bottom:6px}
+.rc-out{font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;display:inline-block}
+.rc-tp{background:#00C87A12;color:#00C87A;border:1px solid #00C87A20}
+.rc-sl{background:#FF3B4E12;color:#FF3B4E;border:1px solid #FF3B4E20}
+.week-bar{background:#0D0D0D;border:1px solid #FFD70015;border-radius:12px;padding:18px;display:flex;justify-content:space-around}
+.wb-val{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:#FFD700}
+.wb-lbl{font-size:10px;color:#333;text-transform:uppercase;letter-spacing:.8px;margin-top:3px}
+
+/* ── ACADEMY SLIDE ── */
+.academy-slide{background:linear-gradient(135deg,#0C0B00,#080800);border:1px solid #FFD70018;border-radius:20px;padding:40px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;cursor:pointer;transition:border-color .25s}
+.academy-slide:hover{border-color:#FFD70035}
+.ac-tag{display:inline-flex;align-items:center;gap:6px;background:#FFD70010;border:1px solid #FFD70020;border-radius:20px;padding:4px 12px;font-size:10px;color:#C9A84C;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px}
+.ac-h2{font-size:clamp(24px,3.5vw,36px);font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:10px}
+.ac-sub{font-size:13px;color:#666;line-height:1.7;margin-bottom:20px}
+.ac-courses{display:flex;flex-direction:column;gap:8px}
+.ac-course{background:#00000040;border:1px solid #1A1A00;border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s}
+.ac-course:hover{border-color:#FFD70025}
+.ac-course-name{font-size:13px;font-weight:600}
+.ac-course-price{font-family:'Space Mono',monospace;font-size:11px;color:#C9A84C}
+.ac-course-badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px}
+.ac-cta{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#C9A84C,#FFD700);color:#000;border:none;border-radius:10px;padding:13px 24px;font-size:13px;font-weight:800;margin-top:20px}
+.ac-cta:hover{opacity:.9}
+
+/* ── COMPETITION SLIDE ── */
+.comp-slide{background:linear-gradient(135deg,#0A0A14,#080810);border:1px solid #5865F220;border-radius:20px;padding:36px;display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center}
+.comp-live-tag{display:inline-flex;align-items:center;gap:6px;background:#FFD70010;border:1px solid #FFD70020;border-radius:20px;padding:4px 12px;font-size:10px;color:#FFD700;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+.comp-h2{font-size:clamp(22px,3vw,32px);font-weight:800;letter-spacing:-1px;margin-bottom:8px}
+.comp-sub{font-size:13px;color:#666;line-height:1.7;margin-bottom:20px}
+.comp-btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn-comp-primary{background:linear-gradient(135deg,#C9A84C,#FFD700);color:#000;border:none;border-radius:10px;padding:12px 22px;font-size:13px;font-weight:800}
+.btn-comp-secondary{background:transparent;color:#C9A84C;border:1px solid #FFD70025;border-radius:10px;padding:12px 18px;font-size:13px;font-weight:600}
+.btn-comp-secondary:hover{background:#FFD70008}
+.comp-rewards{display:flex;flex-direction:column;gap:10px;min-width:180px}
+.comp-reward{display:flex;align-items:center;gap:10px}
+.comp-reward-medal{font-size:22px;flex-shrink:0;width:28px;text-align:center}
+.comp-reward-title{font-size:12px;font-weight:600;color:#F0F0F0}
+.comp-reward-sub{font-size:11px;color:#555}
+
+/* ── ABOUT ── */
+.about-card{background:#0D0D0D;border:1px solid #141414;border-radius:18px;padding:32px;display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:center}
+.about-av{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#FFD700,#C9A84C);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:#000;flex-shrink:0}
+.about-name{font-size:17px;font-weight:800;margin-bottom:3px}
+.about-role{font-size:12px;color:#C9A84C;margin-bottom:14px}
+.about-bio{font-size:13px;color:#777;line-height:1.8;margin-bottom:14px}
+.asset-tags{display:flex;gap:6px;flex-wrap:wrap}
+.asset-tag{background:#141400;border:1px solid #FFD70018;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;color:#C9A84C}
+
+/* ── TESTIMONIALS ── */
+.tc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.tc{background:#0D0D0D;border:1px solid #141414;border-radius:14px;padding:20px}
+.tc-stars{color:#FFD700;font-size:11px;letter-spacing:2px;margin-bottom:10px}
+.tc-txt{font-size:13px;color:#888;line-height:1.7;font-style:italic;margin-bottom:14px}
+.tc-name{font-size:12px;font-weight:700;color:#C9A84C}
+.tc-city{font-size:11px;color:#333}
+
+/* ── SOCIAL ── */
+.social-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.social-card{border-radius:14px;padding:20px 22px;display:flex;align-items:center;gap:16px;transition:opacity .2s}
+.social-card:hover{opacity:.85}
+.social-card.wa{background:#071507;border:1px solid #25D36620}
+.social-card.dc{background:#0A0A14;border:1px solid #5865F220}
+.social-card.tg{background:#071320;border:1px solid #229ED920}
+.social-card.hfm{background:#1A1400;border:1px solid #FFD70020}
+.social-ico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.social-name{font-size:14px;font-weight:700;margin-bottom:2px}
+.social-sub{font-size:12px;color:#555}
+.social-arr{margin-left:auto;font-size:16px;color:#333}
+
+/* ── FAQ ── */
+.faq-item{background:#0D0D0D;border:1px solid #141414;border-radius:12px;overflow:hidden;cursor:pointer;margin-bottom:8px}
+.faq-q{padding:16px 20px;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;transition:color .2s}
+.faq-q:hover{color:#FFD700}
+.faq-ico{color:#C9A84C;font-size:18px;flex-shrink:0}
+.faq-a{display:none;padding:14px 20px 16px;font-size:13px;color:#777;line-height:1.7;border-top:1px solid #111}
+
+/* ── FOOTER ── */
+.footer{border-top:1px solid #111;padding:48px 0 28px}
+.footer-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}
+.footer-brand{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:#FFD700;margin-bottom:8px}
+.footer-desc{font-size:13px;color:#333;line-height:1.7}
+.footer-col-h{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#444;margin-bottom:14px}
+.footer-lnk{display:block;font-size:13px;color:#333;margin-bottom:8px;transition:color .2s}
+.footer-lnk:hover{color:#F0F0F0}
+.footer-bottom{border-top:1px solid #0F0F0F;padding-top:20px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.footer-copy{font-size:11px;color:#222}
+.footer-slogan{font-size:11px;color:#1E1E1E;font-style:italic}
+.footer-risk{font-size:10px;color:#1A1A1A;max-width:360px;line-height:1.5}
+
+/* ── PAYMENT MODAL ── */
+.modal-ov{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:9000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(12px)}
+.modal-ov.open{display:flex}
+.modal-box{background:#0D0D0D;border:1px solid #1A1A1A;border-radius:20px;padding:28px;width:100%;max-width:400px;position:relative;max-height:90vh;overflow-y:auto}
+.modal-x{position:absolute;top:14px;right:14px;background:#111;border:1px solid #1A1A1A;border-radius:7px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:#555}
+.modal-x:hover{color:#F0F0F0}
+.modal-ttl{font-size:18px;font-weight:700;margin-bottom:3px}
+.modal-sub{font-size:12px;color:#555;margin-bottom:18px}
+.pay-amt{background:#0C0B00;border:1px solid #FFD70018;border-radius:10px;padding:12px;text-align:center;margin-bottom:16px}
+.pay-amt-val{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;color:#FFD700}
+.pay-amt-lbl{font-size:11px;color:#555;margin-top:2px}
+.pay-tabs{display:flex;gap:5px;margin-bottom:16px}
+.pay-tab{flex:1;background:#111;border:1px solid #1A1A1A;border-radius:8px;padding:9px;font-size:12px;font-weight:600;color:#555;cursor:pointer;transition:all .2s;text-align:center}
+.pay-tab.on{background:#141400;border-color:#FFD70025;color:#FFD700}
+.pay-sec{display:none}
+.pay-sec.on{display:block}
+.pay-mth{background:#111;border:1px solid #1A1A1A;border-radius:9px;padding:12px 14px;margin-bottom:7px;cursor:pointer;transition:border-color .2s;display:flex;align-items:center;gap:10px}
+.pay-mth:hover{border-color:#222}
+.pay-mth.sel{border-color:#C9A84C;background:#141400}
+.pay-mth-ico{font-size:18px;flex-shrink:0}
+.pay-mth-name{font-size:13px;font-weight:600}
+.pay-mth-sub{font-size:11px;color:#555}
+.pay-mth-radio{margin-left:auto;width:14px;height:14px;border-radius:50%;border:2px solid #2A2A2A;flex-shrink:0}
+.pay-mth.sel .pay-mth-radio{background:#FFD700;border-color:#FFD700}
+.pay-note{background:#141400;border:1px solid #FFD70015;border-radius:8px;padding:11px 13px;font-size:12px;color:#777;line-height:1.6;margin:12px 0}
+.pay-note strong{color:#F0F0F0}
+.btn-pay{width:100%;background:linear-gradient(135deg,#C9A84C,#FFD700);border:none;border-radius:9px;padding:13px;font-size:14px;font-weight:800;color:#000;cursor:pointer;margin-top:4px;transition:opacity .2s}
+.btn-pay:hover{opacity:.9}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  .hero-h1{font-size:36px;letter-spacing:-1.5px}
+  .hero-stats,.app-grid,.tc-grid,.social-grid,.footer-grid{grid-template-columns:1fr}
+  .results-grid{grid-template-columns:repeat(2,1fr)}
+  .academy-slide,.comp-slide{grid-template-columns:1fr}
+  .about-card{grid-template-columns:1fr;text-align:center}
+  .about-av{margin:0 auto}
+  .asset-tags{justify-content:center}
+  .nav-links .nav-link{font-size:10px;padding:5px 7px}
+  .nav-links .nav-cta{display:block;font-size:11px;padding:7px 12px}
+  .phone{max-width:240px}
+  .comp-rewards{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">14⚡</div>
+    <div class="nav-links">
+      <a href="https://14trades-pwa.vercel.app" target="_blank" class="nav-link">📱 App</a>
+      <a href="https://14trades-courses.vercel.app" target="_blank" class="nav-link gold">🎓 Academy</a>
+      <a href="https://14trades-courses.vercel.app/competition.html" target="_blank" class="nav-link live"><span class="nav-dot"></span>🏆 Challenge</a>
+      <a href="https://14trades-pwa.vercel.app/trial.html" target="_blank" class="nav-cta">Essai gratuit →</a>
+    </div>
+  </div>
+</nav>
+
+<div class="site">
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-pill">
+    <div class="nav-dot"></div>
+    <span class="hero-pill-txt">SIGNAUX LIVE · GOLD · BTC · NASDAQ</span>
+  </div>
+  <h1 class="hero-h1">Moi je fais le travail.<br><span>Toi tu exécutes.</span></h1>
+  <p class="hero-sub">Signaux haute probabilité sur Gold, BTC, Nasdaq. Push notification instantanée. Aucune analyse de votre côté.</p>
+  <div class="hero-cta-wrap">
+    <a href="https://14trades-pwa.vercel.app/trial.html" target="_blank">
+      <button class="btn-trial">⚡ Essai gratuit 7 jours</button>
+    </a>
+    <div class="btn-trial-note">Aucune carte bancaire · Accès immédiat</div>
+  </div>
+  <!-- LIVE STATS -->
+  <div class="hero-stats">
+    <div class="hs"><div class="hs-val" style="color:#00C87A" id="stat-winrate">83%</div><div class="hs-lbl">Win Rate</div></div>
+    <div class="hs"><div class="hs-val" style="color:#FFD700" id="stat-members">150+</div><div class="hs-lbl">Membres actifs</div></div>
+    <div class="hs"><div class="hs-val" id="stat-signals">0</div><div class="hs-lbl">Signaux envoyés</div></div>
+    <div class="hs"><div class="hs-val" id="gold-p">$2,380</div><div class="hs-lbl">Gold Live</div></div>
+  </div>
+
+  <!-- SOCIAL LINKS — visible immediately -->
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px">
+    <a href="https://t.me/+dmul6Q--Apc3YzQ0" target="_blank" style="display:flex;align-items:center;gap:8px;background:#0D1F2D;border:1px solid #229ED925;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;color:#229ED9;text-decoration:none">
+      ✈️ Telegram
+    </a>
+    <a href="https://discord.gg/vkef5BWxs" target="_blank" style="display:flex;align-items:center;gap:8px;background:#0D0E2A;border:1px solid #5865F225;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;color:#5865F2;text-decoration:none">
+      🎮 Discord
+    </a>
+    <a href="https://wa.me/221788255099" target="_blank" style="display:flex;align-items:center;gap:8px;background:#071507;border:1px solid #25D36625;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;color:#25D366;text-decoration:none">
+      💬 WhatsApp
+    </a>
+  </div>
+</div>
+
+<!-- ── PROOF STRIP ── -->
+<div class="proof">
+  <div class="proof-inner" id="proof-strip">
+    <div class="proof-item"><span class="proof-asset">GOLD</span><span class="proof-dir" style="color:#00C87A">BUY</span><span class="proof-result pr-win">TP3 ✓ +$166</span></div>
+    <div class="proof-item"><span class="proof-asset">GOLD</span><span class="proof-dir" style="color:#FF3B4E">SELL</span><span class="proof-result pr-win">TP2 ✓ +$97</span></div>
+    <div class="proof-item"><span class="proof-asset">BTC</span><span class="proof-dir" style="color:#00C87A">BUY</span><span class="proof-result pr-win">TP1 ✓ +$50</span></div>
+    <div class="proof-item"><span class="proof-asset">NASDAQ</span><span class="proof-dir" style="color:#FF3B4E">SELL</span><span class="proof-result pr-win">TP2 ✓ +$97</span></div>
+    <div class="proof-item"><span class="proof-asset">GOLD</span><span class="proof-dir" style="color:#00C87A">BUY</span><span class="proof-result pr-sl">SL −$10</span></div>
+    <div class="proof-item"><span class="proof-asset">SILVER</span><span class="proof-dir" style="color:#FF3B4E">SELL</span><span class="proof-result pr-win">TP3 ✓ +$83</span></div>
+    <div class="proof-item"><span class="proof-asset">GOLD</span><span class="proof-dir" style="color:#FF3B4E">SELL</span><span class="proof-result pr-win">TP2 ✓ +$97</span></div>
+    <div class="proof-item"><span class="proof-asset">BTC</span><span class="proof-dir" style="color:#00C87A">BUY</span><span class="proof-result pr-win">TP1 ✓ +$50</span></div>
+    <!-- duplicated for seamless loop -->
+    <div class="proof-item"><span class="proof-asset">GOLD</span><span class="proof-dir" style="color:#00C87A">BUY</span><span class="proof-result pr-win">TP3 ✓ +$166</span></div>
+    <div class="proof-item"><span class="proof-asset">GOLD</span><span class="proof-dir" style="color:#FF3B4E">SELL</span><span class="proof-result pr-win">TP2 ✓ +$97</span></div>
+    <div class="proof-item"><span class="proof-asset">BTC</span><span class="proof-dir" style="color:#00C87A">BUY</span><span class="proof-result pr-win">TP1 ✓ +$50</span></div>
+    <div class="proof-item"><span class="proof-asset">NASDAQ</span><span class="proof-dir" style="color:#FF3B4E">SELL</span><span class="proof-result pr-win">TP2 ✓ +$97</span></div>
+    <div class="proof-item"><span class="proof-asset">GOLD</span><span class="proof-dir" style="color:#00C87A">BUY</span><span class="proof-result pr-sl">SL −$10</span></div>
+    <div class="proof-item"><span class="proof-asset">SILVER</span><span class="proof-dir" style="color:#FF3B4E">SELL</span><span class="proof-result pr-win">TP3 ✓ +$83</span></div>
+    <div class="proof-item"><span class="proof-asset">GOLD</span><span class="proof-dir" style="color:#FF3B4E">SELL</span><span class="proof-result pr-win">TP2 ✓ +$97</span></div>
+    <div class="proof-item"><span class="proof-asset">BTC</span><span class="proof-dir" style="color:#00C87A">BUY</span><span class="proof-result pr-win">TP1 ✓ +$50</span></div>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div class="section">
+  <div class="app-grid">
+    <div style="display:flex;justify-content:center">
+      <div class="phone">
+        <div class="ph-hdr">
+          <div class="ph-logo">14⚡</div>
+          <div class="ph-live"><div class="ph-dot"></div>LIVE</div>
+        </div>
+        <div class="ph-cd">
+          <div class="ph-cd-lbl">Signal firing in</div>
+          <div class="ph-cd-time" id="cd">00:42</div>
+        </div>
+        <div class="ph-trade">
+          <div style="font-size:9px;color:#333;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">GOLD · BUY</div>
+          <div class="ph-dir">BUY</div>
+          <div class="ph-tp hit"><span class="ph-tp-l">TP 1</span><span class="ph-tp-r">✓ Hit</span></div>
+          <div class="ph-tp hit"><span class="ph-tp-l">TP 2</span><span class="ph-tp-r">✓ Hit</span></div>
+          <div class="ph-tp"><span class="ph-tp-l" style="color:#1A3A1A">TP 3</span><span class="ph-tp-r">Running...</span></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <span class="s-tag">L'Application</span>
+      <h2 class="s-h2" style="margin-top:14px">L'app qui change<br><span style="color:#FFD700">tout pour vous</span></h2>
+      <p style="font-size:14px;color:#555;margin:12px 0 24px;line-height:1.75">Recevez chaque signal directement sur votre téléphone. Aucune plateforme à surveiller. Aucune analyse requise.</p>
+      <div class="app-feat"><div class="app-feat-ico">📱</div><div><div class="app-feat-title">Push notification instantanée</div><div class="app-feat-sub">Recevez le signal avant même d'ouvrir l'app</div></div></div>
+      <div class="app-feat"><div class="app-feat-ico">⏱️</div><div><div class="app-feat-title">Compte à rebours automatique</div><div class="app-feat-sub">Entrez exactement au bon moment</div></div></div>
+      <div class="app-feat"><div class="app-feat-ico">📊</div><div><div class="app-feat-title">Win rate + P&L en temps réel</div><div class="app-feat-sub">Suivez vos résultats automatiquement</div></div></div>
+      <div class="app-feat"><div class="app-feat-ico">🔒</div><div><div class="app-feat-title">Break Even en un tap</div><div class="app-feat-sub">Trade sans risque dès TP1 atteint</div></div></div>
+      <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">
+        <a href="https://14trades-pwa.vercel.app/trial.html" target="_blank"><button class="btn-trial" style="font-size:13px;padding:13px 22px">⚡ Essai gratuit 7 jours</button></a>
+        <button onclick="openPayModal('alert')" style="background:#111;border:1px solid #1A1A1A;border-radius:10px;padding:13px 20px;font-size:13px;font-weight:700;color:#C9A84C">Alert $100/mois →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── RESULTS ── -->
+<div class="section">
+  <span class="s-tag">Track Record</span>
+  <h2 class="s-h2">Résultats <span style="color:#FFD700">réels</span></h2>
+  <p class="s-sub">Transparence totale — les gains ET les pertes. Chaque signal, chaque résultat.</p>
+  <div class="results-grid">
+    <div class="rc win"><div class="rc-day">Lun · Gold</div><div class="rc-dir" style="color:#00C87A">BUY</div><div class="rc-out rc-tp">TP2 ✓</div></div>
+    <div class="rc win"><div class="rc-day">Mar · Gold</div><div class="rc-dir" style="color:#FF3B4E">SELL</div><div class="rc-out rc-tp">TP3 ✓</div></div>
+    <div class="rc loss"><div class="rc-day">Mer · Gold</div><div class="rc-dir" style="color:#00C87A">BUY</div><div class="rc-out rc-sl">SL</div></div>
+    <div class="rc win"><div class="rc-day">Jeu · Nasdaq</div><div class="rc-dir" style="color:#FF3B4E">SELL</div><div class="rc-out rc-tp">TP2 ✓</div></div>
+    <div class="rc win"><div class="rc-day">Jeu · Gold</div><div class="rc-dir" style="color:#00C87A">BUY</div><div class="rc-out rc-tp">TP1 ✓</div></div>
+    <div class="rc win"><div class="rc-day">Ven · BTC</div><div class="rc-dir" style="color:#FF3B4E">SELL</div><div class="rc-out rc-tp">TP3 ✓</div></div>
+    <div class="rc win"><div class="rc-day">Sam · Gold</div><div class="rc-dir" style="color:#00C87A">BUY</div><div class="rc-out rc-tp">TP2 ✓</div></div>
+    <div class="rc win"><div class="rc-day">Sam · Silver</div><div class="rc-dir" style="color:#FF3B4E">SELL</div><div class="rc-out rc-tp">TP2 ✓</div></div>
+  </div>
+  <div class="week-bar">
+    <div style="text-align:center"><div class="wb-val">8</div><div class="wb-lbl">Signaux</div></div>
+    <div style="text-align:center"><div class="wb-val" style="color:#00C87A">87%</div><div class="wb-lbl">Win Rate</div></div>
+    <div style="text-align:center"><div class="wb-val">+$1,120</div><div class="wb-lbl">P&L / lot</div></div>
+    <div style="text-align:center"><div class="wb-val" style="color:#FFD700">1:5</div><div class="wb-lbl">Ratio R:R</div></div>
+  </div>
+</div>
+
+<!-- ── ACADEMY SLIDE ── -->
+<div class="section" id="academy">
+  <span class="s-tag">Academy</span>
+  <h2 class="s-h2">Apprenez la <span style="color:#FFD700">méthode</span></h2>
+  <p class="s-sub">Pas juste des signaux — la connaissance pour trader seul. Le timing, la structure, l'exécution.</p>
+
+  <div class="academy-slide" onclick="window.open('https://14trades-courses.vercel.app','_blank')">
+    <div>
+      <div class="ac-tag">🎓 14 Trades Academy</div>
+      <h3 class="ac-h2">La méthode qui transforme<br><span style="color:#FFD700">$100 en $1,000,000.</span></h3>
+      <p class="ac-sub">14 doublements. Pas de magie — des mathématiques et de la discipline. Apprenez le bon timing, la structure du marché, l'entrée exacte.</p>
+      <button class="ac-cta" onclick="event.stopPropagation();window.open('https://14trades-courses.vercel.app','_blank')">Découvrir l'Academy →</button>
+    </div>
+    <div class="ac-courses">
+      <div class="ac-course" onclick="event.stopPropagation();openPayModal('day')">
+        <div>
+          <div class="ac-course-name">📈 Day Trading</div>
+          <div style="font-size:11px;color:#555;margin-top:2px">Le bon timing du jour</div>
+        </div>
+        <div style="text-align:right">
+          <div class="ac-course-price">$300</div>
+          <div style="font-size:9px;color:#333;margin-top:2px">+ 1 mois Alert offert</div>
+        </div>
+      </div>
+      <div class="ac-course" onclick="event.stopPropagation();openPayModal('swing')">
+        <div>
+          <div class="ac-course-name">📊 Swing Trading</div>
+          <div style="font-size:11px;color:#555;margin-top:2px">Le grand mouvement de la semaine</div>
+        </div>
+        <div style="text-align:right">
+          <div class="ac-course-price">$500</div>
+          <div style="font-size:9px;color:#333;margin-top:2px">+ 1 mois Alert offert</div>
+        </div>
+      </div>
+      <div class="ac-course" onclick="event.stopPropagation();openPayModal('combo')" style="border-color:#FFD70020">
+        <div>
+          <div class="ac-course-name">🔥 Combo — Accès Complet</div>
+          <div style="font-size:11px;color:#555;margin-top:2px">Day + Swing · Limité 20 étudiants</div>
+        </div>
+        <div style="text-align:right">
+          <div class="ac-course-price">$700</div>
+          <div style="font-size:9px;color:#333;margin-top:2px">+ 2 mois Alert offerts</div>
+        </div>
+      </div>
+      <div class="ac-course" onclick="event.stopPropagation();openPayModal('elite')" style="border-color:#FFD70025;background:#1A1400">
+        <div>
+          <div class="ac-course-name">👑 Elite — Entrée Exacte</div>
+          <div style="font-size:11px;color:#555;margin-top:2px">Road to $1M · Feedback personnel</div>
+        </div>
+        <div style="text-align:right">
+          <div class="ac-course-price">$200<span style="font-size:9px">/mois</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── COMPETITION SLIDE ── -->
+<div class="section" id="competition">
+  <span class="s-tag">Challenge Cup</span>
+  <h2 class="s-h2">Compétition <span style="color:#FFD700">mensuelle</span></h2>
+  <p class="s-sub">Tradez sur HFM Cent account. Grimpez dans le classement. Gagnez des formations et abonnements gratuits.</p>
+
+  <div class="comp-slide">
+    <div>
+      <div class="comp-live-tag"><span class="nav-dot"></span>COMPÉTITION EN COURS</div>
+      <h3 class="comp-h2">14 Trades Challenge Cup<br><span style="color:#FFD700">Août 2026</span></h3>
+      <p class="comp-sub">HFM Cent account uniquement. N'importe quelle balance de départ. Classement par % de gain. Ouvert à tous — sans frais d'entrée.</p>
+      <div class="comp-btns">
+        <a href="https://14trades-courses.vercel.app/competition.html" target="_blank"><button class="btn-comp-primary">Voir le classement →</button></a>
+        <a href="https://www.hfm.com/sv/en/?refid=30488301" target="_blank"><button class="btn-comp-secondary">Ouvrir compte HFM</button></a>
+      </div>
+    </div>
+    <div class="comp-rewards">
+      <div class="comp-reward"><div class="comp-reward-medal">🥇</div><div><div class="comp-reward-title">1ère place</div><div class="comp-reward-sub">Cours Day Trading + 1 mois Alert</div></div></div>
+      <div class="comp-reward"><div class="comp-reward-medal">🥈</div><div><div class="comp-reward-title">2ème place</div><div class="comp-reward-sub">1 mois Signal Alert gratuit</div></div></div>
+      <div class="comp-reward"><div class="comp-reward-medal">🥉</div><div><div class="comp-reward-title">3ème place</div><div class="comp-reward-sub">50% de réduction</div></div></div>
+      <div style="margin-top:4px;font-size:10px;color:#333;padding-top:10px;border-top:1px solid #141414">Nouvelle compétition chaque 1er du mois</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ABOUT ── -->
+<div class="section">
+  <div class="about-card">
+    <div style="text-align:center">
+      <div class="about-av">S</div>
+    </div>
+    <div>
+      <div class="about-name">Sadikh Sarr</div>
+      <div class="about-role">Fondateur · 14 Trades · Dakar, Sénégal</div>
+      <p class="about-bio">Trader depuis 2 ans. Une seule idée : <strong style="color:#F0F0F0">le timing est tout</strong>. Pas besoin d'analyser pendant des heures. Il faut savoir quand le marché offre une vraie opportunité — et l'exécuter avec discipline.<br><br>14 Trades c'est pas un signal service comme les autres. C'est une philosophie. 14 doublements depuis $100. Les mathématiques font le reste.</p>
+      <div class="asset-tags">
+        <span class="asset-tag">Gold XAU/USD</span>
+        <span class="asset-tag">Silver XAG/USD</span>
+        <span class="asset-tag">BTC/USD</span>
+        <span class="asset-tag">Nasdaq</span>
+        <span class="asset-tag">US30</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TESTIMONIALS ── -->
+<div class="section">
+  <span class="s-tag">Témoignages</span>
+  <h2 class="s-h2">Ce que disent <span style="color:#FFD700">les traders</span></h2>
+  <div class="tc-grid" style="margin-top:28px">
+    <div class="tc"><div class="tc-stars">★★★★★</div><p class="tc-txt">"En moins de 24h j'ai vu des profits. Le système de Sadikh fonctionne vraiment. Je recommande à 100%."</p><div class="tc-name">Mamadou D.</div><div class="tc-city">Dakar</div></div>
+    <div class="tc"><div class="tc-stars">★★★★★</div><p class="tc-txt">"J'ai doublé mon compte en une semaine. Des règles claires, zéro stress. Exactement ce qu'il me fallait."</p><div class="tc-name">Fatou N.</div><div class="tc-city">Thiès</div></div>
+    <div class="tc"><div class="tc-stars">★★★★★</div><p class="tc-txt">"Enfin un système simple que je peux répéter. Le timing de Sadikh m'a ouvert les yeux sur les marchés."</p><div class="tc-name">Cheikh S.</div><div class="tc-city">Saint-Louis</div></div>
+  </div>
+</div>
+
+<!-- ── FAQ ── -->
+<div class="section">
+  <span class="s-tag">FAQ</span>
+  <h2 class="s-h2">Questions <span style="color:#FFD700">fréquentes</span></h2>
+  <div style="margin-top:28px">
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Comment je reçois les signaux ? <span class="faq-ico">+</span></div><div class="faq-a">Vous recevez une notification push sur votre téléphone. L'app s'ouvre, le compte à rebours démarre. Entrée, SL, TP1/TP2/TP3 — tout est précisé.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Comment payer ? <span class="faq-ico">+</span></div><div class="faq-a">Wave, Orange Money ou Crypto (USDT TRC20 / USDC ERC20). Cliquez n'importe quel bouton de paiement — les détails s'affichent directement.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Quelle différence entre Alert et Elite ? <span class="faq-ico">+</span></div><div class="faq-a">Alert ($100/mois) : vous recevez les signaux avec zone d'entrée + SL + TP. Elite ($200/mois) : vous recevez mon entrée EXACTE + feedback personnel sur vos trades + Road to $1M tracking.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Comment fonctionne la compétition mensuelle ? <span class="faq-ico">+</span></div><div class="faq-a">Compétition du 1er au 28 de chaque mois sur HFM Cent account. Classement par % de gain — toute balance de départ acceptée. Top 3 reçoivent des récompenses exclusives. Détails sur 14trades-courses.vercel.app/competition.html</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Quel broker utiliser ? <span class="faq-ico">+</span></div><div class="faq-a">N'importe quel broker proposant Gold, BTC et Nasdaq. Pour la compétition mensuelle, HFM Cent account requis via notre lien partenaire : hfm.com/sv/en/?refid=30488301</div></div>
+  </div>
+</div>
+
+<!-- ── SOCIAL / COMMUNAUTÉ ── -->
+<div class="section" id="social">
+  <span class="s-tag">Communauté</span>
+  <h2 class="s-h2">Rejoignez la <span style="color:#FFD700">communauté</span></h2>
+  <p class="s-sub">Discord · Telegram · WhatsApp · HFM partenaire</p>
+  <div class="social-grid">
+    <a href="https://wa.me/221788255099" target="_blank">
+      <div class="social-card wa">
+        <div class="social-ico" style="background:#25D36615">💬</div>
+        <div><div class="social-name">WhatsApp</div><div class="social-sub">+221 78 825 5099 · Paiements & support</div></div>
+        <div class="social-arr">→</div>
+      </div>
+    </a>
+    <a href="https://discord.gg/vkef5BWxs" target="_blank">
+      <div class="social-card dc">
+        <div class="social-ico" style="background:#5865F215">🎮</div>
+        <div><div class="social-name">Discord</div><div class="social-sub">Signaux · Academy · Challenge Cup</div></div>
+        <div class="social-arr">→</div>
+      </div>
+    </a>
+    <a href="https://t.me/+dmul6Q--Apc3YzQ0" target="_blank">
+      <div class="social-card tg">
+        <div class="social-ico" style="background:#229ED915">✈️</div>
+        <div><div class="social-name">Telegram</div><div class="social-sub">Communauté 14 Trades</div></div>
+        <div class="social-arr">→</div>
+      </div>
+    </a>
+    <a href="https://www.hfm.com/sv/en/?refid=30488301" target="_blank">
+      <div class="social-card hfm">
+        <div class="social-ico" style="background:#FFD70015;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#FFD700">HFM</div>
+        <div><div class="social-name">HFM Partenaire</div><div class="social-sub">Compte Cent · Compétition officielle</div></div>
+        <div class="social-arr">→</div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<div class="footer">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">14⚡ Trades</div>
+      <p class="footer-desc">Signaux premium Gold, BTC, Nasdaq. Academy Day & Swing Trading. Challenge Cup mensuel. Par Sadikh Sarr · Dakar, Sénégal.</p>
+    </div>
+    <div>
+      <div class="footer-col-h">Plateformes</div>
+      <a href="https://14trades-pwa.vercel.app" target="_blank" class="footer-lnk">⚡ App Signaux</a>
+      <a href="https://14trades-courses.vercel.app" target="_blank" class="footer-lnk">🎓 Academy</a>
+      <a href="https://14trades-courses.vercel.app/competition.html" target="_blank" class="footer-lnk">🏆 Challenge Cup</a>
+      <a href="https://14trades-pwa.vercel.app/trial.html" target="_blank" class="footer-lnk">Essai gratuit 7 jours</a>
+    </div>
+    <div>
+      <div class="footer-col-h">Services</div>
+      <a href="#" onclick="openPayModal('alert');return false" class="footer-lnk">Alert $100/mois</a>
+      <a href="#" onclick="openPayModal('day');return false" class="footer-lnk">Day Trading $300</a>
+      <a href="#" onclick="openPayModal('swing');return false" class="footer-lnk">Swing Trading $500</a>
+      <a href="#" onclick="openPayModal('elite');return false" class="footer-lnk">Elite $200/mois</a>
+    </div>
+    <div>
+      <div class="footer-col-h">Contact</div>
+      <a href="https://wa.me/221788255099" target="_blank" class="footer-lnk">💬 WhatsApp</a>
+      <a href="https://discord.gg/vkef5BWxs" target="_blank" class="footer-lnk">🎮 Discord</a>
+      <a href="https://t.me/+dmul6Q--Apc3YzQ0" target="_blank" class="footer-lnk">✈️ Telegram</a>
+      <a href="https://www.hfm.com/sv/en/?refid=30488301" target="_blank" class="footer-lnk">🏦 HFM Partenaire</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 14 Trades · Sadikh Sarr · Tous droits réservés.</div>
+    <div class="footer-slogan">Moi je fais le travail. Toi tu exécutes. ⚡</div>
+    <div class="footer-risk">Le trading comporte des risques. N'investissez que ce que vous pouvez vous permettre de perdre.</div>
+  </div>
+</div>
+
+</div><!-- end .site -->
+
+<!-- PAYMENT MODAL -->
+<div class="modal-ov" id="pay-modal" onclick="if(event.target===this)closePM()">
+  <div class="modal-box">
+    <button class="modal-x" onclick="closePM()">✕</button>
+    <div class="modal-ttl" id="pm-ttl">Paiement</div>
+    <div class="modal-sub" id="pm-sub">Choisissez votre mode de paiement</div>
+    <div style="margin-bottom:14px">
+      <input type="email" id="pm-email" placeholder="Votre email (obligatoire)" style="width:100%;background:#111;border:1px solid #1A1A1A;border-radius:8px;padding:11px 13px;font-size:13px;color:#F0F0F0;font-family:Inter,sans-serif;outline:none" required>
+      <input type="text" id="pm-name" placeholder="Votre nom (optionnel)" style="width:100%;background:#111;border:1px solid #1A1A1A;border-radius:8px;padding:11px 13px;font-size:13px;color:#F0F0F0;font-family:Inter,sans-serif;outline:none;margin-top:7px">
+    </div>
+    <div class="pay-amt">
+      <div class="pay-amt-val" id="pm-amt">$100</div>
+      <div class="pay-amt-lbl" id="pm-course">14 Trades Alert — 1 mois</div>
+    </div>
+    <div class="pay-tabs">
+      <button class="pay-tab on" onclick="switchTab('mobile',this)">📱 Mobile Money</button>
+      <button class="pay-tab" onclick="switchTab('crypto',this)">💰 Crypto</button>
+    </div>
+    <div class="pay-sec on" id="psec-mobile">
+      <div class="pay-mth sel" onclick="selM(this)">
+        <div class="pay-mth-ico">🌊</div>
+        <div><div class="pay-mth-name">Wave</div><div class="pay-mth-sub">Sénégal · Instantané</div></div>
+        <div class="pay-mth-radio"></div>
+      </div>
+      <div class="pay-mth" onclick="selM(this)">
+        <div class="pay-mth-ico">🟠</div>
+        <div><div class="pay-mth-name">Orange Money</div><div class="pay-mth-sub">Sénégal · Instantané</div></div>
+        <div class="pay-mth-radio"></div>
+      </div>
+      <div class="pay-note">
+        Envoyez au : <strong>+221 78 825 5099 (Sadikh Sarr)</strong><br><br>
+        Puis envoyez la capture d'écran sur WhatsApp.<br>Accès activé dans les <strong>24h</strong>.
+      </div>
+      <a href="https://wa.me/221788255099" target="_blank"><button class="btn-pay">Confirmer sur WhatsApp →</button></a>
+    </div>
+    <div class="pay-sec" id="psec-crypto">
+      <div class="pay-mth sel" onclick="selC(this,'usdt')">
+        <div class="pay-mth-ico">💵</div>
+        <div><div class="pay-mth-name">USDT TRC20</div><div class="pay-mth-sub">Tron Network · Frais minimes</div></div>
+        <div class="pay-mth-radio"></div>
+      </div>
+      <div class="pay-mth" onclick="selC(this,'usdc')">
+        <div class="pay-mth-ico">🔵</div>
+        <div><div class="pay-mth-name">USDC ERC20</div><div class="pay-mth-sub">Ethereum Network</div></div>
+        <div class="pay-mth-radio"></div>
+      </div>
+      <div class="pay-note" id="pm-crypto-note">
+        Paiement automatique via NOWPayments.<br>
+        Entrez votre email ci-dessus puis cliquez "Payer en Crypto".<br>
+        Une page de paiement sécurisée s'ouvrira.<br>
+        Votre accès sera activé dans les <strong style="color:#F0F0F0">24h</strong> après confirmation.
+      </div>
+      <div id="pm-crypto-status" style="display:none;background:#071507;border:1px solid #00C87A20;border-radius:8px;padding:11px 13px;font-size:12px;color:#00C87A;margin-bottom:10px"></div>
+      <button class="btn-pay" id="pm-crypto-btn" onclick="payWithCrypto()">💰 Payer en Crypto →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── PAYMENT ────────────────────────────────────────────────────────
+var COURSES={
+  alert:{name:'14 Trades Alert — 1 mois',amt:'$100'},
+  day:  {name:'Day Trading — accès à vie',amt:'$300'},
+  swing:{name:'Swing Trading — accès à vie',amt:'$500'},
+  combo:{name:'Combo — accès complet',amt:'$700'},
+  elite:{name:'14 Trades Elite — 1 mois',amt:'$200'}
+};
+var WALLETS={
+  usdt:{name:'USDT TRC20',addr:'TXsVYTT3qWXyHWBGr7SEBZXNAG7k2poeuZ'},
+  usdc:{name:'USDC ERC20',addr:'0xc030af2d98da2ed86f96d146a8b94abdd7b44352'}
+};
+var activeCrypto='usdt';
+var activeCourseKey='alert';
+
+function openPayModal(key){
+  activeCourseKey=key;
+  var c=COURSES[key];if(!c)return;
+  document.getElementById('pm-amt').textContent=c.amt;
+  document.getElementById('pm-course').textContent=c.name;
+  document.getElementById('pay-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+  switchTab('mobile',document.querySelector('.pay-tab'));
+}
+function closePM(){
+  document.getElementById('pay-modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+function switchTab(tab,btn){
+  document.querySelectorAll('.pay-tab').forEach(function(b){b.classList.remove('on');});
+  document.querySelectorAll('.pay-sec').forEach(function(s){s.classList.remove('on');});
+  btn.classList.add('on');
+  document.getElementById('psec-'+tab).classList.add('on');
+}
+function selM(el){
+  document.querySelectorAll('#psec-mobile .pay-mth').forEach(function(m){m.classList.remove('sel');});
+  el.classList.add('sel');
+}
+function selC(el,key){
+  activeCrypto=key;
+  document.querySelectorAll('#psec-crypto .pay-mth').forEach(function(m){m.classList.remove('sel');});
+  el.classList.add('sel');
+}
+async function payWithCrypto(){
+  var email=document.getElementById('pm-email')&&document.getElementById('pm-email').value.trim();
+  var name=document.getElementById('pm-name')&&document.getElementById('pm-name').value.trim();
+  if(!email||!email.includes('@')){
+    document.getElementById('pm-email').style.borderColor='#FF3B4E';
+    document.getElementById('pm-email').placeholder='❌ Email obligatoire';
+    return;
+  }
+  var btn=document.getElementById('pm-crypto-btn');
+  var status=document.getElementById('pm-crypto-status');
+  btn.disabled=true; btn.textContent='Création du paiement...';
+  try {
+    var r=await fetch('https://14trades-server-production.up.railway.app/api/courses/payment/create',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({courseKey:activeCourseKey,email:email,name:name||''})
+    });
+    var d=await r.json();
+    if(d.ok){
+      status.style.display='block';
+      status.innerHTML='✅ Paiement créé · '+d.payCurrency.toUpperCase()+' · <strong>'+d.payAmount+'</strong>';
+      if(d.paymentUrl){
+        window.open(d.paymentUrl,'_blank');
+        btn.textContent='✓ Page de paiement ouverte';
+        btn.style.background='#00C87A';
+      } else if(d.payAddress){
+        status.innerHTML+='<br>Adresse: <span style="word-break:break-all;color:#FFD700;font-size:10px">'+d.payAddress+'</span>';
+        btn.textContent='📋 Adresse copiée → WhatsApp hash';
+        navigator.clipboard.writeText(d.payAddress).catch(function(){});
+      }
+    } else {
+      status.style.display='block';
+      status.style.background='#150707';
+      status.style.borderColor='#FF3B4E20';
+      status.style.color='#FF3B4E';
+      status.textContent='❌ '+(d.error||'Erreur — réessayez');
+      btn.disabled=false; btn.textContent='💰 Payer en Crypto →';
+    }
+  } catch(e){
+    btn.disabled=false; btn.textContent='💰 Payer en Crypto →';
+    status.style.display='block'; status.style.color='#FF3B4E';
+    status.textContent='❌ Erreur de connexion';
+  }
+}
+
+// ── FAQ ────────────────────────────────────────────────────────────
+function toggleFaq(el){
+  var a=el.querySelector('.faq-a'),ico=el.querySelector('.faq-ico'),open=a.style.display==='block';
+  document.querySelectorAll('.faq-a').forEach(function(x){x.style.display='none';});
+  document.querySelectorAll('.faq-ico').forEach(function(x){x.textContent='+';});
+  if(!open){a.style.display='block';ico.textContent='-';}
+}
+
+// ── COUNTDOWN ──────────────────────────────────────────────────────
+var cdSec=42;
+setInterval(function(){
+  cdSec--;if(cdSec<0)cdSec=59;
+  var el=document.getElementById('cd');
+  if(el)el.textContent='00:'+(cdSec<10?'0':'')+cdSec;
+},1000);
+
+// ── LIVE PRICES ───────────────────────────────────────────────────
+function fetchPrices(){
+  fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var el=document.getElementById('btc-p');
+      if(el)el.textContent='$'+Math.round(d.bitcoin.usd).toLocaleString();
+    }).catch(function(){});
+}
+fetchPrices();setInterval(fetchPrices,30000);
+
+// Live member count + win rate
+async function fetchStats(){
+  try {
+    const r = await fetch('https://14trades-server-production.up.railway.app/api/stats');
+    const d = await r.json();
+    if (d.ok) {
+      const mb = document.getElementById('stat-members');
+      if (mb) mb.textContent = d.total > 0 ? d.total+'+' : '150+';
+      const wr = document.getElementById('stat-winrate');
+      if (wr && d.winRate) wr.textContent = d.winRate+'%';
+      const sg = document.getElementById('stat-signals');
+      if (sg && d.signals) sg.textContent = d.signals+'+';
+    }
+  } catch(e) {}
+}
+fetchStats();
+</script>
+</body>
+</html>
