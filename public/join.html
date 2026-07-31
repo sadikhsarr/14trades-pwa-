@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080808">
+<title>14 Trades — Road to $1,000,000</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080808;color:#F0F0F0;font-family:'Inter',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px}
+.wrap{width:100%;max-width:380px}
+.logo{font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:#FFD700;text-align:center}
+.logo-s{font-size:8px;letter-spacing:4px;color:#1A1A1A;text-transform:uppercase;text-align:center;margin-top:4px}
+.divider{width:1px;height:32px;background:#141414;margin:24px auto}
+.title{font-size:22px;font-weight:700;letter-spacing:-.5px;color:#F0F0F0;text-align:center;margin-bottom:4px}
+.title span{color:#FFD700}
+.sub{font-size:12px;color:#2A2A2A;text-align:center;line-height:1.7;margin-bottom:32px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:8px;color:#2A2A2A;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
+.field input,.field select{width:100%;background:#0D0D0D;border:1px solid #141414;border-radius:8px;padding:13px 14px;font-size:14px;color:#F0F0F0;outline:none;font-family:inherit;transition:border-color .2s;-webkit-appearance:none}
+.field input:focus,.field select:focus{border-color:#FFD70030}
+.field input::placeholder{color:#1A1A1A}
+.btn{width:100%;background:linear-gradient(135deg,#C9A84C,#FFD700);color:#000;border:none;border-radius:10px;padding:15px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:6px;letter-spacing:-.2px}
+.btn:disabled{opacity:.5}
+.note{text-align:center;font-size:10px;color:#1A1A1A;margin-top:10px;line-height:1.6}
+.success{display:none;text-align:center}
+.s-ico{font-size:44px;margin-bottom:16px}
+.s-title{font-size:20px;font-weight:700;color:#F0F0F0;margin-bottom:6px}
+.s-sub{font-size:12px;color:#2A2A2A;line-height:1.8;margin-bottom:24px}
+.s-box{background:#0D0D0D;border:1px solid #141414;border-radius:12px;padding:18px;text-align:left}
+.s-step{display:flex;gap:12px;margin-bottom:12px}
+.s-step:last-child{margin-bottom:0}
+.s-num{width:22px;height:22px;border-radius:6px;background:#FFD70010;border:1px solid #FFD70020;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#FFD700;flex-shrink:0;margin-top:1px}
+.s-txt{font-size:11px;color:#333;line-height:1.6}
+.s-txt strong{color:#888}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="form-wrap">
+    <div class="logo">14⚡</div>
+    <div class="logo-s">ROAD TO $1,000,000</div>
+    <div class="divider"></div>
+    <div class="title">Rejoindre le<br><span>challenge</span></div>
+    <div class="sub">Sadikh validera ton accès sous 24h.</div>
+
+    <div class="field">
+      <label>Prénom</label>
+      <input type="text" id="j-name" placeholder="Adama" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>WhatsApp</label>
+      <input type="tel" id="j-wa" placeholder="+221 78 825 50 99">
+    </div>
+    <div class="field">
+      <label>Balance de départ ($)</label>
+      <input type="number" id="j-balance" placeholder="200" step="0.01">
+    </div>
+    <div class="field">
+      <label>Pays</label>
+      <select id="j-country">
+        <option value="SN">🇸🇳 Sénégal</option>
+        <option value="CI">🇨🇮 Côte d'Ivoire</option>
+        <option value="ML">🇲🇱 Mali</option>
+        <option value="CM">🇨🇲 Cameroun</option>
+        <option value="GN">🇬🇳 Guinée</option>
+        <option value="BF">🇧🇫 Burkina Faso</option>
+        <option value="TG">🇹🇬 Togo</option>
+        <option value="BJ">🇧🇯 Bénin</option>
+        <option value="NE">🇳🇪 Niger</option>
+        <option value="MA">🇲🇦 Maroc</option>
+        <option value="DZ">🇩🇿 Algérie</option>
+        <option value="TN">🇹🇳 Tunisie</option>
+        <option value="FR">🇫🇷 France</option>
+        <option value="BE">🇧🇪 Belgique</option>
+        <option value="OTHER">🌍 Autre</option>
+      </select>
+    </div>
+
+    <button class="btn" id="j-btn" onclick="submitJoin()">⚡ Rejoindre le challenge</button>
+    <div class="note">Gratuit · Accès validé sous 24h par Sadikh</div>
+  </div>
+
+  <div class="success" id="success-card">
+    <div class="s-ico">⏳</div>
+    <div class="s-title">Demande envoyée !</div>
+    <div class="s-sub">Sadikh va valider ton accès sous 24h.<br>Tu recevras ton lien sur WhatsApp.</div>
+    <div class="s-box">
+      <div class="s-step">
+        <div class="s-num">1</div>
+        <div class="s-txt"><strong>Attends le WhatsApp</strong><br>Ton lien personnel arrive sous 24h.</div>
+      </div>
+      <div class="s-step">
+        <div class="s-num">2</div>
+        <div class="s-txt"><strong>Ouvre ton espace</strong><br>Balance · calendrier · analyse en temps réel.</div>
+      </div>
+      <div class="s-step">
+        <div class="s-num">3</div>
+        <div class="s-txt"><strong>Soumet chaque trade</strong><br>Le classement se met à jour automatiquement.</div>
+      </div>
+      <div class="s-step">
+        <div class="s-num">4</div>
+        <div class="s-txt"><strong>Phase après phase</strong><br>Vers $1,000,000. Volume + Constance = Inévitabilité ⚡</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+const SERVER='https://14trades-server-production.up.railway.app';
+async function submitJoin(){
+  const name=document.getElementById('j-name').value.trim();
+  const wa=document.getElementById('j-wa').value.trim();
+  const balance=parseFloat(document.getElementById('j-balance').value)||200;
+  const country=document.getElementById('j-country').value;
+  if(!name){alert('Entre ton prénom.');return;}
+  if(!wa){alert('Entre ton numéro WhatsApp.');return;}
+  const btn=document.getElementById('j-btn');
+  btn.disabled=true;btn.textContent='Envoi...';
+  try{
+    const r=await fetch(SERVER+'/api/road-join',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name,whatsapp:wa,balance,style:'scalping',country})
+    });
+    const d=await r.json();
+    if(d.ok){
+      document.getElementById('form-wrap').style.display='none';
+      document.getElementById('success-card').style.display='block';
+    }else{
+      alert(d.error||'Erreur. Réessaie.');
+      btn.disabled=false;btn.textContent='⚡ Rejoindre le challenge';
+    }
+  }catch(e){
+    alert('Erreur de connexion.');
+    btn.disabled=false;btn.textContent='⚡ Rejoindre le challenge';
+  }
+}
+</script>
+</body>
+</html>
