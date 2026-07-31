@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#080808">
+<title>14 Trades — Daily Trade</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080808;color:#F0F0F0;font-family:'Inter',system-ui,sans-serif;min-height:100vh;padding:0 0 60px}
+.header{padding:24px 20px 16px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:#FFD700}
+.logo-sub{font-size:8px;letter-spacing:3px;color:#333;text-transform:uppercase;margin-top:1px}
+.phase-pill{display:inline-flex;align-items:center;gap:6px;background:#0D0D0D;border:1px solid #FFD70025;border-radius:20px;padding:4px 12px}
+.phase-txt{font-size:11px;color:#FFD700;font-weight:700}
+.wrap{max-width:420px;margin:0 auto;padding:0 20px}
+.member-card{background:#0D0D0D;border:1px solid #1A1A1A;border-radius:14px;padding:16px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.member-avatar{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#C9A84C,#FFD700);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#000;flex-shrink:0}
+.member-name{font-size:15px;font-weight:700;color:#F0F0F0}
+.member-sub{font-size:11px;color:#444;margin-top:2px}
+.balance-card{background:#0D0D0D;border:1px solid #141414;border-radius:14px;padding:20px;margin-bottom:20px;text-align:center}
+.balance-lbl{font-size:9px;color:#333;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.balance-val{font-family:'Space Mono',monospace;font-size:32px;font-weight:700;color:#FFD700}
+.balance-phase{font-size:11px;color:#444;margin-top:6px}
+.progress-wrap{margin-top:14px}
+.progress-labels{display:flex;justify-content:space-between;font-size:9px;color:#2A2A2A;margin-bottom:5px}
+.progress-bar{height:4px;background:#111;border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#C9A84C,#FFD700);border-radius:2px;transition:width .6s ease}
+.section-title{font-size:10px;color:#333;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+.card{background:#0D0D0D;border:1px solid #141414;border-radius:14px;padding:16px;margin-bottom:12px}
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:10px;color:#444;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.field input{width:100%;background:#111;border:1px solid #1A1A1A;border-radius:8px;padding:11px 14px;font-size:15px;color:#F0F0F0;outline:none;font-family:'Space Mono',monospace;font-weight:600;transition:border-color .2s}
+.field input:focus{border-color:#FFD70040}
+.field input::placeholder{color:#2A2A2A;font-weight:400}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.submit-btn{width:100%;background:linear-gradient(135deg,#C9A84C,#FFD700);color:#000;border:none;border-radius:12px;padding:16px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;margin-top:8px;transition:opacity .2s}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed}
+.result-card{display:none;background:#071507;border:1px solid #00C87A25;border-radius:14px;padding:20px;margin-top:16px;text-align:center}
+.result-pnl{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;margin-bottom:6px}
+.result-pnl.win{color:#00C87A}
+.result-pnl.loss{color:#FF3B4E}
+.result-msg{font-size:13px;color:#666;line-height:1.6}
+.phase-badge{display:none;background:linear-gradient(135deg,#1A1400,#0F0D00);border:1px solid #FFD70030;border-radius:14px;padding:20px;margin-top:12px;text-align:center}
+.phase-badge-title{font-size:22px;font-weight:700;color:#FFD700;margin-bottom:8px}
+.phase-badge-msg{font-size:13px;color:#888;line-height:1.7;white-space:pre-wrap;text-align:left}
+.trades-list{margin-top:24px}
+.trade-item{background:#0D0D0D;border:1px solid #141414;border-radius:10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.trade-date{font-size:10px;color:#333}
+.trade-pnl{font-family:'Space Mono',monospace;font-size:13px;font-weight:700}
+.trade-pnl.pos{color:#00C87A}
+.trade-pnl.neg{color:#FF3B4E}
+.leaderboard-btn{display:block;text-align:center;background:#0D0D0D;border:1px solid #1A1A1A;border-radius:10px;padding:12px;font-size:12px;font-weight:700;color:#666;text-decoration:none;margin-top:16px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="logo">14⚡</div>
+    <div class="logo-sub">TRADES ALERT</div>
+  </div>
+  <div class="phase-pill">
+    <span class="phase-txt" id="header-phase">ROAD TO $1M</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="member-card" id="member-card" style="display:none">
+    <div class="member-avatar" id="member-avatar">?</div>
+    <div>
+      <div class="member-name" id="member-name-display">—</div>
+      <div class="member-sub" id="member-sub">Code: —</div>
+    </div>
+  </div>
+
+  <!-- Setup form — shown if no code in URL -->
+  <div id="setup-form">
+    <div class="card">
+      <div class="section-title">Ton accès</div>
+      <div class="field">
+        <label>Ton prénom</label>
+        <input type="text" id="input-name" placeholder="Adama" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Ton code membre</label>
+        <input type="text" id="input-code" placeholder="GOLD14XY" autocomplete="off" style="text-transform:uppercase">
+      </div>
+      <div class="field">
+        <label>WhatsApp (optionnel)</label>
+        <input type="tel" id="input-wa" placeholder="+221 78 825 50 99">
+      </div>
+      <button class="submit-btn" onclick="setupMember()">Accéder à mon tableau ⚡</button>
+    </div>
+  </div>
+
+  <!-- Main dashboard — shown after setup -->
+  <div id="main-dashboard" style="display:none">
+
+    <div class="balance-card">
+      <div class="balance-lbl">Balance actuelle</div>
+      <div class="balance-val" id="balance-display">$0</div>
+      <div class="balance-phase" id="phase-display">Phase 0</div>
+      <div class="progress-wrap">
+        <div class="progress-labels">
+          <span id="prog-from">$200</span>
+          <span id="prog-to">$400</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Soumettre un trade Gold</div>
+    <div class="card">
+      <div class="field">
+        <label>Entrée (prix d'entrée)</label>
+        <input type="number" id="t-entry" placeholder="2345.50" step="0.01">
+      </div>
+      <div class="field">
+        <label>Sortie (prix de sortie)</label>
+        <input type="number" id="t-exit" placeholder="2367.80" step="0.01">
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Lot size</label>
+          <input type="number" id="t-lot" placeholder="0.01" step="0.01" value="0.01">
+        </div>
+        <div class="field">
+          <label>Balance après</label>
+          <input type="number" id="t-balance" placeholder="220.00" step="0.01">
+        </div>
+      </div>
+      <button class="submit-btn" id="submit-btn" onclick="submitTrade()">⚡ Soumettre le trade</button>
+    </div>
+
+    <div class="result-card" id="result-card">
+      <div class="result-pnl" id="result-pnl">+$0</div>
+      <div class="result-msg" id="result-msg">Trade enregistré</div>
+    </div>
+
+    <div class="phase-badge" id="phase-badge">
+      <div class="phase-badge-title" id="phase-badge-title">🏆 PHASE VALIDÉE</div>
+      <div class="phase-badge-msg" id="phase-badge-msg"></div>
+    </div>
+
+    <div class="trades-list">
+      <div class="section-title" style="margin-top:8px">Mes trades récents</div>
+      <div id="trades-feed">
+        <div style="text-align:center;padding:20px;color:#222;font-size:12px">Chargement...</div>
+      </div>
+    </div>
+
+    <a href="/leaderboard.html" class="leaderboard-btn">🏆 Voir le classement →</a>
+
+  </div>
+
+</div>
+
+<script>
+const SERVER = 'https://14trades-server-production.up.railway.app';
+const PHASES = [
+  {phase:1,from:200,to:400},{phase:2,from:400,to:800},
+  {phase:3,from:800,to:1600},{phase:4,from:1600,to:3200},
+  {phase:5,from:3200,to:6400},{phase:6,from:6400,to:12800},
+  {phase:7,from:12800,to:25600},{phase:8,from:25600,to:51200},
+  {phase:9,from:51200,to:102400},{phase:10,from:102400,to:204800},
+  {phase:11,from:204800,to:409600},{phase:12,from:409600,to:819200},
+  {phase:13,from:819200,to:1000000},
+];
+
+let memberCode = '', memberName = '';
+
+function getPhase(balance) {
+  for (let i = PHASES.length - 1; i >= 0; i--) {
+    if (balance >= PHASES[i].from) return PHASES[i].phase;
+  }
+  return 0;
+}
+
+function getPhaseInfo(balance) {
+  const phase = getPhase(balance);
+  const p = PHASES[phase - 1] || PHASES[0];
+  const next = PHASES[phase] || {to: 1000000};
+  const prog = Math.min(100, Math.round((balance - p.from) / (p.to - p.from) * 100));
+  return {phase, from: p.from, to: p.to, prog};
+}
+
+function fmt(n) {
+  return '$' + parseFloat(n).toLocaleString('fr-FR', {minimumFractionDigits:0,maximumFractionDigits:2}).replace(',','.');
+}
+
+function updateBalanceCard(balance) {
+  const info = getPhaseInfo(balance);
+  document.getElementById('balance-display').textContent = fmt(balance);
+  document.getElementById('phase-display').textContent = 'Phase ' + info.phase + ' — ' + fmt(info.from) + ' → ' + fmt(info.to);
+  document.getElementById('prog-from').textContent = fmt(info.from);
+  document.getElementById('prog-to').textContent = fmt(info.to);
+  document.getElementById('prog-fill').style.width = info.prog + '%';
+  document.getElementById('header-phase').textContent = 'Phase ' + info.phase;
+  document.getElementById('t-balance').placeholder = balance.toFixed(2);
+}
+
+function setupMember() {
+  const name = document.getElementById('input-name').value.trim();
+  const code = document.getElementById('input-code').value.trim().toUpperCase();
+  const wa   = document.getElementById('input-wa').value.trim();
+  if (!name || !code) { alert('Entre ton prénom et ton code.'); return; }
+  memberCode = code;
+  memberName = name;
+  localStorage.setItem('14t_road_code', code);
+  localStorage.setItem('14t_road_name', name);
+  localStorage.setItem('14t_road_wa', wa);
+  showDashboard(name, code, wa);
+}
+
+async function showDashboard(name, code, wa) {
+  document.getElementById('setup-form').style.display = 'none';
+  document.getElementById('main-dashboard').style.display = 'block';
+  document.getElementById('member-card').style.display = 'flex';
+  document.getElementById('member-avatar').textContent = name.charAt(0).toUpperCase();
+  document.getElementById('member-name-display').textContent = name;
+  document.getElementById('member-sub').textContent = 'Code: ' + code;
+  memberCode = code;
+  memberName = name;
+
+  // Load recent trades to get current balance
+  try {
+    const r = await fetch(SERVER + '/api/daily-trades/' + code);
+    const d = await r.json();
+    if (d.trades && d.trades.length) {
+      const lastBalance = parseFloat(d.trades[0].balance_after);
+      updateBalanceCard(lastBalance);
+      renderTrades(d.trades);
+    } else {
+      updateBalanceCard(200);
+      document.getElementById('trades-feed').innerHTML = '<div style="text-align:center;padding:20px;color:#222;font-size:12px">Aucun trade soumis</div>';
+    }
+  } catch(e) {
+    updateBalanceCard(200);
+  }
+}
+
+function renderTrades(trades) {
+  const feed = document.getElementById('trades-feed');
+  if (!trades.length) {
+    feed.innerHTML = '<div style="text-align:center;padding:20px;color:#222;font-size:12px">Aucun trade</div>';
+    return;
+  }
+  feed.innerHTML = trades.slice(0,10).map(t => {
+    const pnl = parseFloat(t.pnl);
+    const date = new Date(t.submitted_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    return `<div class="trade-item">
+      <div>
+        <div style="font-size:12px;color:#888">Gold · ${parseFloat(t.lot_size).toFixed(2)} lot</div>
+        <div class="trade-date">${date}</div>
+      </div>
+      <div>
+        <div class="trade-pnl ${pnl>=0?'pos':'neg'}">${pnl>=0?'+':''}${fmt(pnl)}</div>
+        <div style="font-size:10px;color:#333;text-align:right">${fmt(t.balance_after)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function submitTrade() {
+  const entry   = parseFloat(document.getElementById('t-entry').value);
+  const exit    = parseFloat(document.getElementById('t-exit').value);
+  const lot     = parseFloat(document.getElementById('t-lot').value) || 0.01;
+  const balance = parseFloat(document.getElementById('t-balance').value);
+  const wa      = localStorage.getItem('14t_road_wa') || '';
+
+  if (!balance) { alert('Entre ta balance après le trade.'); return; }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Envoi...';
+
+  try {
+    const r = await fetch(SERVER + '/api/daily-trade', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ code: memberCode, name: memberName, whatsapp: wa, entry, exit, lot, balance })
+    });
+    const d = await r.json();
+
+    if (d.ok) {
+      // Show result
+      const rc = document.getElementById('result-card');
+      const rp = document.getElementById('result-pnl');
+      const rm = document.getElementById('result-msg');
+      const pnl = parseFloat(d.pnl) || 0;
+      rp.textContent = (pnl >= 0 ? '+' : '') + fmt(pnl);
+      rp.className = 'result-pnl ' + (pnl >= 0 ? 'win' : 'loss');
+      rm.textContent = 'Trade enregistré · Balance: ' + fmt(balance);
+      rc.style.display = 'block';
+
+      // Update balance card
+      updateBalanceCard(balance);
+
+      // Show phase message if completed
+      if (d.phaseCompleted && d.phaseMessage) {
+        const pb = document.getElementById('phase-badge');
+        document.getElementById('phase-badge-title').textContent = '⚡ PHASE ' + d.phaseCompleted + ' VALIDÉE';
+        document.getElementById('phase-badge-msg').textContent = d.phaseMessage;
+        pb.style.display = 'block';
+        pb.scrollIntoView({behavior:'smooth'});
+      }
+
+      // Clear form
+      document.getElementById('t-entry').value = '';
+      document.getElementById('t-exit').value = '';
+      document.getElementById('t-balance').value = '';
+
+      // Reload trades
+      const tr = await fetch(SERVER + '/api/daily-trades/' + memberCode);
+      const td = await tr.json();
+      if (td.trades) renderTrades(td.trades);
+    }
+  } catch(e) {
+    alert('Erreur. Réessaie.');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '⚡ Soumettre le trade';
+}
+
+// Init
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const urlCode = params.get('code') || params.get('member');
+  const savedCode = localStorage.getItem('14t_road_code');
+  const savedName = localStorage.getItem('14t_road_name');
+  const savedWa   = localStorage.getItem('14t_road_wa') || '';
+
+  if (urlCode && savedName) {
+    showDashboard(savedName, urlCode.toUpperCase(), savedWa);
+  } else if (savedCode && savedName) {
+    showDashboard(savedName, savedCode, savedWa);
+  }
+  // else show setup form
+});
+</script>
+</body>
+</html>
