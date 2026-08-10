@@ -252,7 +252,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // CTA buttons — must work immediately before app.js loads
 function showAccessScreen() {
-  window.location.href = 'https://14trades-pwa.vercel.app/access.html?from=public';
+  var sc = document.getElementById('access-screen');
+  if (sc) {
+    sc.style.display = 'flex';
+    var inp = document.getElementById('ac-input');
+    if (inp) inp.focus();
+  }
 }
 </script>
 <style>
@@ -871,7 +876,25 @@ function showAccessScreen() {
   <button class="ib-btn" onclick="event.stopPropagation();dismissInstall()">✕</button>
 </div>
 
-<div id="access-screen" style="display:none"></div>
+<div id="access-screen" style="display:none;position:fixed;inset:0;z-index:600;background:#1C1C1E;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;font-family:Inter,sans-serif">
+  <div style="font-family:monospace;font-size:28px;font-weight:700;color:#FFD700;margin-bottom:6px">14⚡</div>
+  <div style="font-size:13px;color:#636366;margin-bottom:40px;letter-spacing:.5px">TRADES ALERT</div>
+  <div style="width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px">
+    <input id="ac-input" type="text" placeholder="Ton code d'accès" maxlength="12"
+      autocorrect="off" autocapitalize="characters" autocomplete="off"
+      onkeydown="if(event.key==='Enter') checkCode()"
+      style="background:#2C2C2E;border:1px solid #3A3A3C;border-radius:12px;padding:14px 16px;font-size:16px;color:#F5F5F0;outline:none;width:100%;font-family:monospace;letter-spacing:3px;text-align:center;box-sizing:border-box">
+    <div id="ac-error" style="color:#FF453A;font-size:12px;text-align:center;min-height:18px"></div>
+    <button id="ac-btn" onclick="checkCode()"
+      style="background:#FFD700;color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">
+      Accéder ⚡
+    </button>
+    <button onclick="document.getElementById('access-screen').style.display='none'"
+      style="background:none;border:none;color:#636366;font-size:13px;cursor:pointer;font-family:Inter,sans-serif;padding:8px">
+      ← Retour
+    </button>
+  </div>
+</div>
 
 <!-- MAINTENANCE SCREEN -->
 <div id="maintenance-screen" style="display:none;position:fixed;inset:0;background:#1C1C1E;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;font-family:Inter,sans-serif">
