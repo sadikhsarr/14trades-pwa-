@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="14 Trades">
+<meta name="theme-color" content="#C9A84C">
+<title>14 Trades Alert</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="stylesheet" href="/style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({ appId: "534e2f6f-66fe-4d3d-904f-e86e603b904b" });
+  });
+</script>
+<script>
+var SERVER = 'https://14trades-server-production.up.railway.app';
+
+// ── IMMEDIATE: if valid code, show loader not blank ──────────────
+(function() {
+  var saved  = localStorage.getItem('14t_access');
+  var expiry = parseInt(localStorage.getItem('14t_access_exp') || '0');
+  if (saved && expiry > Date.now()) {
+    var ps = document.getElementById('public-screen');
+    if (ps) ps.style.display = 'none';
+    var loader = document.createElement('div');
+    loader.id = 'boot-loader';
+    loader.style.cssText = 'position:fixed;inset:0;background:#080808;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:850;font-family:Inter,system-ui,sans-serif';
+    loader.innerHTML = '<div style="font-family:monospace;font-size:28px;font-weight:700;color:#C9A84C">14⚡</div><div style="font-size:10px;letter-spacing:3px;color:#2A2A2A;text-transform:uppercase;margin-top:8px">TRADES ALERT</div>';
+    document.body.appendChild(loader);
+  }
+})();
+
+// ── LOGIN: show login form ───────────────────────────────────────
+function showAccessScreen() {
+  var ls = document.getElementById('login-screen');
+  if (ls) ls.style.display = 'flex';
+  var ps = document.getElementById('public-screen');
+  if (ps) ps.style.display = 'none';
+  setTimeout(function() {
+    var el = document.getElementById('li-email');
+    var saved_email = localStorage.getItem('14t_email');
+    if (el && saved_email) el.value = saved_email;
+    if (el) el.focus();
+  }, 100);
+}
+
+function hideLoginScreen() {
+  var ls = document.getElementById('login-screen');
+  if (ls) ls.style.display = 'none';
+}
+
+async function submitLogin() {
+  var email = (document.getElementById('li-email').value || '').trim().toLowerCase();
+  var code  = (document.getElementById('li-code').value  || '').trim().toUpperCase();
+  var btn   = document.getElementById('li-btn');
+  var err   = document.getElementById('li-error');
+  if (!email || !email.includes('@')) { err.textContent = 'Entre ton email'; return; }
+  if (!code  || code.length < 4)      { err.textContent = 'Entre ton code';  return; }
+  btn.disabled = true; btn.textContent = '...'; err.textContent = '';
+  try {
+    var deviceId = localStorage.getItem('14t_device_id');
+    if (!deviceId) {
+      deviceId = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2,9);
+      localStorage.setItem('14t_device_id', deviceId);
+    }
+    var r = await fetch(SERVER + '/api/activate', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email:email, code:code, deviceId:deviceId })
+    });
+    var d = await r.json();
+    if (d.ok) {
+      var serverExp = d.expiresAt ? new Date(d.expiresAt).getTime() : 0;
+      var expiry = serverExp > Date.now() ? serverExp : Date.now() + 30*24*60*60*1000;
+      localStorage.setItem('14t_access',     code);
+      localStorage.setItem('14t_email',      email);
+      localStorage.setItem('14t_access_exp', expiry.toString());
+      if (!localStorage.getItem('14t_join')) localStorage.setItem('14t_join', new Date().toISOString());
+      btn.textContent = '✅';
+      setTimeout(function() {
+        hideLoginScreen();
+        var ps = document.getElementById('public-screen');
+        if (ps) ps.style.display = 'none';
+        var ma = document.getElementById('main-app');
+        if (ma) ma.style.display = 'flex';
+        if (typeof bootApp === 'function') bootApp();
+      }, 600);
+    } else {
+      var msgs = { invalid:'Code invalide', used:'Code déjà utilisé sur un autre appareil', expired:'Code expiré — contacte Sadikh' };
+      err.textContent = msgs[d.reason] || 'Erreur — réessaie';
+      btn.disabled = false; btn.textContent = 'Accéder ⚡';
+    }
+  } catch(e) {
+    err.textContent = 'Erreur réseau — réessaie';
+    btn.disabled = false; btn.textContent = 'Accéder ⚡';
+  }
+}
+
+// ── LOAD MEMBER COUNT ────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  fetch(SERVER + '/api/stats').then(function(r){ return r.json(); }).then(function(d) {
+    var mc = d.members || d.total || 0;
+    var el = document.getElementById('cnt-mem');
+    if (el && mc > 0) el.textContent = mc + '+';
+  }).catch(function(){});
+});
+</script>
+<style>
+.signal-countdown-overlay{position:fixed;inset:0;z-index:900;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:radial-gradient(ellipse at center,#0C0B00 0%,#060504 100%)}
+.sco-asset{font-size:11px;font-weight:700;letter-spacing:3px;color:var(--muted,#555);text-transform:uppercase}
+.sco-label{font-size:13px;font-weight:600;letter-spacing:2px;color:var(--gold,#C9A84C);text-transform:uppercase}
+.sco-ring{position:relative;width:160px;height:160px;display:flex;align-items:center;justify-content:center}
+.sco-ring-bg{position:absolute;inset:0;border-radius:50%;border:3px solid #1A1800}
+.sco-ring-fill{position:absolute;inset:0;border-radius:50%;border:3px solid var(--gold,#C9A84C);clip-path:inset(0 50% 0 0);animation:ring-glow 2s ease infinite}
+@keyframes ring-glow{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,.3)}50%{box-shadow:0 0 20px 4px rgba(201,168,76,.15)}}
+.sco-time{font-family:'Space Mono',monospace;font-size:52px;font-weight:700;letter-spacing:-3px;color:var(--white,#F0F0F0);line-height:1;z-index:1;transition:color .3s,font-size .3s}
+.sco-time.urgent{color:var(--red,#FF3B4E);font-size:64px;animation:urgent .4s ease infinite}
+@keyframes urgent{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.05)}}
+.sco-dir{display:flex;align-items:center;gap:12px;padding:10px 28px;border-radius:30px}
+.sco-dir.buy{background:#00C87A15;border:1px solid #00C87A40}
+.sco-dir.sell{background:#FF3B4E15;border:1px solid #FF3B4E40}
+.sco-dir-text{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;letter-spacing:2px}
+.sco-dir.buy .sco-dir-text{color:var(--green,#00C87A)}
+.sco-dir.sell .sco-dir-text{color:var(--red,#FF3B4E)}
+.sco-dir-dot{width:8px;height:8px;border-radius:50%;animation:blink 1s infinite}
+.sco-dir.buy .sco-dir-dot{background:var(--green,#00C87A)}
+.sco-dir.sell .sco-dir-dot{background:var(--red,#FF3B4E)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.sco-levels{background:rgba(0,0,0,.5);border:1px solid #2A2A2A;border-radius:14px;padding:12px 24px;display:flex;gap:22px}
+.scol-item{display:flex;flex-direction:column;align-items:center;gap:4px}
+.scol-lbl{font-size:9px;color:var(--muted,#555);text-transform:uppercase;letter-spacing:.8px}
+.scol-val{font-family:'Space Mono',monospace;font-size:13px;font-weight:700}
+.scol-val.sl{color:var(--red,#FF3B4E)}
+.scol-val.tp{color:var(--green,#00C87A)}
+.scol-val.tp2{color:#00A862}
+.scol-val.tp3{color:#007A48}
+.sco-sub{font-size:11px;color:var(--muted,#555);letter-spacing:.5px}
+.sco-live-price{display:none;font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:rgba(255,255,255,.25);letter-spacing:-1px;margin-top:-8px}
+.sco-price-lbl{font-size:9px;color:var(--muted,#555);letter-spacing:2px;text-transform:uppercase;margin-top:-14px}
+@keyframes ps-pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes slideUp{from{transform:translateY(100px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+
+/* PUBLIC SCREEN */
+@keyframes psdot{0%,100%{opacity:1}50%{opacity:.3}}
+/* Responsive */
+@media (max-width:360px){
+}
+
+/* HERO */
+
+/* LEADERBOARD */
+
+/* LOCK */
+
+/* RISK GUARDIAN HOME MINI */
+
+/* RISK FULL PAGE */
+.ps-asset-row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:4px}
+.ps-asset-info{font-size:10px;color:#2A2A2A;text-align:center;margin:6px 0 14px}
+
+/* BOTTOM NAV */
+
+/* ── PUBLIC SCREEN ── */
+@keyframes ps-pulse{0%,100%{opacity:1}50%{opacity:.3}}
+/* Hero */
+/* Leaderboard */
+/* Lock */
+/* Risk */
+/* Bottom nav */
+/* Signal page stats */
+/* Asset selector */
+/* Risk full result */
+
+</style>
+
+
+</head>
+<body>
+
+<!-- PUBLIC BROADCAST SCREEN -->
+<!-- LOGIN SCREEN -->
+<div id="login-screen" style="display:none;position:fixed;inset:0;z-index:900;background:#080808;flex-direction:column;align-items:center;justify-content:center;padding:32px;font-family:'Inter',system-ui,sans-serif">
+  <div style="width:100%;max-width:340px">
+    <div style="text-align:center;margin-bottom:32px">
+      <div style="font-family:monospace;font-size:28px;font-weight:700;color:#C9A84C">14⚡</div>
+      <div style="font-size:10px;letter-spacing:3px;color:#333;text-transform:uppercase;margin-top:4px">TRADES ALERT</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <input id="li-email" type="email" placeholder="Ton email" autocomplete="email"
+        onkeydown="if(event.key==='Enter')document.getElementById('li-code').focus()"
+        style="background:#111;border:1px solid #1A1A1A;border-radius:12px;padding:14px 16px;font-size:15px;color:#F0F0F0;outline:none;font-family:inherit;width:100%;box-sizing:border-box">
+      <input id="li-code" type="text" placeholder="Code d'accès" autocomplete="off" autocorrect="off" autocapitalize="characters"
+        onkeydown="if(event.key==='Enter')submitLogin()"
+        style="background:#111;border:1px solid #1A1A1A;border-radius:12px;padding:14px 16px;font-size:16px;color:#F0F0F0;outline:none;font-family:monospace;letter-spacing:3px;text-align:center;width:100%;box-sizing:border-box">
+      <div id="li-error" style="color:#FF3B4E;font-size:12px;text-align:center;min-height:16px"></div>
+      <button id="li-btn" onclick="submitLogin()"
+        style="background:linear-gradient(135deg,#C9A84C,#FFD700);color:#000;border:none;border-radius:12px;padding:16px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;width:100%">
+        Accéder ⚡
+      </button>
+      <button onclick="hideLoginScreen();document.getElementById('public-screen').style.display='block'"
+        style="background:none;border:none;color:#333;font-size:13px;cursor:pointer;font-family:inherit;padding:8px;text-align:center">
+        ← Retour
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="public-screen" style="display:block;position:fixed;inset:0;z-index:800;background:#080808;overflow-y:auto;font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased">
+
+  <div style="max-width:420px;margin:0 auto;padding:20px 20px 120px">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;padding-top:env(safe-area-inset-top,12px)">
+      <div>
+        <div style="font-family:monospace;font-size:18px;font-weight:700;color:#C9A84C">14⚡ Trades</div>
+        <div style="font-size:7px;letter-spacing:2px;color:#2A2A2A;text-transform:uppercase;margin-top:2px">SIGNAL ALERT</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button onclick="showAccessScreen()" style="background:#C9A84C15;border:1px solid #C9A84C40;border-radius:16px;padding:6px 14px;font-size:11px;font-weight:700;color:#C9A84C;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent">🔑 Login</button>
+        <div style="display:flex;align-items:center;gap:4px;background:#071507;border:1px solid #00C87A15;border-radius:20px;padding:4px 8px">
+          <div style="width:5px;height:5px;border-radius:50%;background:#00C87A;animation:ps-pulse 2s infinite"></div>
+          <span style="font-size:9px;font-weight:700;color:#00C87A;letter-spacing:1px">LIVE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px">
+      <div style="background:#0D0D0D;border:1px solid #141414;border-radius:12px;padding:14px 6px;text-align:center">
+        <div style="font-family:monospace;font-size:20px;font-weight:700;color:#C9A84C">83%</div>
+        <div style="font-size:8px;color:#2A2A2A;margin-top:3px;letter-spacing:.5px">WIN RATE</div>
+      </div>
+      <div style="background:#0D0D0D;border:1px solid #141414;border-radius:12px;padding:14px 6px;text-align:center">
+        <div style="font-family:monospace;font-size:20px;font-weight:700;color:#00C87A">72</div>
+        <div style="font-size:8px;color:#2A2A2A;margin-top:3px;letter-spacing:.5px">GAGNANTS</div>
+      </div>
+      <div style="background:#0D0D0D;border:1px solid #141414;border-radius:12px;padding:14px 6px;text-align:center">
+        <div style="font-family:monospace;font-size:20px;font-weight:700;color:#F0F0F0">87</div>
+        <div style="font-size:8px;color:#2A2A2A;margin-top:3px;letter-spacing:.5px">SIGNAUX</div>
+      </div>
+      <div style="background:#0D0D0D;border:1px solid #141414;border-radius:12px;padding:14px 6px;text-align:center">
+        <div style="font-family:monospace;font-size:20px;font-weight:700;color:#F0F0F0" id="cnt-mem">...</div>
+        <div style="font-size:8px;color:#2A2A2A;margin-top:3px;letter-spacing:.5px">MEMBRES</div>
+      </div>
+    </div>
+
+    <!-- Last result -->
+    <div style="background:linear-gradient(135deg,#0A0800,#060600);border:1px solid #C9A84C15;border-radius:14px;padding:16px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:8px;color:#2A2A2A;letter-spacing:2px;text-transform:uppercase">Dernier résultat</div>
+        <div style="background:#00C87A15;border:1px solid #00C87A25;border-radius:20px;padding:2px 8px;font-size:8px;font-weight:700;color:#00C87A;letter-spacing:1px">✅ CONFIRMÉ</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#F0F0F0">Gold BUY · TP3</div>
+          <div style="font-size:10px;color:#333;margin-top:3px">XAU/USD</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:monospace;font-size:26px;font-weight:700;color:#00C87A">+600</div>
+          <div style="font-size:9px;color:#333">pips</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Locked signal -->
+    <div style="background:#0D0D0D;border:1px solid #141414;border-radius:14px;padding:16px;margin-bottom:16px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-size:8px;color:#C9A84C;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px">Membres uniquement</div>
+          <div style="font-size:14px;font-weight:700;color:#F0F0F0">Signal Gold actif</div>
+          <div style="font-size:10px;color:#333;margin-top:3px;line-height:1.6">Entry · SL · TP1 · TP2 · TP3</div>
+        </div>
+        <div style="font-size:26px;opacity:.4">🔒</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px">
+        <div style="background:#111;border:1px solid #141414;border-radius:8px;padding:8px 6px;text-align:center"><div style="font-size:8px;color:#2A2A2A;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px">Entry</div><div style="font-family:monospace;font-size:11px;color:#1A1A1A">——</div></div>
+        <div style="background:#111;border:1px solid #141414;border-radius:8px;padding:8px 6px;text-align:center"><div style="font-size:8px;color:#2A2A2A;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px">SL</div><div style="font-family:monospace;font-size:11px;color:#1A1A1A">——</div></div>
+        <div style="background:#111;border:1px solid #141414;border-radius:8px;padding:8px 6px;text-align:center"><div style="font-size:8px;color:#2A2A2A;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px">TP1</div><div style="font-family:monospace;font-size:11px;color:#1A1A1A">——</div></div>
+        <div style="background:#111;border:1px solid #141414;border-radius:8px;padding:8px 6px;text-align:center"><div style="font-size:8px;color:#2A2A2A;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px">TP2</div><div style="font-family:monospace;font-size:11px;color:#1A1A1A">——</div></div>
+      </div>
+      <button onclick="showAccessScreen()" style="width:100%;background:#C9A84C;color:#000;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">⚡ Essai gratuit — 7 jours</button>
+      <div style="text-align:center;font-size:10px;color:#1A1A1A;margin-top:6px">Sans carte bancaire · Accès immédiat</div>
+    </div>
+
+    <!-- CTA -->
+    <button onclick="showAccessScreen()" style="width:100%;background:linear-gradient(135deg,#C9A84C,#FFD700);color:#000;border:none;border-radius:14px;padding:16px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;margin-bottom:6px">⚡ Accéder avec mon code</button>
+    <div style="text-align:center;font-size:10px;color:#1A1A1A;margin-bottom:24px">Accès immédiat · Signal complet · Gold XAU/USD</div>
+
+    <!-- Social -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+      <a href="https://www.tiktok.com/@14_trades" target="_blank" rel="noopener" style="display:flex;flex-direction:column;align-items:center;gap:5px;background:#0D0D0D;border:1px solid #141414;border-radius:12px;padding:12px 6px;text-decoration:none;-webkit-tap-highlight-color:transparent">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z" fill="#F0F0F0"/></svg>
+        <div style="font-size:9px;font-weight:600;color:#444">@14_trades</div>
+      </a>
+      <a href="https://wa.me/221788255099" target="_blank" rel="noopener" style="display:flex;flex-direction:column;align-items:center;gap:5px;background:#0D0D0D;border:1px solid #141414;border-radius:12px;padding:12px 6px;text-decoration:none;-webkit-tap-highlight-color:transparent">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" fill="#25D366"/></svg>
+        <div style="font-size:9px;font-weight:600;color:#444">WhatsApp</div>
+      </a>
+      <a href="https://t.me/+ru2qOiFJvjI1NzMy" target="_blank" rel="noopener" style="display:flex;flex-direction:column;align-items:center;gap:5px;background:#0D0D0D;border:1px solid #141414;border-radius:12px;padding:12px 6px;text-decoration:none;-webkit-tap-highlight-color:transparent">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" fill="#2AABEE"/></svg>
+        <div style="font-size:9px;font-weight:600;color:#444">Telegram</div>
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<div class="phone" id="main-app" style="display:none">
+  <div class="header">
+    <div class="logo-col">
+      <div class="logo-row"><span class="logo-num">14</span><span class="logo-bolt">⚡</span><div class="logo-shimmer"></div></div>
+      <div class="logo-trades">TRADES</div>
+      <div class="logo-sub">ALERT</div>
+    </div>
+    <div class="header-right">
+      <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+      </div>
+      <div class="dot-live"></div>
+      <button class="notif-btn" id="share-btn" onclick="shareApp()" style="margin-right:2px"><i class="ti ti-share"></i></button>
+      <button class="notif-btn" id="notif-btn" onclick="requestPush()"><i class="ti ti-bell"></i></button>
+      <button class="notif-btn" onclick="showLogoutMenu()" style="font-size:14px">⚙️</button>
+    </div>
+  </div>
+
+  <div class="sco-bar">
+    <div class="sco-col">
+      <div class="sco-label" id="sco-wr-lbl" data-i18n="stat_wr">Win Rate</div>
+      <div class="sco-val" id="stat-winrate">—</div>
+    </div>
+    <div class="sco-col">
+      <div class="sco-label" id="sco-sig-lbl" data-i18n="stat_sigs">Signals</div>
+      <div class="sco-val" id="stat-signals">—</div>
+    </div>
+    <div class="sco-col">
+      <div class="sco-label" data-i18n="stat_days">Days</div>
+      <div class="sco-val" id="stat-days">—</div>
+    </div>
+    <div class="sco-col">
+      <div class="sco-label" id="pnl-sub-lbl">P&L</div>
+      <div class="sco-val" id="pnl-total">—</div>
+    </div>
+    <div class="sco-col">
+      <div class="sco-label" data-i18n="today">Today</div>
+      <div class="sco-val" id="pnl-today">—</div>
+    </div>
+  </div>
+
+  <div id="streak-card" style="margin:8px 16px 0">
+    <span id="streak-title"></span>
+    <span id="streak-sub"></span>
+    <span id="streak-next"></span>
+    <span id="streak-num">0</span>
+    <span id="milestone-badge"></span>
+    <div class="streak-bar"><div class="streak-fill" id="streak-fill"></div></div>
+  </div>
+  <div id="recap-card" style="margin:8px 16px 0"><div class="recap-desc" id="recap-desc"></div></div>
+
+  <div id="bc-card" style="display:none;background:#0D1520;border:1px solid #4A9EFF25;border-radius:14px;padding:12px 14px;margin:8px 16px;position:relative">
+    <button onclick="dismissBroadcast()" style="position:absolute;top:8px;right:10px;background:none;border:none;color:#444;font-size:16px;cursor:pointer;line-height:1">✕</button>
+    <div id="bc-card-msg" style="font-size:13px;color:#F0F0F0;line-height:1.6;padding-right:20px"></div>
+  </div>
+
+  <div style="display:none">
+    <div id="watch-signal-card"></div>
+  </div>
+
+  <div class="countdown-card" id="countdown-card" style="display:none">
+    <div class="cc-glow" id="cc-glow" style="display:none"></div>
+    <div class="cc-border" id="cc-border" style="display:none"></div>
+    <div class="cc-left">
+      <div class="cc-lbl" id="cc-lbl" data-i18n="signal_confirmed">Signal confirmed</div>
+      <div class="cc-time" id="cc-time">--</div>
+      <div class="cc-sub" id="cc-sub" data-i18n="get_ready">Get ready</div>
+    </div>
+    <div class="cc-right"><div class="cc-ring" id="cc-ring">⚡</div></div>
+  </div>
+
+  <div id="expiry-card" style="display:none;flex-direction:column;gap:0;margin:8px 16px">
+    <div id="expiry-offer" style="display:none;background:linear-gradient(135deg,#1A0A00,#150800);border:1px solid #C9A84C30;border-radius:14px;padding:16px;text-align:center">
+      <div style="font-size:28px;margin-bottom:8px">⏰</div>
+      <div style="font-size:14px;font-weight:700;color:#F0F0F0;margin-bottom:6px">Ton essai est terminé</div>
+      <div style="font-size:11px;color:#888;line-height:1.6;margin-bottom:14px">Tu as vu les signaux en action.<br>Je t'offre <strong style="color:#FFD700">3 jours de plus gratuitement</strong><br>pour confirmer les résultats.</div>
+      <button onclick="acceptExtension()" style="width:100%;background:linear-gradient(135deg,#C9A84C,#FFD700);color:#000;border:none;border-radius:10px;padding:13px;font-size:13px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:8px">✅ Oui, je veux 3 jours gratuits</button>
+      <a href="https://wa.me/221788255099" target="_blank" style="display:block;width:100%;background:transparent;border:1px solid #3A3A3C;border-radius:10px;padding:9px;font-size:11px;font-weight:600;color:#636366;text-decoration:none;font-family:'Inter',sans-serif">Contacter Sadikh pour s'abonner</a>
+    </div>
+  </div>
+
+  <div class="scanning-block" id="scanning-block">
+    <div class="p-gold-card">
+      <div class="pgc-glow"></div>
+      <div class="pgc-shimmer"></div>
+      <div class="pgc-top">
+        <div class="pgc-left">
+          <div class="pgc-ico">XAU</div>
+          <div>
+            <div class="pgc-name">GOLD</div>
+            <div class="pgc-pair">XAU / USD</div>
+          </div>
+        </div>
+        <div class="pgc-right">
+          <div class="sco-live-price" id="live-xau">—</div>
+          <div class="pgc-badge" id="idle-badge">SCANNING</div>
+        </div>
+      </div>
+      <div class="pgc-body">
+        <div class="pgc-stat"><div class="pgc-stat-v" id="idle-b-c">—</div><div class="pgc-stat-l">Bias</div></div>
+        <div class="pgc-stat"><div class="pgc-stat-v" id="idle-v-c">—</div><div class="pgc-stat-l">Volume</div></div>
+        <div class="pgc-stat"><div class="pgc-stat-v" id="idle-b-m">—</div><div class="pgc-stat-l">Momentum</div></div>
+        <div class="pgc-stat"><div class="pgc-stat-v" id="idle-v-m">—</div><div class="pgc-stat-l">Volatility</div></div>
+        <div class="pgc-stat"><div class="pgc-stat-v" id="idle-b-conf">—</div><div class="pgc-stat-l">Conf.</div></div>
+        <div class="pgc-stat"><div class="pgc-stat-v" id="idle-v-conf">—</div><div class="pgc-stat-l">Setup</div></div>
+      </div>
+      <div class="pgc-sub" id="idle-scan-sub">Analyzing Gold structure · No setup confirmed yet</div>
+    </div>
+  </div>
+
+  <div class="live-trade" id="live-trade" style="display:none">
+    <div class="sig-card" id="sig-card">
+      <div class="sig-card-top">
+        <div class="lt-left">
+          <div class="lt-ico buy" id="lt-ico">XAU</div>
+          <div>
+            <div class="lt-asset" id="lt-asset">GOLD</div>
+            <div class="lt-pair" id="lt-pair">XAU / USD</div>
+          </div>
+        </div>
+        <div class="lt-right">
+          <div class="lt-live">
+            <div class="lt-live-dot" id="lt-live-dot"></div>
+            <div class="lt-live-txt" id="lt-live-txt">RUNNING</div>
+          </div>
+          <div class="lt-dir-row">
+            <div class="lt-direction buy" id="lt-direction">BUY</div>
+            <div class="lt-dir-arrow buy" id="lt-dir-arrow">↑</div>
+          </div>
+        </div>
+      </div>
+      <div class="lt-levels">
+        <div class="lt-sl-row">
+          <div class="lt-sl-lbl">SL</div>
+          <div class="lt-sl-val" id="lt-sl">--</div>
+        </div>
+        <div class="lt-tps">
+          <div class="lt-tp" id="lt-tp1"><div class="lt-tp-lbl">TP1</div><div class="lt-tp-val" id="lt-tp1-v">--</div><div class="lt-tp-s" id="lt-tp1-s"></div></div>
+          <div class="lt-tp" id="lt-tp2"><div class="lt-tp-lbl">TP2</div><div class="lt-tp-val" id="lt-tp2-v">--</div><div class="lt-tp-s" id="lt-tp2-s"></div></div>
+          <div class="lt-tp" id="lt-tp3"><div class="lt-tp-lbl">TP3</div><div class="lt-tp-val" id="lt-tp3-v">--</div><div class="lt-tp-s" id="lt-tp3-s"></div></div>
+        </div>
+      </div>
+      <div class="lt-pnl-row" id="lt-pnl-row" style="display:none">
+        <div class="lt-pnl-lbl" data-i18n="live_pnl">Live P&amp;L</div>
+        <div class="lt-pnl-val" id="lt-pnl-val">+0 pips</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="history-section" id="history-section" style="padding:0 16px">
+    <div class="history-title" data-i18n="recent_signals">Recent Signals</div>
+    <div id="history-list"></div>
+  </div>
+
+  <div style="height:80px"></div>
+</div>
+
+<div id="signal-flash" class="signal-flash" style="display:none">
+  <div class="sf-ring buy-ring" id="sf-ring">↑</div>
+  <div class="sf-dir buy" id="sf-dir">BUY</div>
+  <div class="sf-asset" id="sf-asset">GOLD · XAU/USD</div>
+  <div class="sf-levels" id="sf-levels"></div>
+  <button onclick="dismissFlash()" class="sf-close">✕</button>
+</div>
+
+<div id="signal-countdown" style="display:none;position:fixed;inset:0;z-index:900;background:radial-gradient(ellipse at center,#0C0B00,#060504);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px"></div>
+
+<div id="onboarding" style="display:none;position:fixed;inset:0;z-index:9000;background:#080808;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center">
+  <div style="font-family:monospace;font-size:36px;font-weight:700;color:#FFD700;margin-bottom:8px">14⚡</div>
+  <div style="font-size:11px;color:#636366;letter-spacing:3px;text-transform:uppercase;margin-bottom:40px">TRADES ALERT</div>
+  <div style="font-size:20px;font-weight:700;color:#F5F5F0;margin-bottom:12px">Bienvenue ⚡</div>
+  <div style="font-size:13px;color:#636366;line-height:1.7;max-width:280px;margin-bottom:40px">Signaux Gold en temps réel. Push notifications. Résultats live.</div>
+  <button onclick="dismissOnboarding()" style="background:#FFD700;color:#000;border:none;border-radius:14px;padding:16px 32px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif">Commencer ⚡</button>
+</div>
+
+<script src="/i18n.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
