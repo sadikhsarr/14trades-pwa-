@@ -179,7 +179,7 @@ body{font-family:'Inter',sans-serif;color:var(--white);display:flex;justify-cont
 /* HISTORY */
 .hist-block{display:flex;flex-direction:column;gap:10px}
 .hist-title{font-size:10px;font-weight:600;letter-spacing:2px;color:var(--muted);text-transform:uppercase;padding:0 2px}
-.hist-item{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--s1);border:1px solid var(--border);border-radius:14px}
+.hist-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #0F0F0F}.hist-item:last-child{border-bottom:none}
 .hi-left{display:flex;align-items:center;gap:12px}
 .hi-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:10px;font-weight:700}
 .hi-asset{font-size:13px;font-weight:600}
