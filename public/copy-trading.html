@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080808">
+  <title>14 Trades Alert — Copier mes trades</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      background:#080808; color:#F0F2F8; font-family:'Inter',system-ui,sans-serif;
+      -webkit-font-smoothing:antialiased; min-height:100vh;
+    }
+    .wrap { max-width:480px; margin:0 auto; padding:20px 16px 60px; }
+    .brand { font-size:9px; font-weight:700; color:#3A3A3A; letter-spacing:2px; margin-bottom:4px; }
+    h1 { font-size:19px; font-weight:800; color:#F0F2F8; margin-bottom:4px; }
+    .sub { font-size:11px; color:#555; margin-bottom:18px; }
+
+    @keyframes pulse { 0%,100%{opacity:.4;transform:scale(1)} 50%{opacity:1;transform:scale(1.4)} }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .livedot { position:relative; width:7px; height:7px; }
+    .livedot::before { content:''; position:absolute; inset:0; border-radius:50%; background:#00C87A; animation:pulse 1.5s infinite; }
+    .livedot::after { content:''; position:absolute; inset:0; border-radius:50%; background:#00C87A; }
+
+    .photo-card { position:relative; border-radius:16px; overflow:hidden; height:220px; margin-bottom:16px; background:linear-gradient(155deg,#1a1a1a,#0a0a0a); }
+    .photo-card img { width:100%; height:100%; object-fit:cover; object-position:center 15%; display:block; }
+    .badge { position:absolute; background:#0D0D0Dcc; border:1px solid #1A1A1A; border-radius:10px; padding:8px 11px; backdrop-filter:blur(6px); }
+    .badge-lbl { font-size:7px; color:#666; letter-spacing:.5px; margin-bottom:2px; }
+    .badge-val { font-family:'Space Mono',monospace; font-size:15px; font-weight:800; }
+    .badge.tl { top:12px; left:12px; border-color:#00C87A30; }
+    .badge.br { bottom:12px; right:12px; border-color:#C9A84C30; }
+    .live-pill { position:absolute; top:12px; right:12px; display:flex; align-items:center; gap:6px; background:#0D0D0Dcc; border:1px solid #1A1A1A; border-radius:20px; padding:5px 11px; backdrop-filter:blur(6px); }
+    .live-pill span { font-size:8px; color:#00C87A; font-weight:700; }
+
+    .verify-link { display:flex; align-items:center; gap:8px; background:#0D0D0D; border:1px solid #C9A84C25; border-radius:11px; padding:11px 13px; margin-bottom:18px; text-decoration:none; }
+    .verify-link .txt { flex:1; }
+    .verify-link .t1 { font-size:11px; font-weight:700; color:#F0F2F8; }
+    .verify-link .t2 { font-size:9px; color:#555; margin-top:1px; }
+    .verify-link .arrow { color:#C9A84C; font-size:14px; }
+
+    .disclaimer { background:#0D0D0D; border:1px solid #1A1A1A; border-radius:10px; padding:11px 13px; font-size:9px; color:#555; line-height:1.6; margin-bottom:20px; }
+    .disclaimer b { color:#888; }
+
+    .step { display:flex; gap:11px; margin-bottom:14px; }
+    .step-num { width:26px; height:26px; border-radius:8px; background:#00C87A14; border:1px solid #00C87A28; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:11px; font-weight:800; color:#00C87A; }
+    .step-txt { font-size:11px; color:#AAA; line-height:1.55; padding-top:3px; }
+    .step-txt b { color:#FFD700; }
+
+    .fee-box { background:#0D0D0D; border:1px solid #1A1A1A; border-radius:11px; padding:13px 14px; margin:6px 0 20px; }
+    .fee-row { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid #161616; }
+    .fee-row:last-child { border-bottom:none; }
+    .fee-lbl { font-size:10px; color:#888; }
+    .fee-val { font-family:'Space Mono',monospace; font-size:11px; font-weight:700; color:#F0F2F8; }
+    .fee-val.gold { color:#C9A84C; }
+    .fee-val.green { color:#00C87A; }
+
+    .tier-box { background:linear-gradient(155deg,#141000,#0D0A00); border:1px solid #C9A84C30; border-radius:12px; padding:14px; margin-bottom:20px; }
+    .tier-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:9px; }
+    .tier-name { font-size:11px; font-weight:700; color:#F0F2F8; }
+    .tier-fee { font-family:'Space Mono',monospace; font-size:14px; font-weight:800; color:#FFD700; }
+    .tier-bar-bg { height:5px; background:#1A1A1A; border-radius:3px; overflow:hidden; margin-bottom:6px; }
+    .tier-bar-fill { height:100%; background:linear-gradient(90deg,#C9A84C,#FFD700); }
+    .tier-note { font-size:9px; color:#666; }
+
+    .confirm-row { display:flex; align-items:flex-start; gap:10px; background:#0D0D0D; border:1px solid #1A1A1A; border-radius:11px; padding:13px; margin-bottom:14px; cursor:pointer; }
+    .confirm-row input { width:17px; height:17px; margin-top:1px; flex-shrink:0; accent-color:#C9A84C; cursor:pointer; }
+    .confirm-row span { font-size:10px; color:#AAA; line-height:1.5; }
+    .confirm-row span b { color:#FFD700; }
+
+    .link-btn {
+      display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
+      background:linear-gradient(135deg,#00C87A,#00E68A); color:#000; border:none; border-radius:12px;
+      padding:15px; font-size:13px; font-weight:800; font-family:inherit; text-decoration:none; margin-top:4px;
+      transition:opacity .2s, filter .2s;
+    }
+    .link-btn.disabled { opacity:.35; filter:grayscale(60%); pointer-events:none; cursor:not-allowed; }
+
+    .soon-box { background:linear-gradient(155deg,#141000,#0D0A00); border:1px solid #C9A84C30; border-radius:12px; padding:14px; margin-bottom:12px; text-align:center; }
+    .soon-badge { display:inline-block; background:linear-gradient(135deg,#C9A84C,#FFD700); color:#000; font-size:9px; font-weight:800; letter-spacing:1px; padding:6px 14px; border-radius:20px; margin-bottom:8px; }
+    .soon-txt { font-size:10px; color:#999; line-height:1.6; }
+    .link-sub { font-size:8px; color:#333; text-align:center; margin-top:8px; }
+    .back-link { display:block; text-align:center; margin-top:24px; font-size:11px; color:#555; text-decoration:none; }
+
+    .idle-section { margin-bottom:20px; }
+    .idle-eyebrow { font-size:9px; font-weight:700; color:#3A3A3A; letter-spacing:2px; margin-bottom:6px; }
+    .idle-headline { font-size:18px; font-weight:800; color:#F0F2F8; line-height:1.35; margin-bottom:14px; }
+    .idle-headline .red { color:#FF6B6B; }
+    .idle-box { border-radius:14px; padding:16px; margin-bottom:12px; }
+    .idle-box.loss { background:#1A0B0C; border:1px solid #FF3B4E25; }
+    .idle-box.win  { background:#0D1810; border:1px solid #00C87A30; }
+    .idle-lbl { font-size:9px; color:#888; margin-bottom:10px; }
+    .idle-val { font-family:'Space Mono',monospace; font-size:30px; font-weight:800; }
+    .idle-val.red { color:#FF6B6B; }
+    .idle-val.green { color:#00E68A; }
+    .idle-val-sub { font-size:11px; color:#888; }
+    .idle-note { font-size:9px; color:#555; margin-top:6px; }
+    .idle-vs { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:12px; }
+    .idle-vs .line { flex:1; height:1px; background:#1A1A1A; }
+    .idle-vs .txt { font-size:10px; color:#444; font-weight:600; }
+    .idle-share-btn {
+      width:100%; background:#131313; border:1px solid #1A1A1A; color:#F0F2F8; border-radius:12px;
+      padding:12px; font-size:11px; font-weight:700; font-family:inherit; margin-top:4px;
+      display:flex; align-items:center; justify-content:center; gap:7px; cursor:pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">14 TRADES ALERT</div>
+    <h1>Copier mes trades</h1>
+    <div class="sub">Transparent, clair, avant que tu connectes un centime</div>
+
+    <div class="photo-card">
+      <img src="/sadikh-copy.png" alt="Sadikh" onerror="this.style.display='none'">
+      <div class="badge tl">
+        <div class="badge-lbl">TAUX DE RÉUSSITE</div>
+        <div class="badge-val" style="color:#00C87A" id="cp-avg">—</div>
+      </div>
+      <div class="badge br">
+        <div class="badge-lbl">TRADES GAGNANTS</div>
+        <div class="badge-val" style="color:#C9A84C" id="cp-wins">—</div>
+      </div>
+      <div class="live-pill">
+        <div class="livedot"></div>
+        <span>SADIKH · LIVE</span>
+      </div>
+    </div>
+
+    <a href="/track-record.html" class="verify-link">
+      <i class="ti ti-shield-check" style="font-size:16px;color:#C9A84C"></i>
+      <div class="txt">
+        <div class="t1">Voir la preuve vérifiable</div>
+        <div class="t2">Ces chiffres, chaînés et vérifiables — pas juste affirmés</div>
+      </div>
+      <div class="arrow">›</div>
+    </a>
+
+    <div class="disclaimer">
+      <b>Le trading comporte des risques.</b> Les performances passées ne garantissent pas les résultats futurs. Copier un signal ne supprime pas le risque de perte. Ne connecte que ce que tu peux te permettre de perdre.
+    </div>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-txt">Chaque trade que j'ouvre est automatiquement reproduit dans ton compte HFM, proportionnellement à ton capital.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-txt">Minimum <b>3 000 $</b> — en dessous, le risque devient disproportionné à cause des lots minimums. Ce n'est pas négociable, c'est pour ta sécurité.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-txt">Ton risque % par trade est toujours identique au mien — jamais plus élevé, jamais imprévisible.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-txt">Le copy trading s'ajoute à ton abonnement signaux, il ne le remplace pas — tu gardes l'accès aux deux.</div>
+    </div>
+
+    <div class="fee-box">
+      <div class="fee-row">
+        <div class="fee-lbl">Performance fee</div>
+        <div class="fee-val gold">20%</div>
+      </div>
+      <div class="fee-row">
+        <div class="fee-lbl">Payé uniquement si</div>
+        <div class="fee-val green">tu es en profit</div>
+      </div>
+      <div class="fee-row">
+        <div class="fee-lbl">Fréquence</div>
+        <div class="fee-val">Hebdomadaire</div>
+      </div>
+      <div class="fee-row">
+        <div class="fee-lbl">High-water mark</div>
+        <div class="fee-val green">✓ activé</div>
+      </div>
+    </div>
+
+    <div class="idle-section" id="idle-card">
+      <div class="idle-eyebrow">UNE RÉALITÉ QU'ON N'AIME PAS DIRE</div>
+      <div class="idle-headline">Ton argent qui dort<br><span class="red">perd de la valeur</span> chaque mois</div>
+
+      <div class="idle-box loss">
+        <div class="idle-lbl">3 000$ IMMOBILE PENDANT 1 AN</div>
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <div class="idle-val red">-150$</div>
+          <div class="idle-val-sub">valeur réelle perdue</div>
+        </div>
+        <div class="idle-note">Inflation moyenne ~5%/an — ton argent ne bouge pas, mais son pouvoir d'achat oui.</div>
+      </div>
+
+      <div class="idle-vs"><div class="line"></div><div class="txt">VS</div><div class="line"></div></div>
+
+      <div class="idle-box win">
+        <div class="idle-lbl">MÊME 3 000$, COPIÉ SUR 14TRADES</div>
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <div class="idle-val green">Actif</div>
+          <div class="idle-val-sub">au lieu d'immobile</div>
+        </div>
+        <div class="idle-note">Aucune garantie de gain — mais au moins ton argent travaille au lieu de dormir.</div>
+      </div>
+
+      <button class="idle-share-btn" onclick="shareIdleCard()">
+        <i class="ti ti-share"></i> Partager cette vérité
+      </button>
+    </div>
+
+    <div class="tier-box">
+      <div class="tier-top">
+        <div class="tier-name">🔥 Tarif fondateur</div>
+        <div class="tier-fee">20%</div>
+      </div>
+      <div class="tier-bar-bg"><div class="tier-bar-fill" style="width:54%"></div></div>
+      <div class="tier-note" id="cp-tier-note">27 / 50 places à 20% — le tarif monte à 25% une fois complet <span style="opacity:.5">(à mettre à jour manuellement)</span></div>
+    </div>
+
+    <label class="confirm-row" for="cp-confirm">
+      <input type="checkbox" id="cp-confirm" onchange="toggleCopyBtn()">
+      <span>Je comprends que je peux perdre de l'argent, j'ai au minimum <b>3 000 $</b>, et c'est de l'argent que je peux me permettre de perdre.</span>
+    </label>
+
+    <a href="https://my.hfm.com/en/copy-trading/provider-details?provider=147054028" class="link-btn" id="cp-link-btn" target="_blank" rel="noopener" onclick="return document.getElementById('cp-confirm').checked">
+      <i class="ti ti-external-link"></i> Ouvrir HFM et me copier
+    </a>
+    <div class="link-sub">Tu quittes l'app 14 Trades vers HFM.com · compte HFM requis</div>
+
+    <a href="/" class="back-link">← Retour à l'app</a>
+  </div>
+
+  <script>
+    function toggleCopyBtn() {
+      const checked = document.getElementById('cp-confirm').checked;
+      const btn = document.getElementById('cp-link-btn');
+      btn.classList.toggle('disabled', !checked);
+    }
+    toggleCopyBtn();
+
+    const SERVER = 'https://14trades-server-production.up.railway.app';
+
+    // Carry forward a referral code if someone landed here from a shared
+    // link — this page has no signup form itself, so the attribution has
+    // to survive until they later start a trial or open the main app.
+    (function captureReferral() {
+      try {
+        const urlRef = new URLSearchParams(window.location.search).get('ref');
+        if (urlRef) localStorage.setItem('14t_referred_by', urlRef.toUpperCase());
+      } catch(e) {}
+    })();
+
+    (async function loadRealStats() {
+      try {
+        const r = await fetch(SERVER + '/api/track-record?t=' + Date.now(), { cache:'no-store' });
+        const d = await r.json();
+        if (d.ok && d.stats) {
+          document.getElementById('cp-avg').textContent  = '+' + (d.stats.winRate ?? 0) + '%';
+          document.getElementById('cp-wins').textContent = (d.stats.wins ?? 0) + '/' + (d.stats.total ?? 0);
+        }
+      } catch(e) { /* keep placeholder values on failure */ }
+    })();
+
+    async function shareIdleCard() {
+      const el = document.getElementById('idle-card');
+      const myRefCode = localStorage.getItem('14t_ref_code') || '';
+      const shareLink = myRefCode
+        ? `https://14trades-pwa.vercel.app/copy-trading.html?ref=${encodeURIComponent(myRefCode)}`
+        : `https://14trades-pwa.vercel.app/copy-trading.html`;
+      const shareText = `💤 Ton argent qui dort perd de la valeur chaque mois. 14TRADES + Copy Trading — pour ceux qui veulent que leur argent travaille enfin.\n${shareLink}`;
+      if (!el || typeof html2canvas !== 'function') {
+        if (navigator.share) { navigator.share({ title:'14 Trades Alert', text: shareText }).catch(()=>{}); }
+        return;
+      }
+      try {
+        const canvas = await html2canvas(el, { backgroundColor: '#080808', scale: 2, useCORS: true });
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        if (blob) {
+          const file = new File([blob], '14trades-argent-qui-dort.png', { type: 'image/png' });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({ title: '14 Trades Alert', text: shareText, files: [file] });
+              return;
+            } catch(shareErr) {
+              if (shareErr?.name === 'AbortError') return;
+            }
+          }
+          const link = document.createElement('a');
+          link.download = file.name;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        }
+      } catch(e) {
+        if (navigator.share) { navigator.share({ title:'14 Trades Alert', text: shareText }).catch(()=>{}); }
+      }
+    }
+  </script>
+</body>
+</html>
