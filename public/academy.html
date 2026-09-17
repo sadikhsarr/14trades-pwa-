@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080808">
+<title>14 Trades Academy — Apprenez la méthode</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html,body { background:#080808; color:#F0F2F8; font-family:'Inter',sans-serif; min-height:100vh; width:100%; }
+  .wrap { max-width:480px; margin:0 auto; padding:26px 18px 60px; }
+  .back-link { font-size:12px; color:#555; text-decoration:none; display:inline-block; margin-bottom:20px; }
+  .eyebrow { font-size:9px; font-weight:800; color:#C9A84C; letter-spacing:1.5px; margin-bottom:10px; }
+  .section-lbl { font-size:9px; font-weight:800; color:#555; letter-spacing:1.5px; margin:32px 0 6px; }
+  .section-title { font-size:19px; font-weight:800; color:#F0F2F8; margin-bottom:8px; }
+  .section-sub { font-size:12px; color:#888; line-height:1.6; margin-bottom:18px; }
+
+  @keyframes acSpin { to { transform:rotate(360deg); } }
+  .glow-border { position:relative; border-radius:18px; padding:2px; overflow:hidden; background:#050505; margin-bottom:16px; }
+  .glow-border::before { content:''; position:absolute; inset:-80%; background:conic-gradient(from 0deg,#C9A84C,#00000000 20%,#00000000 45%,#00C87A,#00000000 65%,#00000000 90%,#C9A84C); animation:acSpin 10s linear infinite; }
+  .glow-inner { position:relative; background:radial-gradient(ellipse at 20% 0%,#141000,#0A0A0A 60%,#050505); border-radius:16px; }
+
+  .step-row { display:flex; gap:12px; margin-bottom:16px; }
+  .step-num { width:26px; height:26px; border-radius:50%; background:#C9A84C20; color:#C9A84C; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:11px; flex-shrink:0; }
+  .step-title { font-size:12px; font-weight:700; color:#F0F2F8; margin-bottom:4px; }
+  .step-desc { font-size:11px; color:#888; line-height:1.6; }
+
+  .hero-inner { padding:24px 20px; }
+  .hero-title { font-size:20px; font-weight:800; color:#F0F2F8; line-height:1.3; margin-bottom:4px; }
+  .hero-price { font-size:27px; font-weight:800; color:#FFD700; margin-bottom:12px; }
+  .hero-desc { font-size:12px; color:#999; line-height:1.65; margin-bottom:18px; }
+  .cta-btn { display:block; background:linear-gradient(135deg,#C9A84C,#FFD700); color:#0A0800; text-decoration:none; border-radius:11px; padding:13px; text-align:center; font-size:13px; font-weight:800; }
+  .login-link { display:block; text-align:center; font-size:10px; color:#666; margin-top:12px; text-decoration:underline; }
+
+  .tier-card { background:#0D0D0D; border:1px solid #1A1A1A; border-radius:14px; padding:16px; margin-bottom:12px; }
+  .tier-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+  .tier-name { font-size:14px; font-weight:800; color:#F0F2F8; }
+  .tier-meta { font-size:9px; color:#666; margin-bottom:10px; }
+  .tier-desc { font-size:11px; color:#999; line-height:1.6; margin-bottom:12px; }
+  .tier-feat { display:flex; align-items:center; gap:7px; font-size:10.5px; color:#AAA; margin-bottom:7px; }
+  .tier-feat i { color:#00C87A; font-size:12px; }
+  .tier-cta { display:block; background:#1C1C1E; border:1px solid #C9A84C40; color:#FFD700; text-decoration:none; border-radius:9px; padding:11px; text-align:center; font-size:12px; font-weight:800; margin-top:12px; }
+  .tier-card.featured { border-color:#C9A84C60; }
+  .tier-card.featured .tier-cta { background:linear-gradient(135deg,#C9A84C,#FFD700); color:#0A0800; border:none; }
+
+  .practice-card { background:linear-gradient(135deg,#0A1A0A,#0D0D0D); border:1px solid #00C87A40; border-radius:14px; padding:16px; margin-bottom:12px; }
+
+  .founder-card { background:#0D0D0D; border:1px solid #1A1A1A; border-radius:14px; padding:16px; }
+  .founder-head { display:flex; align-items:center; gap:11px; margin-bottom:12px; }
+  .founder-avatar { width:44px; height:44px; border-radius:50%; overflow:hidden; border:2px solid #C9A84C; flex-shrink:0; }
+  .founder-avatar img { width:100%; height:100%; object-fit:cover; object-position:center 20%; }
+  .founder-name { font-size:13px; font-weight:800; color:#F0F2F8; }
+  .founder-meta { font-size:9px; color:#666; margin-top:1px; }
+  .founder-quote { font-size:11px; color:#AAA; line-height:1.7; margin-bottom:10px; }
+  .assets-row { display:flex; flex-wrap:wrap; gap:6px; }
+  .asset-tag { font-size:9px; color:#888; background:#1A1A1A; border-radius:6px; padding:4px 8px; }
+
+  .testimonial-card { background:#0D0D0D; border:1px solid #1A1A1A; border-radius:12px; padding:14px; margin-bottom:10px; }
+  .stars { color:#FFD700; font-size:11px; margin-bottom:8px; letter-spacing:1px; }
+  .testimonial-text { font-size:11px; color:#AAA; line-height:1.65; margin-bottom:8px; font-style:italic; }
+  .testimonial-author { font-size:9.5px; color:#666; }
+
+  .socials { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; }
+  .social-btn { background:#0D0D0D; border:1px solid #1A1A1A; border-radius:11px; padding:12px; text-align:center; text-decoration:none; display:flex; align-items:center; justify-content:center; }
+  .social-btn i { font-size:18px; color:#888; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a href="/" class="back-link">← Retour</a>
+  <div class="eyebrow">14 TRADES ACADEMY · MÉTHODE OFFICIELLE</div>
+
+  <div class="glow-border">
+    <div class="glow-inner hero-inner">
+      <div class="hero-title">La méthode qui transforme</div>
+      <div class="hero-price">$100 en $1,000,000.</div>
+      <div class="hero-desc">14 doublements. Pas de magie — des mathématiques et de la discipline. Apprenez le timing exact, la structure du marché, l'entrée précise.</div>
+      <a href="https://wa.me/221788255099?text=Bonjour%2C%20l%27Academy%20m%27int%C3%A9resse" target="_blank" rel="noopener" class="cta-btn">Accéder à l'Academy →</a>
+      <a href="/" class="login-link">Déjà inscrit ? Se connecter ici</a>
+    </div>
+  </div>
+
+  <div class="section-lbl">COMMENT ÇA MARCHE</div>
+  <div class="section-title">Simple. Répétable. Efficace.</div>
+  <div class="section-sub">Un système en 3 étapes — pas de complexité inutile, pas d'analyse pendant des heures. Je m'en occupe, vous exécutez.</div>
+
+  <div class="step-row">
+    <div class="step-num">1</div>
+    <div>
+      <div class="step-title">Choisissez votre formation</div>
+      <div class="step-desc">Day Trading ($500), Swing Trading ($1,000), ou Elite — Entrée Exacte ($2,500). Payez via Wave, Orange Money ou Crypto. Accès immédiat après confirmation.</div>
+    </div>
+  </div>
+  <div class="step-row">
+    <div class="step-num">2</div>
+    <div>
+      <div class="step-title">Apprenez le timing et la structure</div>
+      <div class="step-desc">Des vidéos privées sur le bon moment d'entrer sur le marché. Pas d'indicateurs complexes — juste le timing, la structure, et l'entrée exacte. Un système simple que vous pouvez répéter chaque jour ou chaque semaine.</div>
+    </div>
+  </div>
+  <div class="step-row">
+    <div class="step-num">3</div>
+    <div>
+      <div class="step-title">Appliquez et doublez</div>
+      <div class="step-desc">Abonnez-vous aux signaux en temps réel ($100/mois) ou pratiquez avec moi en direct sur le marché réel ($500/mois). Suivez le Road to $1M — 14 doublements depuis $100.</div>
+    </div>
+  </div>
+
+  <div class="section-lbl">FORMATIONS</div>
+  <div class="section-title">Choisissez votre niveau.</div>
+  <div class="section-sub">Chaque formation comprend un mois de signaux en temps réel offert. Commencez par le Day Trading si vous débutez.</div>
+
+  <div class="tier-card">
+    <div class="tier-header"><div class="tier-name">📈 Day Trading</div><div style="font-size:15px;font-weight:800;color:#FFD700">$500</div></div>
+    <div class="tier-meta">une fois · + 1 mois Alert offert</div>
+    <div class="tier-desc">La capacité de capturer les grands mouvements de la journée, de façon consistante et facile à reproduire. Vous entrez une fois — vous attendez.</div>
+    <div class="tier-feat"><i class="ti ti-check"></i> Le timing que personne ne vous a montré</div>
+    <div class="tier-feat"><i class="ti ti-check"></i> Un setup par jour — pas plus</div>
+    <div class="tier-feat"><i class="ti ti-check"></i> Applicable dès le lendemain</div>
+    <a href="https://wa.me/221788255099?text=Bonjour%2C%20Day%20Trading%20500%20USD" target="_blank" rel="noopener" class="tier-cta">Accéder — $500 →</a>
+  </div>
+
+  <div class="tier-card">
+    <div class="tier-header"><div class="tier-name">📊 Swing Trading</div><div style="font-size:15px;font-weight:800;color:#FFD700">$1,000</div></div>
+    <div class="tier-meta">une fois · + 1 mois Alert offert</div>
+    <div class="tier-desc">La même méthodologie, appliquée pour capturer les grands mouvements de la semaine. Moins de temps devant l'écran — plus de points capturés.</div>
+    <div class="tier-feat"><i class="ti ti-check"></i> Le jour exact de la semaine pour entrer</div>
+    <div class="tier-feat"><i class="ti ti-check"></i> 100 à 500+ points sur Gold</div>
+    <div class="tier-feat"><i class="ti ti-check"></i> La patience comme avantage</div>
+    <a href="https://wa.me/221788255099?text=Bonjour%2C%20Swing%20Trading%201000%20USD" target="_blank" rel="noopener" class="tier-cta">Accéder — $1,000 →</a>
+  </div>
+
+  <div class="tier-card featured">
+    <div class="tier-header"><div class="tier-name">🎯 Elite — Entrée Exacte</div><div style="font-size:15px;font-weight:800;color:#FFD700">$2,500</div></div>
+    <div class="tier-meta">Road to $1M · Feedback personnel</div>
+    <div class="tier-desc">La courbe d'apprentissage complète — comprendre comment le prix se déplace d'un niveau à l'autre, de façon prévisible. Le niveau le plus profond de la méthode.</div>
+    <div class="tier-feat"><i class="ti ti-check"></i> La perspective complète du mouvement du prix</div>
+    <div class="tier-feat"><i class="ti ti-check"></i> Feedback personnel sur vos trades</div>
+    <div class="tier-feat"><i class="ti ti-check"></i> Accès prioritaire Road to $1M</div>
+    <a href="https://wa.me/221788255099?text=Bonjour%2C%20Elite%20Entr%C3%A9e%20Exacte%202500%20USD" target="_blank" rel="noopener" class="tier-cta">Accéder — $2,500 →</a>
+  </div>
+
+  <div class="practice-card">
+    <div style="font-size:11px;font-weight:800;color:#00E68A;margin-bottom:4px">🔥 Pratique avec moi, en direct</div>
+    <div style="font-size:10px;color:#888;line-height:1.6;margin-bottom:10px">Tu veux pratiquer sur le marché réel, avec moi ? Abonnement mensuel dédié.</div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:15px;font-weight:800;color:#FFD700">$500<span style="font-size:9px;color:#666">/mois</span></div>
+      <a href="https://wa.me/221788255099?text=Bonjour%2C%20la%20pratique%20en%20direct%20m%27int%C3%A9resse" target="_blank" rel="noopener" style="font-size:10px;color:#00E68A;text-decoration:none;font-weight:700">S'inscrire →</a>
+    </div>
+  </div>
+
+  <div class="section-lbl">LE FONDATEUR</div>
+  <div class="section-title">Sadikh Sarr · 14 Trades</div>
+  <div class="section-sub">Trader depuis 2 ans depuis Dakar, Sénégal. La méthode vient de l'expérience réelle sur les marchés — pas d'une formation théorique.</div>
+
+  <div class="founder-card">
+    <div class="founder-head">
+      <div class="founder-avatar"><img src="/sadikh-copy.png" alt="Sadikh Sarr"></div>
+      <div>
+        <div class="founder-name">Sadikh Sarr</div>
+        <div class="founder-meta">Fondateur · 14 Trades · Dakar, Sénégal</div>
+      </div>
+    </div>
+    <div class="founder-quote">Pendant 2 ans j'ai développé une méthode basée sur une seule idée : le timing est tout. Pas besoin d'analyser 4 heures par jour. Il faut juste savoir quand le marché offre une vraie opportunité — et l'exécuter avec discipline.</div>
+    <div class="founder-quote">14 Trades, c'est pas un signal service comme les autres. C'est une philosophie. 14 doublements depuis $100. Les mathématiques font le reste.</div>
+    <div class="assets-row">
+      <div class="asset-tag">Gold XAU/USD</div>
+      <div class="asset-tag">Silver XAG/USD</div>
+      <div class="asset-tag">BTC/USD</div>
+      <div class="asset-tag">Nasdaq</div>
+      <div class="asset-tag">US30</div>
+    </div>
+  </div>
+
+  <div class="section-lbl">TÉMOIGNAGES</div>
+  <div class="section-title">Ce que disent les traders.</div>
+  <div class="section-sub">Des résultats réels de membres réels. Pas des screenshots générés — des histoires vécues.</div>
+
+  <div class="testimonial-card">
+    <div class="stars">★★★★★</div>
+    <div class="testimonial-text">"Meilleure expérience de trading de ma vie. En moins de 24h j'ai vu des profits. Le système de Sadikh est clair, simple, et ça fonctionne vraiment. Je recommande à 100%."</div>
+    <div class="testimonial-author">Mamadou D. · Dakar, Sénégal</div>
+  </div>
+  <div class="testimonial-card">
+    <div class="stars">★★★★★</div>
+    <div class="testimonial-text">"Des règles claires, zéro stress. J'ai doublé mon compte en une semaine en suivant exactement ce que Sadikh enseigne. Je ne tradais jamais avec discipline avant — maintenant je comprends pourquoi c'est essentiel."</div>
+    <div class="testimonial-author">Fatou N. · Thiès, Sénégal</div>
+  </div>
+  <div class="testimonial-card">
+    <div class="stars">★★★★★</div>
+    <div class="testimonial-text">"J'avais essayé 6 stratégies différentes sur YouTube sans résultats. Avec 14 Trades j'ai enfin un système que je peux répéter. Le timing que Sadikh enseigne m'a ouvert les yeux sur comment les marchés fonctionnent vraiment."</div>
+    <div class="testimonial-author">Cheikh S. · Saint-Louis, Sénégal</div>
+  </div>
+
+  <div class="section-lbl">CONTACT</div>
+  <div class="socials">
+    <a href="https://www.tiktok.com/@14_trades" target="_blank" rel="noopener" class="social-btn"><i class="ti ti-brand-tiktok" aria-hidden="true"></i></a>
+    <a href="https://wa.me/221788255099" target="_blank" rel="noopener" class="social-btn"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i></a>
+    <a href="https://t.me/+dmul6Q--Apc3YzQ0" target="_blank" rel="noopener" class="social-btn"><i class="ti ti-brand-telegram" aria-hidden="true"></i></a>
+  </div>
+
+</div>
+</body>
+</html>
