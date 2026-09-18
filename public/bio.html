@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080808">
+<title>Sadikh Sarr — 14 Trades Alert</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html,body { background:#080808; color:#F0F2F8; font-family:'Inter',sans-serif; min-height:100vh; width:100% }
+  .wrap { max-width:420px; margin:0 auto; padding:24px 18px 60px; }
+  @keyframes bioSpin { to { transform:rotate(360deg); } }
+  .avatar-border {
+    position:relative; border-radius:100px; padding:3px; overflow:hidden;
+    background:#050505; width:96px; height:96px; margin:0 auto;
+  }
+  .avatar-border::before {
+    content:''; position:absolute; inset:-80%;
+    background:conic-gradient(from 0deg,#C9A84C,#00000000 20%,#00000000 45%,#00C87A,#00000000 65%,#00000000 90%,#C9A84C);
+    animation:bioSpin 6s linear infinite;
+  }
+  .avatar-inner { width:100%; height:100%; border-radius:100px; overflow:hidden; background:#1a1a1a; }
+  .avatar-inner img { width:100%; height:100%; object-fit:cover; object-position:center 15%; }
+  .back-link { font-size:12px; color:#555; text-decoration:none; display:inline-block; margin-bottom:22px; }
+  .name { font-size:19px; font-weight:800; color:#F0F2F8; text-align:center; margin-top:14px; }
+  .location { display:flex; align-items:center; justify-content:center; gap:4px; margin-top:3px; font-size:11px; color:#666; }
+  .verified { display:flex; align-items:center; justify-content:center; gap:6px; margin:8px 0 22px; }
+  .dot { width:5px; height:5px; border-radius:50%; background:#00C87A; }
+  .verified-text { font-size:10px; color:#00E68A; font-weight:700; }
+  .bio-card { background:#0D0D0D; border:1px solid #1A1A1A; border-radius:14px; padding:16px; margin-bottom:16px; }
+  .bio-text { font-size:12px; color:#AAA; line-height:1.75; }
+  .bio-highlight { font-size:12px; color:#C9A84C; line-height:1.75; margin-top:11px; font-weight:600; }
+  .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:18px; }
+  .stat-box { background:#0D0D0D; border:1px solid #1A1A1A; border-radius:11px; padding:12px; text-align:center; }
+  .stat-num { font-size:16px; font-weight:800; }
+  .stat-lbl { font-size:8px; color:#555; margin-top:3px; letter-spacing:.5px; }
+  .verify-link { display:flex; align-items:center; justify-content:center; gap:7px; font-size:11px; color:#C9A84C; text-decoration:none; margin-bottom:14px; }
+  .formation-btn { display:block; background:linear-gradient(135deg,#C9A84C,#FFD700); color:#0A0800; text-decoration:none; border-radius:11px; padding:13px; text-align:center; font-size:12px; font-weight:800; margin-bottom:18px; }
+  .socials { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; }
+  .social-btn { background:#0D0D0D; border:1px solid #1A1A1A; border-radius:11px; padding:12px; text-align:center; text-decoration:none; display:flex; align-items:center; justify-content:center; }
+  .social-btn i { font-size:18px; color:#888; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a href="/" class="back-link">← Retour</a>
+
+  <div class="avatar-border">
+    <div class="avatar-inner">
+      <img src="/sadikh-copy.png" alt="Sadikh Sarr">
+    </div>
+  </div>
+
+  <div class="name">Sadikh Sarr</div>
+  <div class="location">
+    <i class="ti ti-map-pin" style="font-size:10px" aria-hidden="true"></i>
+    Dakar, Sénégal
+  </div>
+
+  <div class="verified">
+    <div class="dot"></div>
+    <div class="verified-text">Vérifié · Trader actif</div>
+  </div>
+
+  <div class="bio-card">
+    <div class="bio-text" style="font-size:9px;font-weight:800;color:#C9A84C;letter-spacing:1px;margin-bottom:10px">MON PARCOURS</div>
+    <div class="bio-text">Un collègue m'a un jour montré Binance. Je ne savais même pas ce qu'était le Bitcoin, ni ce qu'était une cryptomonnaie. Il m'a montré son profit flottant sur l'écran. Je n'y croyais pas.</div>
+    <div class="bio-text" style="margin-top:10px">« C'est vrai, ça ? » je lui ai demandé. Il m'a dit oui. Sans trop réfléchir — l'argent m'attirait, honnêtement — je me suis excité et j'ai déposé rapidement. Par chance, j'ai transformé 500$ en 1 500$. En 30 minutes.</div>
+    <div class="bio-text" style="margin-top:10px">C'est là que l'aventure a vraiment commencé. J'ai commencé à lire des livres, à m'enfermer pour comprendre ce qu'était réellement le trading. Beaucoup de douleur, beaucoup d'erreurs. Mais je n'ai jamais douté de moi-même.</div>
+    <div class="bio-text" style="margin-top:10px">Un an plus tard, j'ai commencé à devenir consistant. J'ai enfin compris comment le jeu se joue vraiment. Aujourd'hui, plus de 160 étudiants apprennent le trading comme je le fais.</div>
+  </div>
+
+  <div class="bio-card">
+    <div class="bio-text">Je trade d'une façon très simple, spécifique — et volontairement simple. Assez simple pour que quiconque fait un vrai effort puisse construire ses propres gains, pas juste suivre les miens.</div>
+    <div class="bio-highlight">Apprendre à pêcher vaut plus que recevoir un poisson.</div>
+    <div class="bio-text" style="margin-top:8px">C'est pour ça que 14TRADES, c'est autant t'apprendre la méthode que te donner les signaux.</div>
+    <div class="bio-text" style="margin-top:10px;color:#C9A84C;font-weight:600">Je suis très heureux aujourd'hui de partager mon savoir publiquement. J'espère aider un million de traders dans le futur, inchallah. Merci d'être ici.</div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-box"><div class="stat-num" style="color:#00C87A" id="bio-winrate">—</div><div class="stat-lbl">TAUX RÉEL</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:#F0F2F8" id="bio-members">—</div><div class="stat-lbl">MEMBRES</div></div>
+  </div>
+
+  <a href="/track-record.html" class="verify-link">
+    <i class="ti ti-shield-check" style="font-size:12px" aria-hidden="true"></i>
+    Vérifie tout ça toi-même →
+  </a>
+
+  <a href="/academy.html" class="formation-btn">🎓 Apprends la méthode — Formation</a>
+
+  <div class="socials">
+    <a href="https://www.tiktok.com/@14_trades" target="_blank" rel="noopener" class="social-btn"><i class="ti ti-brand-tiktok" aria-hidden="true"></i></a>
+    <a href="https://wa.me/221788255099" target="_blank" rel="noopener" class="social-btn"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i></a>
+    <a href="https://t.me/+dmul6Q--Apc3YzQ0" target="_blank" rel="noopener" class="social-btn"><i class="ti ti-brand-telegram" aria-hidden="true"></i></a>
+  </div>
+
+</div>
+
+<script>
+  var SERVER = 'https://14trades-server-production.up.railway.app';
+  fetch(SERVER + '/api/track-record?t=' + Date.now(), {cache:'no-store'})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.ok && d.stats) {
+        var wr = document.getElementById('bio-winrate');
+        if (wr) wr.textContent = (d.stats.winRate ?? 0) + '%';
+      }
+    }).catch(function(){});
+
+  fetch(SERVER + '/api/stats?t=' + Date.now(), {cache:'no-store'})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.ok && typeof d.members === 'number') {
+        var mEl = document.getElementById('bio-members');
+        if (mEl) mEl.textContent = d.members;
+      }
+    }).catch(function(){});
+</script>
+</body>
+</html>
