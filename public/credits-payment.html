@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080808">
+<title>Acheter des crédits — 14 Trades</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html,body { background:#080808; color:#F0F2F8; font-family:'Inter',sans-serif; min-height:100vh; width:100%; }
+  .wrap { max-width:480px; margin:0 auto; padding:26px 18px 60px; }
+  .back-link { font-size:12px; color:#555; text-decoration:none; display:inline-block; margin-bottom:20px; }
+  .title { font-size:19px; font-weight:800; margin-bottom:6px; }
+  .sub { font-size:12px; color:#888; margin-bottom:20px; }
+
+  .type-tabs { display:flex; gap:8px; margin-bottom:18px; }
+  .type-tab { flex:1; background:#0D0D0D; border:1px solid #1A1A1A; border-radius:10px; padding:11px 6px; text-align:center; cursor:pointer; }
+  .type-tab.active { background:#141000; border-color:#C9A84C60; }
+  .type-tab-name { font-size:10px; font-weight:700; color:#888; }
+  .type-tab.active .type-tab-name { color:#FFD700; }
+  .type-tab-price { font-size:8px; color:#555; margin-top:2px; }
+
+  .qty-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:20px; }
+  .qty-box { background:#0D0D0D; border:1px solid #1A1A1A; border-radius:10px; padding:14px 6px; text-align:center; cursor:pointer; }
+  .qty-box.active { background:#141000; border-color:#C9A84C60; }
+  .qty-num { font-size:18px; font-weight:800; color:#F0F2F8; }
+  .qty-price { font-size:9px; color:#666; margin-top:3px; }
+  .qty-box.active .qty-num { color:#FFD700; }
+
+  .email-input { width:100%; background:#131313; border:1px solid #2A2A2A; border-radius:10px; padding:13px 14px; font-size:14px; color:#F0F2F8; font-family:inherit; margin-bottom:16px; outline:none; }
+  .pay-btn { display:block; width:100%; background:linear-gradient(135deg,#C9A84C,#FFD700); color:#0A0800; border:none; border-radius:12px; padding:15px; text-align:center; font-size:14px; font-weight:800; cursor:pointer; font-family:inherit; }
+  .err { color:#FF6B6B; font-size:11px; margin-top:8px; text-align:center; display:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a href="/index-v2.html" class="back-link">← Retour</a>
+  <div class="title">Acheter des crédits</div>
+  <div class="sub">1 crédit = 1 trade débloqué du type choisi. N'expire jamais.</div>
+
+  <div id="balance-box" style="display:none;background:#0D0D0D;border:1px solid #1A1A1A;border-radius:10px;padding:12px 14px;margin-bottom:18px">
+    <div style="font-size:9px;color:#666;margin-bottom:8px">TON SOLDE ACTUEL</div>
+    <div style="display:flex;justify-content:space-between">
+      <div style="text-align:center"><div id="bal-scalp" style="font-size:14px;font-weight:800;color:#F0F2F8">—</div><div style="font-size:8px;color:#555">Scalp</div></div>
+      <div style="text-align:center"><div id="bal-intraday" style="font-size:14px;font-weight:800;color:#F0F2F8">—</div><div style="font-size:8px;color:#555">Intraday</div></div>
+      <div style="text-align:center"><div id="bal-swing" style="font-size:14px;font-weight:800;color:#F0F2F8">—</div><div style="font-size:8px;color:#555">Swing</div></div>
+    </div>
+  </div>
+
+  <div class="type-tabs" id="type-tabs">
+    <div class="type-tab active" data-type="scalp" onclick="selectType('scalp')">
+      <div class="type-tab-name">Scalp</div>
+      <div class="type-tab-price">$10/crédit</div>
+    </div>
+    <div class="type-tab" data-type="intraday" onclick="selectType('intraday')">
+      <div class="type-tab-name">Intraday</div>
+      <div class="type-tab-price">$20/crédit</div>
+    </div>
+    <div class="type-tab" data-type="swing" onclick="selectType('swing')">
+      <div class="type-tab-name">Swing</div>
+      <div class="type-tab-price">$40/crédit</div>
+    </div>
+  </div>
+
+  <div class="qty-grid" id="qty-grid"></div>
+
+  <input type="email" id="cred-email" class="email-input" placeholder="Ton email">
+  <button class="pay-btn" onclick="buyCredits()" id="buy-btn">₿ Payer en crypto →</button>
+  <div class="err" id="cred-err"></div>
+
+</div>
+
+<script>
+  var SERVER = 'https://14trades-server-production.up.railway.app';
+  var PRICES = { scalp: 10, intraday: 20, swing: 40 };
+  var selectedType = 'scalp';
+  var selectedQty = 1;
+
+  // Pre-fill email if already known (from v2 login/trial), and show balance
+  var savedEmail = localStorage.getItem('14t_email');
+  if (savedEmail) {
+    document.getElementById('cred-email').value = savedEmail;
+    loadBalance(savedEmail);
+  }
+  document.getElementById('cred-email').addEventListener('change', function(){
+    var email = this.value.trim();
+    if (email && email.includes('@')) loadBalance(email);
+  });
+
+  function loadBalance(email) {
+    fetch(SERVER + '/api/credits/balance?email=' + encodeURIComponent(email) + '&t=' + Date.now(), {cache:'no-store'})
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (!d.ok) return;
+        document.getElementById('balance-box').style.display = 'block';
+        document.getElementById('bal-scalp').textContent = d.scalp;
+        document.getElementById('bal-intraday').textContent = d.intraday;
+        document.getElementById('bal-swing').textContent = d.swing;
+      }).catch(function(){});
+  }
+
+  function selectType(type) {
+    selectedType = type;
+    document.querySelectorAll('.type-tab').forEach(function(el){
+      el.classList.toggle('active', el.dataset.type === type);
+    });
+    renderQtyGrid();
+  }
+
+  function selectQty(qty) {
+    selectedQty = qty;
+    renderQtyGrid();
+  }
+
+  function renderQtyGrid() {
+    var grid = document.getElementById('qty-grid');
+    var price = PRICES[selectedType];
+    // Minimum $15 total (NOWPayments' crypto minimum varies by currency
+    // and network fees — $10 alone can land right at/below that
+    // threshold). Compute the smallest quantity that clears it, so the
+    // person never sees an option that would fail at checkout.
+    var minQty = Math.ceil(15 / price);
+    var options = [minQty, minQty + 4, minQty + 9].filter(function(v, i, arr){ return arr.indexOf(v) === i; });
+    if (selectedQty < minQty) selectedQty = minQty;
+    grid.innerHTML = options.map(function(qty){
+      var active = qty === selectedQty ? 'active' : '';
+      return '<div class="qty-box ' + active + '" onclick="selectQty(' + qty + ')">' +
+        '<div class="qty-num">' + qty + '</div>' +
+        '<div class="qty-price">$' + (qty * price) + '</div>' +
+        '</div>';
+    }).join('');
+  }
+  renderQtyGrid();
+
+  async function buyCredits() {
+    var email = document.getElementById('cred-email').value.trim();
+    var errEl = document.getElementById('cred-err');
+    var btn = document.getElementById('buy-btn');
+    errEl.style.display = 'none';
+
+    if (!email || !email.includes('@')) {
+      errEl.textContent = 'Entre un email valide';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Création du paiement...';
+
+    try {
+      var r = await fetch(SERVER + '/api/credits/purchase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ creditType: selectedType, quantity: selectedQty, email: email })
+      });
+      var d = await r.json();
+      if (d.ok && d.paymentUrl) {
+        window.location.href = d.paymentUrl;
+      } else {
+        errEl.textContent = d.error || 'Erreur, réessaie';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = '₿ Payer en crypto →';
+      }
+    } catch(e) {
+      errEl.textContent = 'Erreur de connexion';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = '₿ Payer en crypto →';
+    }
+  }
+</script>
+</body>
+</html>
