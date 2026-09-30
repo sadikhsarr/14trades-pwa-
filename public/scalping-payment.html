@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>14 Trades — Scalping Room</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;600;700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0A0A0A;--bg2:#111;--bg3:#1A1A1A;--border:#2A2A2A;
+  --gold:#C9A84C;--gold2:#FFD700;--green:#00C87A;
+  --red:#FF3D3D;--white:#F0F0F0;--muted:#636366;
+}
+html,body{min-height:100vh;background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;display:flex;justify-content:center;padding:0 0 40px}
+.wrap{width:100%;max-width:420px;padding:0 16px}
+.header{text-align:center;padding:28px 0 20px}
+.header-logo{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:var(--gold2);margin-bottom:4px}
+.header-sub{font-size:10px;color:var(--muted);letter-spacing:3px;text-transform:uppercase}
+.amount-hero{background:linear-gradient(135deg,#1A1400,#0F0F00);border:1px solid #C9A84C20;border-radius:16px;padding:20px;margin-bottom:12px}
+.amount-usd{font-family:'Space Mono',monospace;font-size:40px;font-weight:700;color:var(--gold2);line-height:1}
+.amount-period{font-size:12px;color:var(--muted);margin-top:4px}
+.amount-window{font-size:11px;color:var(--gold);margin-top:10px;font-weight:700}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:12px}
+.card-hdr{padding:14px 16px;border-bottom:1px solid var(--border)}
+.card-title{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
+.card-body{padding:14px 16px}
+input{width:100%;background:#050505;border:1.5px solid var(--border);border-radius:10px;padding:13px 14px;font-size:14px;color:var(--white);outline:none;font-family:'Inter',sans-serif;margin-bottom:12px}
+input:focus{border-color:var(--gold)}
+.footer{text-align:center;font-size:10px;color:var(--muted);line-height:1.6;margin-top:8px}
+.footer a{color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="header-logo">14⚡</div>
+    <div class="header-sub">Scalping Room</div>
+  </div>
+
+  <div class="amount-hero">
+    <div class="amount-usd">$200</div>
+    <div class="amount-period">par mois</div>
+    <div class="amount-window">⏱️ Sessions en direct — 15h à 18h, heure de Dakar</div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr"><div class="card-title">Ton email</div></div>
+    <div class="card-body">
+      <input type="email" id="sp-email" placeholder="ton@email.com" autocomplete="email">
+      <div style="font-size:10px;color:var(--muted);line-height:1.5">Ton code d'accès sera envoyé à cet email une fois le paiement confirmé.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-title">Wave · Orange Money</div>
+    </div>
+    <div class="card-body">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.6">
+        Envoyez <strong style="color:var(--white)">200$</strong> en équivalent CFA à ce numéro puis envoyez le reçu sur WhatsApp.
+      </div>
+
+      <div style="background:#050505;border:1.5px solid #FF8C0040;border-radius:10px;padding:14px;margin-bottom:10px">
+        <div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Numéro Wave & Orange Money</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div style="font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:#FF8C00">+221 78 825 50 99</div>
+          <button onclick="copyNumber()" id="copy-num-btn" style="background:#FF8C0015;border:1px solid #FF8C0030;border-radius:7px;padding:8px 12px;font-size:10px;font-weight:800;color:#FF8C00;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap">📋 Copy</button>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px">
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--bg3);border-radius:8px">
+          <div style="width:18px;height:18px;border-radius:50%;background:#FF8C00;color:#000;font-size:8px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">1</div>
+          <div style="font-size:10px;color:var(--muted);line-height:1.5">Envoyez <strong style="color:var(--white)">l'équivalent de $200</strong> via Wave ou Orange Money au <strong style="color:#FF8C00">+221788255099</strong></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--bg3);border-radius:8px">
+          <div style="width:18px;height:18px;border-radius:50%;background:#FF8C00;color:#000;font-size:8px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">2</div>
+          <div style="font-size:10px;color:var(--muted);line-height:1.5">Prenez une <strong style="color:var(--white)">capture d'écran</strong> du reçu de paiement</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--bg3);border-radius:8px">
+          <div style="width:18px;height:18px;border-radius:50%;background:#FF8C00;color:#000;font-size:8px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">3</div>
+          <div style="font-size:10px;color:var(--muted);line-height:1.5">Envoyez le reçu sur <strong style="color:var(--white)">WhatsApp</strong> — votre code arrive dans les <strong style="color:var(--white)">24h</strong></div>
+        </div>
+      </div>
+
+      <button onclick="sendReceipt()" id="sp-wa-btn"
+        style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#25D36615;border:1px solid #25D36625;border-radius:12px;padding:13px;font-size:14px;font-weight:700;color:#25D366;cursor:pointer;font-family:'Inter',sans-serif">
+        <span style="font-size:18px">💬</span> Envoyer le reçu sur WhatsApp
+      </button>
+      <div id="sp-status" style="font-size:10px;text-align:center;margin-top:8px;color:var(--muted)"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Une question ? <a href="https://wa.me/221788255099">WhatsApp Sadikh</a>
+  </div>
+
+</div>
+
+<script>
+  var SERVER = 'https://14trades-server-production.up.railway.app';
+
+  function copyNumber() {
+    navigator.clipboard.writeText('+221788255099').then(function() {
+      var btn = document.getElementById('copy-num-btn');
+      var orig = btn.textContent;
+      btn.textContent = '✅ Copié';
+      setTimeout(function(){ btn.textContent = orig; }, 1500);
+    });
+  }
+
+  function sendReceipt() {
+    var email = document.getElementById('sp-email').value.trim();
+    var status = document.getElementById('sp-status');
+    if (!email || email.indexOf('@') < 1) {
+      status.style.color = '#FF3D3D';
+      status.textContent = 'Entre ton email d\'abord';
+      return;
+    }
+    status.style.color = 'var(--muted)';
+    status.textContent = 'Enregistrement...';
+    fetch(SERVER + '/api/scalping/payment-request', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email: email, method: 'wave' })
+    }).then(function(r){ return r.json(); }).then(function(d) {
+      var msg = 'Bonjour Sadikh, je viens de payer $200 via Wave/Orange Money pour la Scalping Room. Mon email : ' + email + '. Voici mon reçu :';
+      window.open('https://wa.me/221788255099?text=' + encodeURIComponent(msg), '_blank');
+      status.style.color = '#25D366';
+      status.textContent = '✅ Envoie ton reçu sur WhatsApp — ton code arrive sous 24h';
+    }).catch(function() {
+      status.style.color = '#FF3D3D';
+      status.textContent = 'Erreur réseau — réessaie';
+    });
+  }
+</script>
+
+</body>
+</html>
