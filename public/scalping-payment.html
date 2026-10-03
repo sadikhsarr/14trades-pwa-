@@ -21,10 +21,24 @@ html,body{min-height:100vh;background:var(--bg);color:var(--white);font-family:'
 .amount-usd{font-family:'Space Mono',monospace;font-size:40px;font-weight:700;color:var(--gold2);line-height:1}
 .amount-period{font-size:12px;color:var(--muted);margin-top:4px}
 .amount-window{font-size:11px;color:var(--gold);margin-top:10px;font-weight:700}
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:12px}
-.card-hdr{padding:14px 16px;border-bottom:1px solid var(--border)}
-.card-title{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
-.card-body{padding:14px 16px}
+.value-banner{position:relative;margin-bottom:12px;background:radial-gradient(ellipse at top left,#1F1800,#0A0A0A 70%);border:1px solid #C9A84C35;border-radius:14px;padding:22px 20px;overflow:hidden}
+.value-banner::before{content:'';position:absolute;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,#FFD700,transparent)}
+.value-banner .vb-kicker{font-size:9px;letter-spacing:2px;color:#C9A84C;text-transform:uppercase;font-weight:700;margin-bottom:10px}
+.value-banner .vb-title{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:#FFD700;margin-bottom:16px;line-height:1.4}
+.value-banner .vb-body{font-size:12px;color:#D8D8D8;line-height:1.8;font-weight:400;white-space:pre-wrap}
+.value-banner .vb-body strong{color:#F0F2F8;font-weight:700}
+.value-banner .vb-divider{width:32px;height:1px;background:#C9A84C50;margin:16px 0}
+.value-banner .vb-signature{font-size:10px;color:#666;font-style:italic;margin-top:14px}
+.card{position:relative;background:radial-gradient(ellipse at top left,#161200,#0D0D0D 65%);border:1px solid #C9A84C25;border-radius:16px;overflow:hidden;margin-bottom:12px}
+.card::before{content:'';position:absolute;top:0;left:0;width:100%;height:1.5px;background:linear-gradient(90deg,transparent,#C9A84C70,transparent)}
+.card-hdr{padding:16px;border-bottom:1px solid #C9A84C15;cursor:default}
+.card-hdr.toggle{cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:10px;font-weight:700;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase}
+.card-chevron{font-size:11px;color:var(--muted);transition:transform .25s}
+.card-chevron.open{transform:rotate(180deg)}
+.card-body{padding:16px}
+.card-body-collapse{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.card-body-collapse.open{max-height:600px}
 input{width:100%;background:#050505;border:1.5px solid var(--border);border-radius:10px;padding:13px 14px;font-size:14px;color:var(--white);outline:none;font-family:'Inter',sans-serif;margin-bottom:12px}
 input:focus{border-color:var(--gold)}
 .footer{text-align:center;font-size:10px;color:var(--muted);line-height:1.6;margin-top:8px}
@@ -45,6 +59,18 @@ input:focus{border-color:var(--gold)}
     <div class="amount-window">⏱️ Sessions en direct — 15h à 18h, heure de Dakar</div>
   </div>
 
+  <div class="value-banner">
+    <div class="vb-kicker">Scalping Room · 14 Trades</div>
+    <div class="vb-title">Deux compétences.<br>Une seule room.</div>
+    <div class="vb-body"><strong>Lire</strong> le marché est une compétence.
+<strong>Exécuter</strong> — le bon moment, le bon timing — en est une autre.</div>
+    <div class="vb-divider"></div>
+    <div class="vb-body">Ici, tu vois les deux en direct : comment j'identifie le setup, et comment je l'exécute.
+
+Pas de devinettes. Juste du timing.</div>
+    <div class="vb-signature">— Sadikh</div>
+  </div>
+
   <div class="card">
     <div class="card-hdr"><div class="card-title">Ton email</div></div>
     <div class="card-body">
@@ -54,9 +80,11 @@ input:focus{border-color:var(--gold)}
   </div>
 
   <div class="card">
-    <div class="card-hdr">
-      <div class="card-title">Wave · Orange Money</div>
+    <div class="card-hdr toggle" onclick="togglePayCard()">
+      <div class="card-title">💳 Wave · Orange Money — comment payer</div>
+      <div class="card-chevron" id="pay-chevron">▾</div>
     </div>
+    <div class="card-body-collapse" id="pay-collapse">
     <div class="card-body">
       <div style="font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.6">
         Envoyez <strong style="color:var(--white)">200$</strong> en équivalent CFA à ce numéro puis envoyez le reçu sur WhatsApp.
@@ -91,7 +119,10 @@ input:focus{border-color:var(--gold)}
       </button>
       <div id="sp-status" style="font-size:10px;text-align:center;margin-top:8px;color:var(--muted)"></div>
     </div>
+    </div>
   </div>
+
+  <a href="/scalping-room.html" style="display:block;width:100%;text-align:center;font-size:11px;color:#888;text-decoration:none;margin-bottom:16px">Déjà abonné ? Rejoindre avec mon code →</a>
 
   <div class="footer">
     Une question ? <a href="https://wa.me/221788255099">WhatsApp Sadikh</a>
@@ -101,6 +132,19 @@ input:focus{border-color:var(--gold)}
 
 <script>
   var SERVER = 'https://14trades-server-production.up.railway.app';
+
+  var payCardOpened = false;
+  function togglePayCard(forceOpen) {
+    var collapse = document.getElementById('pay-collapse');
+    var chevron = document.getElementById('pay-chevron');
+    var open = forceOpen === true ? true : (forceOpen === false ? false : !payCardOpened);
+    payCardOpened = open;
+    collapse.classList.toggle('open', open);
+    chevron.classList.toggle('open', open);
+  }
+  document.getElementById('sp-email').addEventListener('input', function() {
+    if (!payCardOpened && this.value.trim().indexOf('@') > 0) togglePayCard(true);
+  });
 
   function copyNumber() {
     navigator.clipboard.writeText('+221788255099').then(function() {
