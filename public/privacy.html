@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Politique de confidentialité — 14 Trades</title>
+<meta name="description" content="Quelles données 14 Trades collecte, pourquoi, avec qui elles sont partagées, et comment exercer vos droits.">
+<meta name="theme-color" content="#080808">
+<script>
+  // Pick the language before anything is painted: ?lang=en|fr, else the language chosen in the app, else the browser's (French by default).
+  var TITLES = {"fr": "Politique de confidentialité — 14 Trades", "en": "Privacy Policy — 14 Trades"};
+  function setLang(l) { document.documentElement.lang = l; document.title = TITLES[l]; }
+  (function () {
+    var m = location.search.match(/[?&]lang=(fr|en)/), saved = null;
+    try { saved = localStorage.getItem('14t_lang'); } catch (e) {}
+    var n = (navigator.language || 'fr').slice(0, 2);
+    setLang(m ? m[1] : (saved === 'fr' || saved === 'en' ? saved : (n === 'en' ? 'en' : 'fr')));
+  })();
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{background:#080808;color:#D6D6D6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.7;-webkit-text-size-adjust:100%}
+html[lang="fr"] [data-l="en"]{display:none!important}
+html[lang="en"] [data-l="fr"]{display:none!important}
+.bar{position:sticky;top:0;z-index:10;background:#080808ee;backdrop-filter:blur(8px);border-bottom:1px solid #1A1A1A}
+.bar-in{max-width:760px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.back{display:inline-flex;align-items:center;gap:5px;background:#131313;border:1px solid #2A2A2A;border-radius:20px;padding:7px 12px 7px 10px;color:#C9A84C;font-size:12px;font-weight:700;text-decoration:none;line-height:1}
+.back .chev{font-size:16px;line-height:1;margin-top:-1px}
+.lang{display:flex;border:1px solid #2A2A2A;border-radius:20px;overflow:hidden}
+.lang button{background:none;border:none;color:#777;font-size:11px;font-weight:800;padding:7px 12px;cursor:pointer;font-family:inherit;letter-spacing:.5px}
+html[lang="fr"] .lang [data-set="fr"],html[lang="en"] .lang [data-set="en"]{background:#C9A84C;color:#0A0800}
+.wrap{max-width:760px;margin:0 auto;padding:26px 18px 60px}
+.kicker{font-size:10px;letter-spacing:2px;color:#C9A84C;text-transform:uppercase;font-weight:700;margin-bottom:8px}
+h1{font-size:26px;line-height:1.25;color:#FFD700;margin-bottom:6px}
+.updated{font-size:12px;color:#777;margin-bottom:22px}
+h2{font-size:17px;color:#F0F2F8;margin:30px 0 8px;line-height:1.35}
+h3{font-size:13px;color:#C9A84C;margin:18px 0 6px;letter-spacing:.3px}
+p{margin-bottom:11px}
+ul{margin:0 0 12px 20px}
+li{margin-bottom:6px}
+a{color:#C9A84C}
+strong{color:#F0F2F8}
+.box{background:#0F0F0F;border:1px solid #232323;border-radius:12px;padding:14px 16px;margin:16px 0}
+.box.gold{border-color:#C9A84C40;background:linear-gradient(135deg,#171200,#0C0C0C)}
+.box.risk{border-color:#FF6B6B50;background:linear-gradient(135deg,#1C0A0A,#0C0C0C)}
+.box.risk h2,.box.risk h3{margin-top:0;color:#FF8A8A}
+.box ul{margin-bottom:0}
+.toc{background:#0C0C0C;border:1px solid #1E1E1E;border-radius:12px;padding:14px 16px 6px;margin:0 0 8px}
+.toc-t{font-size:10px;letter-spacing:1.5px;color:#777;text-transform:uppercase;font-weight:700;margin-bottom:8px}
+.toc ol{margin:0 0 8px 0;list-style:none}  /* the titles already carry their numbers */
+.toc li{margin-bottom:4px;font-size:13px}
+.toc a{text-decoration:none}
+.foot{margin-top:36px;padding-top:18px;border-top:1px solid #1A1A1A;font-size:12px;color:#777;display:flex;flex-wrap:wrap;gap:6px 16px}
+@media print{.bar,.toc{display:none}body{background:#fff;color:#000}h1,h2,h3,strong,a{color:#000}.box{border-color:#999;background:#fff}}
+</style>
+<noscript><style>html[lang] [data-l]{display:block!important}</style></noscript>
+</head>
+<body>
+<div class="bar"><div class="bar-in">
+  <a class="back" href="/"><span class="chev">‹</span> App</a>
+  <div class="lang" role="group" aria-label="Language"><button data-set="fr">FR</button><button data-set="en">EN</button></div>
+</div></div>
+<div class="wrap">
+  <div class="kicker">14 Trades</div>
+  <h1 data-l="fr">Politique de confidentialité</h1><h1 data-l="en">Privacy Policy</h1>
+  <div class="updated" data-l="fr">Dernière mise à jour : 5 octobre 2026</div><div class="updated" data-l="en">Last updated: October 5, 2026</div>
+<div data-l="fr"><p>Cette politique explique quelles données personnelles 14 Trades collecte, pourquoi, avec qui elles sont partagées et quels sont vos droits. Elle s'applique à l'application, au site 14trades-pwa.vercel.app, à la Scalping Room et aux programmes associés. Si quelque chose n'est pas clair, écrivez-nous.</p></div><div data-l="en"><p>This policy explains which personal data 14 Trades collects, why, who it is shared with and what your rights are. It applies to the app, the website 14trades-pwa.vercel.app, the Scalping Room and related programs. If anything is unclear, write to us.</p></div><nav class="toc" data-l="fr"><div class="toc-t">Sommaire</div><ol><li><a href="#p1">1. Qui est responsable de vos données</a></li><li><a href="#p2">2. Les données que nous collectons</a></li><li><a href="#p3">3. Pourquoi nous les utilisons</a></li><li><a href="#p4">4. Avec qui nous les partageons</a></li><li><a href="#p5">5. Transferts hors de votre pays</a></li><li><a href="#p6">6. Combien de temps nous les gardons</a></li><li><a href="#p7">7. Vos droits et comment les exercer</a></li><li><a href="#p8">8. Sécurité</a></li><li><a href="#p9">9. Mineurs</a></li><li><a href="#p10">10. Cadre légal et modifications</a></li></ol></nav><nav class="toc" data-l="en"><div class="toc-t">Contents</div><ol><li><a href="#p1">1. Who is responsible for your data</a></li><li><a href="#p2">2. The data we collect</a></li><li><a href="#p3">3. Why we use it</a></li><li><a href="#p4">4. Who we share it with</a></li><li><a href="#p5">5. Transfers outside your country</a></li><li><a href="#p6">6. How long we keep it</a></li><li><a href="#p7">7. Your rights and how to use them</a></li><li><a href="#p8">8. Security</a></li><li><a href="#p9">9. Minors</a></li><li><a href="#p10">10. Legal framework and changes</a></li></ol></nav><section id="p1"><h2 data-l="fr">1. Qui est responsable de vos données</h2><h2 data-l="en">1. Who is responsible for your data</h2><div data-l="fr"><p>14 Trades (l'application, le site et les services associés) est exploité par <strong>Sadikh Sarr, Dakar, Sénégal</strong>. C'est lui le « responsable du traitement » de vos données personnelles.</p><p>Pour toute question ou demande : WhatsApp <strong>+221 78 825 50 99</strong>, ou le formulaire « Besoin d'aide » dans l'application (onglet « Toi »).</p></div><div data-l="en"><p>14 Trades (the app, the website and related services) is run by <strong>Sadikh Sarr, Dakar, Senegal</strong>. He is the "data controller" of your personal data.</p><p>For any question or request: WhatsApp <strong>+221 78 825 50 99</strong>, or the "Need help" form in the app ("Toi" tab).</p></div></section>
+<section id="p2"><h2 data-l="fr">2. Les données que nous collectons</h2><h2 data-l="en">2. The data we collect</h2><div data-l="fr"><h3>Votre compte et votre accès</h3>
+<ul><li>Adresse e-mail.</li><li>Numéro WhatsApp (obligatoire pour l'essai gratuit : c'est notre moyen de vous répondre).</li>
+<li>Votre code d'accès, le type d'accès (essai, abonnement, Scalping Room, accès via un courtier, crédits) et les dates d'activation et d'expiration.</li></ul>
+<h3>E-mails d'information</h3>
+<ul><li>Votre adresse e-mail peut figurer sur notre liste d'e-mails d'information (nouveautés et offres de 14 Trades). Nous gardons la date du dernier envoi et si vous vous êtes désinscrit.</li></ul>
+<h3>Votre appareil et la sécurité</h3>
+<ul><li>Un identifiant d'appareil créé par l'application (un code aléatoire gardé sur votre appareil) pour empêcher les essais multiples et le partage de codes, et le nombre de changements d'appareil.</li>
+<li>Un identifiant de notifications push (OneSignal), si vous acceptez les notifications.</li>
+<li>Votre adresse IP : elle sert à bloquer les abus (trop de tentatives). Elle <strong>n'est pas enregistrée dans notre base de données</strong>, mais nos hébergeurs peuvent la conserver dans leurs journaux techniques.</li></ul>
+<h3>Vos paiements</h3>
+<ul><li>La méthode, le montant, la date et votre e-mail. Les reçus que vous nous envoyez par WhatsApp restent dans cette conversation.</li>
+<li>Pour les paiements en cryptomonnaie (NOWPayments) : l'identifiant et le statut du paiement, le montant et l'adresse de paiement.</li>
+<li>Nous <strong>ne voyons ni ne stockons</strong> vos numéros de carte ni vos identifiants Wave ou Orange Money : ils restent chez ces opérateurs.</li></ul>
+<h3>Vos messages</h3>
+<ul><li>Vos messages au support : le contenu, votre e-mail et, si vous le donnez, votre numéro WhatsApp.</li>
+<li>Vos messages dans le salon de la Scalping Room. <strong>Votre nom affiché dans le salon est la partie de votre e-mail située avant le « @ »</strong>, visible de tous les membres du salon.</li></ul>
+<h3>Si vous participez à un programme optionnel</h3>
+<ul><li><strong>Road to $1M / journal de trading</strong> : nom, numéro WhatsApp, pays, capital de départ et solde, trades que vous saisissez (direction, prix, session, notes) et séries de discipline. Votre nom peut apparaître dans le classement.</li>
+<li><strong>Accès via un courtier partenaire</strong> : e-mail, WhatsApp, courtier et numéro de compte. Nous les comparons aux rapports envoyés par le courtier (numéro de compte, nombre de trades, solde, dernière activité) pour vérifier les conditions d'accès.</li>
+<li><strong>Concours</strong> : nom, e-mail, numéro de compte, soldes et trades.</li>
+<li><strong>Cours / Academy</strong> : e-mail, nom, progression et paiement.</li>
+<li><strong>Événements</strong> : nom, WhatsApp et e-mail.</li>
+<li><strong>Parrainage</strong> : votre code et les e-mails des personnes parrainées.</li>
+<li><strong>Salle d'attente et discussion d'un signal annoncé (« teaser »)</strong> : e-mail, nom affiché et messages.</li></ul>
+<h3>Comment vous utilisez l'application</h3>
+<ul><li>Votre série de jours d'ouverture et votre dernière ouverture.</li>
+<li>Vos réponses aux questions rapides (essai et abonnés) et vos commentaires.</li>
+<li>Le nombre de clics sur les liens de nos courtiers partenaires : il est compté <strong>sans vous identifier</strong>.</li></ul>
+<h3>Ce qui reste sur votre appareil</h3>
+<p>L'application garde sur votre appareil, dans le stockage du navigateur, votre code, votre e-mail, vos préférences et quelques statistiques. <strong>Nous n'utilisons aucun cookie</strong> et <strong>aucun outil de mesure d'audience ou de publicité tiers</strong>.</p></div><div data-l="en"><h3>Your account and access</h3>
+<ul><li>Email address.</li><li>WhatsApp number (required for the free trial: it is how we reply to you).</li>
+<li>Your access code, the type of access (trial, subscription, Scalping Room, access through a broker, credits) and the activation and expiry dates.</li></ul>
+<h3>Information emails</h3>
+<ul><li>Your email address may be on our information email list (news and offers from 14 Trades). We keep the date of the last email and whether you unsubscribed.</li></ul>
+<h3>Your device and security</h3>
+<ul><li>A device identifier created by the app (a random code kept on your device) to prevent repeated trials and code sharing, and the number of device changes.</li>
+<li>A push-notification identifier (OneSignal), if you accept notifications.</li>
+<li>Your IP address: it is used to block abuse (too many attempts). It is <strong>not saved in our database</strong>, but our hosting providers may keep it in their technical logs.</li></ul>
+<h3>Your payments</h3>
+<ul><li>The method, the amount, the date and your email. Receipts you send us on WhatsApp stay in that conversation.</li>
+<li>For cryptocurrency payments (NOWPayments): the payment ID and status, the amount and the payment address.</li>
+<li>We <strong>do not see or store</strong> your card numbers or your Wave or Orange Money credentials: they stay with those operators.</li></ul>
+<h3>Your messages</h3>
+<ul><li>Your messages to support: the content, your email and, if you give it, your WhatsApp number.</li>
+<li>Your messages in the Scalping Room chat. <strong>Your display name in the chat is the part of your email before the "@"</strong>, visible to all members of the room.</li></ul>
+<h3>If you take part in an optional program</h3>
+<ul><li><strong>Road to $1M / trading journal</strong>: name, WhatsApp number, country, starting capital and balance, the trades you enter (direction, price, session, notes) and discipline streaks. Your name may appear on the leaderboard.</li>
+<li><strong>Access through a partner broker</strong>: email, WhatsApp, broker and account number. We compare them with the reports sent by the broker (account number, number of trades, balance, last activity) to check the access conditions.</li>
+<li><strong>Competitions</strong>: name, email, account number, balances and trades.</li>
+<li><strong>Courses / Academy</strong>: email, name, progress and payment.</li>
+<li><strong>Events</strong>: name, WhatsApp and email.</li>
+<li><strong>Referrals</strong>: your code and the emails of the people you referred.</li>
+<li><strong>Waiting room and chat about an announced signal ("teaser")</strong>: email, display name and messages.</li></ul>
+<h3>How you use the app</h3>
+<ul><li>Your daily-open streak and your last open.</li>
+<li>Your answers to the quick questions (trial and subscribers) and your comments.</li>
+<li>The number of clicks on our partner brokers' links: it is counted <strong>without identifying you</strong>.</li></ul>
+<h3>What stays on your device</h3>
+<p>The app keeps your code, your email, your preferences and a few statistics on your device, in the browser storage. <strong>We use no cookies</strong> and <strong>no third-party analytics or advertising tools</strong>.</p></div></section>
+<section id="p3"><h2 data-l="fr">3. Pourquoi nous les utilisons</h2><h2 data-l="en">3. Why we use it</h2><div data-l="fr"><ul>
+<li><strong>Vous fournir le service</strong> (accès, signaux, salon, journal) : c'est l'exécution de notre contrat avec vous.</li>
+<li><strong>Vous envoyer des alertes et des messages de service</strong> (signal, confirmation, expiration, renouvellement) : exécution du contrat. Les notifications push ne partent que si vous les autorisez.</li>
+<li><strong>Gérer les paiements et la comptabilité</strong> : contrat et obligation légale.</li>
+<li><strong>Protéger le service</strong> (empêcher les abus, les essais multiples, le partage de codes) : notre intérêt légitime.</li>
+<li><strong>Vous recontacter et améliorer le service</strong> (message après un essai ou un abonnement, questions rapides) : notre intérêt légitime. Vous pouvez vous y opposer à tout moment.</li>
+<li><strong>Vous envoyer des e-mails d'information</strong> sur 14 Trades : notre intérêt légitime. Pour vous désinscrire, répondez « STOP » à l'un de ces e-mails ou écrivez-nous : nous vous retirons de la liste.</li>
+<li><strong>Afficher votre classement ou votre nom dans un programme</strong> : votre participation.</li>
+<li><strong>Respecter la loi</strong>.</li></ul>
+<p>Nous n'utilisons pas vos données pour de la publicité et nous ne les vendons pas.</p></div><div data-l="en"><ul>
+<li><strong>To provide the service</strong> (access, signals, chat, journal): this is the performance of our contract with you.</li>
+<li><strong>To send you alerts and service messages</strong> (signal, confirmation, expiry, renewal): performance of the contract. Push notifications are only sent if you allow them.</li>
+<li><strong>To handle payments and accounting</strong>: contract and legal obligation.</li>
+<li><strong>To protect the service</strong> (preventing abuse, repeated trials, code sharing): our legitimate interest.</li>
+<li><strong>To follow up with you and improve the service</strong> (a message after a trial or subscription, quick questions): our legitimate interest. You can object at any time.</li>
+<li><strong>To send you information emails</strong> about 14 Trades: our legitimate interest. To unsubscribe, reply "STOP" to one of these emails or write to us: we remove you from the list.</li>
+<li><strong>To show your ranking or name in a program</strong>: your participation.</li>
+<li><strong>To comply with the law</strong>.</li></ul>
+<p>We do not use your data for advertising and we do not sell it.</p></div></section>
+<section id="p4"><h2 data-l="fr">4. Avec qui nous les partageons</h2><h2 data-l="en">4. Who we share it with</h2><div data-l="fr"><p>Nous ne vendons pas vos données. Nous les confions seulement aux prestataires nécessaires au service :</p>
+<ul>
+<li><strong>Vercel</strong> : hébergement de l'application web.</li>
+<li><strong>Railway</strong> : serveur et base de données.</li>
+<li><strong>OneSignal</strong> : envoi des notifications push.</li>
+<li><strong>Google</strong> : envoi des e-mails (Gmail) et polices de caractères (Google Fonts) chargées par certaines pages. Google reçoit alors votre adresse IP.</li>
+<li><strong>jsDelivr</strong> : bibliothèques publiques (icônes, graphiques). Ce service voit votre adresse IP quand la page se charge.</li>
+<li><strong>NOWPayments</strong> : paiements en cryptomonnaie.</li>
+<li><strong>Telegram</strong> : si nous diffusons nos annonces sur Telegram, seul le texte de l'annonce y est envoyé, jamais vos données.</li>
+<li><strong>Plateforme de cours</strong> (14trades-courses.vercel.app, hébergée sur Vercel) : pour les élèves des cours.</li>
+<li><strong>Wave et Orange Money</strong> : paiement mobile. Vous les utilisez directement ; nous ne recevons que la preuve que vous nous envoyez.</li>
+<li><strong>WhatsApp (Meta)</strong> : quand vous nous écrivez ou que nous vous écrivons.</li>
+<li><strong>Votre courtier partenaire</strong> : uniquement pour vérifier un accès obtenu via ce courtier.</li>
+<li><strong>Les autorités</strong>, si la loi nous l'impose.</li></ul>
+<p>Les autres membres du salon de la Scalping Room voient votre nom affiché et vos messages.</p>
+<p>Notre application contient des liens vers d'autres sites (courtiers partenaires, WhatsApp, réseaux sociaux). Une fois que vous les ouvrez, leurs propres règles s'appliquent : lisez-les.</p></div><div data-l="en"><p>We do not sell your data. We only entrust it to the providers the service needs:</p>
+<ul>
+<li><strong>Vercel</strong>: hosting of the web app.</li>
+<li><strong>Railway</strong>: server and database.</li>
+<li><strong>OneSignal</strong>: sending push notifications.</li>
+<li><strong>Google</strong>: sending emails (Gmail) and fonts (Google Fonts) loaded by some pages. Google then receives your IP address.</li>
+<li><strong>jsDelivr</strong>: public libraries (icons, charts). This service sees your IP address when the page loads.</li>
+<li><strong>NOWPayments</strong>: cryptocurrency payments.</li>
+<li><strong>Telegram</strong>: if we publish our announcements on Telegram, only the text of the announcement is sent there, never your data.</li>
+<li><strong>Course platform</strong> (14trades-courses.vercel.app, hosted on Vercel): for course students.</li>
+<li><strong>Wave and Orange Money</strong>: mobile payment. You use them directly; we only receive the proof you send us.</li>
+<li><strong>WhatsApp (Meta)</strong>: when you write to us or we write to you.</li>
+<li><strong>Your partner broker</strong>: only to verify access obtained through that broker.</li>
+<li><strong>Authorities</strong>, if the law requires it.</li></ul>
+<p>Other members of the Scalping Room chat see your display name and your messages.</p>
+<p>Our app contains links to other sites (partner brokers, WhatsApp, social networks). Once you open them, their own rules apply: please read them.</p></div></section>
+<section id="p5"><h2 data-l="fr">5. Transferts hors de votre pays</h2><h2 data-l="en">5. Transfers outside your country</h2><div data-l="fr"><p>Nos prestataires peuvent traiter les données dans d'autres pays, y compris hors du Sénégal et de l'Union européenne. Nous choisissons des prestataires reconnus et nous ne leur confions que ce qui est nécessaire.</p></div><div data-l="en"><p>Our providers may process data in other countries, including outside Senegal and the European Union. We choose well-known providers and only entrust them with what is necessary.</p></div></section>
+<section id="p6"><h2 data-l="fr">6. Combien de temps nous les gardons</h2><h2 data-l="en">6. How long we keep it</h2><div data-l="fr"><p>Nous gardons vos données tant que votre compte existe ou que le service en a besoin, puis le temps nécessaire pour respecter la loi (par exemple la comptabilité) et pour prévenir les abus (par exemple empêcher la réutilisation de l'essai gratuit). Nous les supprimons ou les anonymisons à votre demande, sauf ce que la loi nous oblige à conserver.</p></div><div data-l="en"><p>We keep your data while your account exists or the service needs it, then for as long as needed to comply with the law (for example accounting) and to prevent abuse (for example to stop the free trial being used again). We delete or anonymise it at your request, except what the law requires us to keep.</p></div></section>
+<section id="p7"><h2 data-l="fr">7. Vos droits et comment les exercer</h2><h2 data-l="en">7. Your rights and how to use them</h2><div data-l="fr"><p>Vous pouvez à tout moment demander à : <strong>accéder</strong> à vos données, les <strong>corriger</strong>, les <strong>supprimer</strong>, <strong>vous opposer</strong> à un usage, en demander la <strong>limitation</strong> ou la <strong>portabilité</strong>, et retirer un consentement. Vous pouvez aussi désactiver les notifications dans les réglages de votre appareil, et vous désinscrire de nos e-mails d'information en répondant « STOP ».</p>
+<div class="box gold"><h3 style="margin-top:0">Supprimer votre compte</h3><p style="margin-bottom:0">Écrivez-nous (WhatsApp <strong>+221 78 825 50 99</strong>, ou le formulaire « Besoin d'aide » dans l'application (onglet « Toi »)) en indiquant l'e-mail et le code de votre compte. Nous supprimons ou anonymisons votre compte et vos données personnelles, sauf ce que la loi nous oblige à garder, <strong>sous 30 jours au plus</strong>. Nous pouvons vous demander de confirmer votre identité (votre code et votre e-mail).</p></div>
+<p>Si vous estimez que vos droits ne sont pas respectés, vous pouvez saisir l'autorité de contrôle : au Sénégal, la <strong>Commission de protection des Données Personnelles (CDP)</strong> ; dans l'Union européenne, l'autorité de protection des données de votre pays.</p></div><div data-l="en"><p>At any time you can ask to: <strong>access</strong> your data, <strong>correct</strong> it, <strong>delete</strong> it, <strong>object</strong> to a use, ask for its <strong>restriction</strong> or <strong>portability</strong>, and withdraw a consent. You can also turn off notifications in your device settings, and unsubscribe from our information emails by replying "STOP".</p>
+<div class="box gold"><h3 style="margin-top:0">Deleting your account</h3><p style="margin-bottom:0">Write to us (WhatsApp <strong>+221 78 825 50 99</strong>, or the "Need help" form in the app ("Toi" tab)) with the email and code of your account. We delete or anonymise your account and personal data, except what the law requires us to keep, <strong>within 30 days at most</strong>. We may ask you to confirm your identity (your code and your email).</p></div>
+<p>If you believe your rights are not respected, you can contact the supervisory authority: in Senegal, the <strong>Commission de protection des Données Personnelles (CDP)</strong>; in the European Union, the data protection authority of your country.</p></div></section>
+<section id="p8"><h2 data-l="fr">8. Sécurité</h2><h2 data-l="en">8. Security</h2><div data-l="fr"><p>Les échanges avec l'application sont chiffrés (HTTPS) et l'accès aux données est réservé à l'exploitant du service. Aucun système n'est infaillible : ne partagez jamais votre code d'accès. Si un incident touchait vos données, nous vous préviendrions comme la loi l'exige.</p></div><div data-l="en"><p>Exchanges with the app are encrypted (HTTPS) and access to the data is limited to the operator of the service. No system is infallible: never share your access code. If an incident affected your data, we would inform you as the law requires.</p></div></section>
+<section id="p9"><h2 data-l="fr">9. Mineurs</h2><h2 data-l="en">9. Minors</h2><div data-l="fr"><p>14 Trades est réservé aux personnes de <strong>18 ans et plus</strong>. Nous ne collectons pas sciemment de données sur des mineurs. Si vous pensez qu'un mineur nous a donné ses données, écrivez-nous et nous les supprimerons.</p></div><div data-l="en"><p>14 Trades is for people aged <strong>18 and over</strong>. We do not knowingly collect data about minors. If you believe a minor has given us their data, write to us and we will delete it.</p></div></section>
+<section id="p10"><h2 data-l="fr">10. Cadre légal et modifications</h2><h2 data-l="en">10. Legal framework and changes</h2><div data-l="fr"><p>Nous traitons vos données en tenant compte de la loi sénégalaise n° 2008-12 du 25 janvier 2008 sur la protection des données à caractère personnel et, pour les personnes situées dans l'Union européenne, du règlement (UE) 2016/679 (RGPD).</p><p>Nous pouvons mettre à jour cette politique. La date en haut de la page indique la dernière version ; en cas de changement important, nous vous en informerons dans l'application.</p></div><div data-l="en"><p>We process your data taking into account Senegalese law no. 2008-12 of January 25, 2008 on the protection of personal data and, for people located in the European Union, Regulation (EU) 2016/679 (GDPR).</p><p>We may update this policy. The date at the top of the page shows the latest version; for an important change, we will let you know in the app.</p></div></section>
+  <div class="foot">
+    <a data-l="fr" href="/">‹ Retour à l'app</a><a data-l="en" href="/">‹ Back to the app</a>
+    <a data-l="fr" href="/terms.html">Conditions d'utilisation →</a><a data-l="en" href="/terms.html">Terms of Use →</a>
+  </div>
+</div>
+<script>
+  document.querySelectorAll('.lang button').forEach(function (b) {
+    b.addEventListener('click', function () { setLang(b.getAttribute('data-set')); window.scrollTo(0, 0); });
+  });
+</script>
+</body>
+</html>
