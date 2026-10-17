@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080808">
+<meta name="robots" content="noindex">
+<title>Le Desk — 14 Trades Académie</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#080808;color:#F0F2F8;font-family:Inter,system-ui,sans-serif;min-height:100vh}
+.wrap{max-width:520px;margin:0 auto;padding:22px 16px 70px}
+.eyebrow{font-size:10px;font-weight:800;color:#C9A84C;letter-spacing:1.5px;margin-bottom:6px}
+h1{font-size:22px;font-weight:800}
+.sub{font-size:12px;color:#8a8a8a;line-height:1.6;margin-top:4px}
+.card{background:#0f0f0f;border:1px solid #232323;border-radius:16px;padding:14px;margin-top:12px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.lbl{font-size:11px;color:#8a8a8a}
+.big{font-size:22px;font-weight:800}
+input{width:100%;background:#151515;border:1px solid #2a2a2a;border-radius:10px;color:#F0F2F8;padding:12px;font-size:14px;font-family:inherit;margin-top:8px}
+button{font-family:inherit;cursor:pointer}
+.btn{width:100%;background:#C9A84C;color:#0a0800;border:0;border-radius:12px;padding:13px;font-size:14px;font-weight:800;margin-top:12px}
+.opt{background:#151515;border:1px solid #2a2a2a;border-radius:10px;color:#ddd;padding:12px 6px;font-size:13px;font-weight:700}
+.opt.on{border-color:#C9A84C;background:#1a160a;color:#C9A84C}
+.buy.on{border-color:#30D158;background:#0c1a10;color:#30D158}.sell.on{border-color:#FF453A;background:#1a0d0c;color:#FF453A}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.slot{border:1px solid #232323;border-radius:12px;padding:10px;background:#0f0f0f}
+.slot.now{border:2px solid #C9A84C}
+.pos{color:#30D158}.neg{color:#FF453A}.mut{color:#777}
+.err{color:#FF6B6B;font-size:12px;margin-top:8px;min-height:14px}
+.timer{background:#241c06;color:#E6C766;border-radius:10px;padding:7px 12px;font-size:13px;font-weight:800;white-space:nowrap}
+.day{text-align:center;border-radius:10px;padding:8px 0;background:#121212;font-size:11px;color:#666}
+.day b{display:block;font-size:14px;margin-top:2px}
+.day.ok{background:#0c1a10;color:#30D158}.day.ko{background:#1a0d0c;color:#FF453A}
+.res{border-top:1px solid #1f1f1f;padding:10px 0;font-size:13px;line-height:1.6}
+.res:first-child{border-top:0}
+.small{font-size:11px;color:#777}
+a{color:#C9A84C}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="login" style="display:none">
+    <div class="eyebrow">ACADÉMIE 14 TRADES</div>
+    <h1>Le Desk</h1>
+    <p class="sub">La pratique quotidienne du Day Trader. Connecte-toi avec l'email et le mot de passe de ton Académie.</p>
+    <div class="card">
+      <input id="em" type="email" placeholder="Email" autocomplete="username">
+      <input id="pw" type="password" placeholder="Mot de passe" autocomplete="current-password">
+      <div class="err" id="lerr"></div>
+      <button class="btn" onclick="doLogin()">Entrer au Desk</button>
+    </div>
+  </div>
+
+  <div id="app" style="display:none">
+    <div class="row"><div><div class="eyebrow">LE DESK · DAY TRADER</div><h1 id="who">Bonjour</h1></div><button onclick="logout()" style="background:none;border:1px solid #2a2a2a;color:#888;border-radius:8px;padding:6px 10px;font-size:11px">Sortir</button></div>
+    <p class="sub">Heures de New York. Trois sessions par jour, du dimanche soir au vendredi. Un score positif et aucune session manquée : la journée est valide.</p>
+
+    <div class="card" id="banner"></div>
+    <div class="grid3" id="slots" style="margin-top:12px"></div>
+    <div class="card" id="answer" style="display:none"></div>
+
+    <div class="card">
+      <div class="row"><b style="font-size:14px">Ta semaine</b><span class="lbl" id="wk"></span></div>
+      <div class="grid5" id="week" style="margin-top:10px"></div>
+      <div class="sub" id="unlock"></div>
+    </div>
+
+    <div class="card">
+      <div class="grid3" id="tot"></div>
+      <div class="sub" id="best"></div>
+    </div>
+
+    <div class="card"><b style="font-size:14px">Tes derniers résultats</b><div id="hist" style="margin-top:6px"></div></div>
+    <p class="small" style="margin-top:14px;line-height:1.6">Exercice de pratique. Rien ici n'est un conseil d'investissement ni une promesse de gains. Le trading comporte un risque de perte.</p>
+  </div>
+</div>
+
+<script>
+var API = 'https://14trades-server-production.up.railway.app';
+var S = null, skew = 0, pos = '', dirc = '', answering = false;
+var NAMES = { '20': '20h', '00': '00h', '05': '05h' }, WIN = { '20': '21h à 22h', '00': '01h à 02h', '05': '06h à 07h' };
+function $(i) { return document.getElementById(i); }
+function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function tok() { try { return localStorage.getItem('desk_token') || ''; } catch (e) { return ''; } }
+function setTok(t) { try { if (t) localStorage.setItem('desk_token', t); else localStorage.removeItem('desk_token'); } catch (e) {} }
+function api(path, body) {
+  var o = { headers: { 'Content-Type': 'application/json', 'x-desk-token': tok() } };
+  if (body) { o.method = 'POST'; o.body = JSON.stringify(body); }
+  return fetch(API + path, o).then(function (r) { if (r.status === 401) { logout(); throw new Error('auth'); } return r.json(); });
+}
+function logout() { setTok(''); S = null; $('app').style.display = 'none'; $('login').style.display = 'block'; }
+function doLogin() {
+  $('lerr').textContent = '';
+  fetch(API + '/api/desk/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: $('em').value, password: $('pw').value }) })
+    .then(function (r) { return r.json(); }).then(function (d) {
+      if (!d.ok) { $('lerr').textContent = d.error || 'Connexion impossible.'; return; }
+      setTok(d.token); $('login').style.display = 'none'; load();
+    }).catch(function () { $('lerr').textContent = 'Serveur injoignable. Réessaie.'; });
+}
+function load() {
+  if (!tok()) { $('login').style.display = 'block'; return; }
+  api('/api/desk/state').then(function (d) { if (!d.ok) return; S = d; skew = d.now - Date.now(); $('login').style.display = 'none'; $('app').style.display = 'block'; render(); }).catch(function () {});
+}
+function pad(n) { return String(n).padStart(2, '0'); }
+function mmss(ms) { var s = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60); return (h ? pad(h) + ':' : '') + pad(m) + ':' + pad(s % 60); }
+function dayLabel(b) { var d = new Date(b + 'T12:00:00Z'); return ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'][d.getUTCDay()] + ' ' + pad(d.getUTCDate()) + '/' + pad(d.getUTCMonth() + 1); }
+function sg(n) { return (n > 0 ? '+' : '') + n; }
+function render() {
+  if (!S) return;
+  $('who').textContent = 'Bonjour' + (S.name ? ', ' + S.name : '');
+  var focus = S.current || S.next, wk = null;
+  S.week.forEach(function (d) { if (focus && d.block === focus.block) wk = d; });
+  if (!wk) wk = S.week[0];
+  // slots of the focus block
+  $('slots').innerHTML = wk.slots.map(function (s) {
+    var isNow = S.current && S.current.block === wk.block && S.current.slot === s.slot;
+    var st = { upcoming: 'À venir', open: 'Ouvert', waiting: 'En attente du résultat', graded: s.answer ? (s.answer.result === 'tp' ? 'Objectif atteint' : s.answer.result === 'sl' ? 'Stop touché' : 'Sans mouvement') : '', missed: 'Manquée' }[s.state];
+    var sc = s.answer && s.answer.score !== null && s.answer.score !== undefined ? '<div class="big ' + (s.answer.score > 0 ? 'pos' : s.answer.score < 0 ? 'neg' : 'mut') + '">' + sg(s.answer.score) + '</div>' : (s.state === 'missed' ? '<div class="big neg">-1</div>' : '<div class="big mut">·</div>');
+    return '<div class="slot' + (isNow ? ' now' : '') + '"><div class="lbl">' + NAMES[s.slot] + ' · réponse ' + WIN[s.slot] + '</div>' + sc + '<div class="lbl">' + st + (s.answer && s.answer.direction ? ' · ' + s.answer.direction : '') + '</div></div>';
+  }).join('');
+  // banner + answer panel
+  var cur = S.current, mine = null;
+  if (cur) wk.slots.forEach(function (s) { if (s.slot === cur.slot && s.answer) mine = s.answer; });
+  var cfg = cur ? S.cfg[cur.slot] : null;
+  if (cur && !mine) {
+    $('banner').innerHTML = '<div class="row"><div><div class="lbl">Session ' + NAMES[cur.slot] + ' · ' + dayLabel(cur.block) + '</div><b style="font-size:15px">À toi de jouer</b></div><div class="timer" id="tm"></div></div>' +
+      '<div class="sub">Lis la bougie de 1 h de ' + NAMES[cur.slot] + ' (elle vient de se fermer) et ton graphique 5 min. Mouvement habituel de cette heure : ' + cfg.range[0] + ' à ' + cfg.range[1] + ' points.</div>';
+    renderAnswer(cur, cfg);
+  } else if (cur && mine) {
+    $('banner').innerHTML = '<div class="row"><b style="font-size:15px">Réponse enregistrée</b><div class="timer" id="tm"></div></div><div class="sub">Tu as répondu ' + esc(mine.direction) + '. Le résultat sera calculé à la fin de la fenêtre. Reviens ici pour le voir.</div>';
+    $('answer').style.display = 'none';
+  } else {
+    var nx = S.next; $('answer').style.display = 'none';
+    $('banner').innerHTML = nx ? '<div class="row"><div><div class="lbl">Prochaine session</div><b style="font-size:15px">' + NAMES[nx.slot] + ' · ' + dayLabel(nx.block) + '</b></div><div class="timer" id="tm"></div></div><div class="sub">La réponse s\'ouvre à ' + WIN[nx.slot].split(' ')[0] + ' (heure de New York) et dure une heure.</div>' : '<div class="sub">Pas de session à venir.</div>';
+  }
+  // week
+  $('wk').textContent = S.weekValid + ' jour' + (S.weekValid > 1 ? 's' : '') + ' valide' + (S.weekValid > 1 ? 's' : '') + ' sur 5';
+  $('week').innerHTML = S.week.map(function (d) { var cls = d.valid === true ? 'ok' : d.valid === false ? 'ko' : '', v = d.score === null ? '·' : sg(d.score); return '<div class="day ' + cls + '">' + d.label + '<b>' + v + '</b></div>'; }).join('');
+  $('unlock').textContent = S.unlocked ? 'Semaine parfaite : le module suivant est débloqué.' : 'Il faut 5 jours valides sur 5 pour débloquer le module suivant.';
+  var t = S.totals || { valid: 0, days: 0, score: 0, missed: 0 };
+  $('tot').innerHTML = [['Jours valides', t.valid + '/' + t.days], ['Score total', sg(t.score)], ['Manquées', t.missed]].map(function (x) { return '<div><div class="lbl">' + x[0] + '</div><div class="big">' + x[1] + '</div></div>'; }).join('');
+  $('best').textContent = S.best ? 'Meilleure session : ' + dayLabel(S.best.block) + ' ' + NAMES[S.best.slot] + ', ' + S.best.direction + ', jusqu\'à +' + S.best.mfe + ' points en ta faveur.' : '';
+  // history
+  $('hist').innerHTML = S.hist.length ? S.hist.map(function (h) {
+    var res = h.result === 'tp' ? 'Objectif atteint' : h.result === 'sl' ? 'Stop touché' : 'Ni objectif ni stop';
+    var ctx = h.systemPos ? 'Le système voyait le prix ' + ({ S: 'près du support', R: 'près de la résistance', M: 'entre les deux' }[h.systemPos]) + (h.support ? ' (support ' + h.support + ', résistance ' + h.resistance + ')' : '') + '. ' + (h.coherent ? 'Ta lecture était juste.' : 'Ta lecture était différente.') : '';
+    return '<div class="res"><div class="row"><b>' + dayLabel(h.block) + ' ' + NAMES[h.slot] + ' · ' + h.direction + '</b><b class="' + (h.score > 0 ? 'pos' : h.score < 0 ? 'neg' : 'mut') + '">' + sg(h.score) + '</b></div>' +
+      '<div>' + res + '. Entrée ' + h.entry + ', stop ' + h.sl + ', objectif ' + h.tp + '.</div>' +
+      '<div class="small">Au mieux +' + (h.mfe || 0) + ' pts en ta faveur, au pire -' + (h.mae || 0) + ' pts. Plus haut ' + (h.hi !== null ? h.hi : '?') + ', plus bas ' + (h.lo !== null ? h.lo : '?') + ' pendant la fenêtre.</div>' +
+      (ctx ? '<div class="small">' + esc(ctx) + '</div>' : '') + '</div>';
+  }).join('') : '<div class="sub">Tes résultats apparaîtront ici après ta première session.</div>';
+  tick();
+}
+function renderAnswer(cur, cfg) {
+  var box = $('answer'); if (box.dataset.slot === cur.block + cur.slot && box.style.display === 'block') return;
+  box.dataset.slot = cur.block + cur.slot; pos = ''; dirc = '';
+  box.innerHTML = '<b style="font-size:14px">1. Où est la bougie de 1 h ?</b><div class="grid3" style="margin-top:8px"><button class="opt" id="p-S" onclick="pick(\'S\')">Support</button><button class="opt" id="p-R" onclick="pick(\'R\')">Résistance</button><button class="opt" id="p-M" onclick="pick(\'M\')">Entre les deux</button></div>' +
+    '<b style="font-size:14px;display:block;margin-top:14px">2. Ta décision</b><div class="grid2" style="margin-top:8px"><button class="opt buy" id="d-BUY" onclick="pickd(\'BUY\')">BUY</button><button class="opt sell" id="d-SELL" onclick="pickd(\'SELL\')">SELL</button></div>' +
+    '<details style="margin-top:12px"><summary class="small" style="cursor:pointer">Mon prix et mon stop (facultatif)</summary><input id="ent" type="number" step="0.01" placeholder="Mon prix d\'entrée. Vide : le serveur prend le prix du marché"><input id="slp" type="number" step="1" placeholder="Mon stop en points (maximum ' + cfg.sl + '). Vide : ' + cfg.sl + '"></details>' +
+    '<div class="small" style="margin-top:10px">Stop maximum ' + cfg.sl + ' points, objectif ' + cfg.tp + ' points. Le résultat est calculé sur les bougies 5 min de la fenêtre de réponse.</div>' +
+    '<div class="err" id="aerr"></div><button class="btn" onclick="submitAns()">Valider ma réponse</button>';
+  box.style.display = 'block';
+}
+function pick(p) { pos = p; ['S', 'R', 'M'].forEach(function (k) { $('p-' + k).className = 'opt' + (k === p ? ' on' : ''); }); }
+function pickd(d) { dirc = d; $('d-BUY').className = 'opt buy' + (d === 'BUY' ? ' on' : ''); $('d-SELL').className = 'opt sell' + (d === 'SELL' ? ' on' : ''); }
+function submitAns() {
+  if (answering) return; $('aerr').textContent = '';
+  if (!pos || !dirc) { $('aerr').textContent = 'Choisis où est le prix, puis BUY ou SELL.'; return; }
+  answering = true;
+  api('/api/desk/answer', { position: pos, direction: dirc, entry: $('ent').value, slPts: $('slp').value }).then(function (d) {
+    answering = false;
+    if (!d.ok) { $('aerr').textContent = d.error || 'Erreur.'; return; }
+    $('answer').innerHTML = '<b style="font-size:15px" class="pos">Réponse enregistrée</b><div class="sub" style="color:#ccc">' + esc(dirc) + ' à ' + d.entry + (d.entrySource === 'server' ? ' (prix du serveur)' : ' (ton prix)') + '. Stop ' + d.sl + ' (' + d.slPts + ' pts). Objectif ' + d.tp + ' (' + d.tpPts + ' pts).</div>';
+    load();
+  }).catch(function () { answering = false; $('aerr').textContent = 'Serveur injoignable. Réessaie.'; });
+}
+function tick() {
+  var el = $('tm'); if (!el || !S) return; var now = Date.now() + skew;
+  if (S.current) el.textContent = 'Réponds avant : ' + mmss(S.current.end - now); else if (S.next) el.textContent = 'Dans ' + mmss(S.next.start - now);
+  if (S.current && S.current.end - now <= 0 || S.next && !S.current && S.next.start - now <= 0) { S.current = null; setTimeout(load, 1500); }
+}
+setInterval(tick, 1000);
+setInterval(function () { if (tok() && document.visibilityState === 'visible') load(); }, 30000);
+load();
+</script>
+</body>
+</html>
