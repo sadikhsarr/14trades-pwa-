@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08080b">
+<meta name="robots" content="noindex">
+<title>Leçon 1 — 14 Trades Académie</title>
+<style>
+:root{--bg:#08080b;--line:rgba(201,168,76,.16);--gold:#C9A84C;--gold2:#E8D28A;--tx:#EDE9DF;--mut:#8b877c}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif;min-height:100vh}
+body{background:radial-gradient(120% 60% at 50% -10%,rgba(201,168,76,.10),transparent 60%),var(--bg)}
+.serif{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-weight:500}
+.wrap{max-width:520px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 22px 130px}
+.bar{position:fixed;top:0;left:0;right:0;height:3px;background:rgba(255,255,255,.06);z-index:6}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#B8932F,#E8D28A);transition:width .5s ease}
+.brand{font-size:11px;letter-spacing:3px;color:var(--gold);font-weight:700;margin-top:14px}
+.cap{font-size:10px;letter-spacing:2.2px;color:var(--gold);font-weight:700;text-transform:uppercase}
+h1{font-size:32px;line-height:1.2;margin-top:10px}
+.meta{font-size:12px;color:var(--mut);margin-top:8px}
+.chap{margin-top:34px;animation:fd .5s ease}
+@keyframes fd{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.chap p{font-size:18px;line-height:1.8;color:#E3DED2;margin-top:18px}
+.chap p.big{font-size:22px;line-height:1.5;color:var(--tx)}
+.chap p.q{border-left:2px solid var(--gold);padding-left:16px;color:var(--gold2);font-style:italic}
+.chap ol{margin:18px 0 0 22px;font-size:17px;line-height:1.75;color:#E3DED2}.chap li{margin-top:10px}
+.box{background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:20px;padding:18px;margin-top:22px}
+.box p{margin-top:8px;font-size:16px}
+.reveal{background:none;border:1px dashed var(--gold);color:var(--gold);border-radius:14px;padding:12px 16px;font-size:14px;margin-top:12px;font-family:inherit;cursor:pointer}
+.nav{position:fixed;left:0;right:0;bottom:0;padding:14px 22px max(18px,env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent,var(--bg) 40%);z-index:5}
+.nav div{max-width:520px;margin:0 auto;display:flex;gap:10px}
+.btn{flex:1;background:linear-gradient(180deg,#D8B95A,#B8932F);color:#1a1405;border:0;border-radius:16px;padding:17px;font-size:15px;font-weight:700;letter-spacing:.3px;cursor:pointer;font-family:inherit;text-decoration:none;text-align:center}
+.back{flex:0 0 56px;background:rgba(255,255,255,.06);color:var(--mut);border:0;border-radius:16px;font-size:18px;cursor:pointer}
+.note{font-size:11px;color:var(--mut);text-align:center;margin-top:36px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="bar"><i id="bar"></i></div>
+<div class="wrap">
+  <div class="brand">14 TRADES · ACADÉMIE</div>
+  <div id="head"></div>
+  <div id="chap" class="chap"></div>
+  <p class="note">Contenu pédagogique. Ce n'est pas un conseil d'investissement. Le trading comporte un risque de perte.</p>
+</div>
+<div class="nav"><div><button class="back" id="back" onclick="go(-1)" style="display:none">‹</button><button class="btn" id="next" onclick="go(1)">Continuer</button></div></div>
+
+<script>
+var CH = [
+ { t: "Ce que personne ne m'a jamais expliqué", h: [
+   "<p class='big serif'>Avant d'écrire cette leçon, j'ai longtemps hésité.</p>",
+   "<p>Parce que ce que je vais te montrer est tellement simple que tu risques de te dire : « c'est tout ? »</p>",
+   "<p>Mais cette chose m'a changé comme trader. Et pendant tout ce temps, personne ne me l'a jamais expliquée.</p>",
+   "<p class='q'>Je vais te la montrer. Lis jusqu'au bout.</p>" ] },
+ { t: "Comment je tradais avant", h: [
+   "<p>Je restais devant le graphique. Des heures. J'attendais.</p>",
+   "<p>Le prix montait, je me disais « maintenant ». Il baissait, je doutais. Je regardais chaque bougie comme si ma vie en dépendait.</p>",
+   "<p class='big serif'>J'étais fatigué avant même d'avoir pris une décision.</p>",
+   "<p>Et quand on est fatigué, on trade mal.</p>" ] },
+ { t: "Ce que j'ai découvert", h: [
+   "<p>Un jour, j'ai arrêté de me demander <em>« monte ou descend ? »</em>.</p>",
+   "<p class='big serif'>J'ai commencé à me demander : « quand ? »</p>",
+   "<p>Le marché ne bouge pas toujours. Il y a des moments où les gens arrivent, et des moments où il ne se passe presque rien.</p>",
+   "<p>Si tu es présent <strong>au bon moment</strong>, tu es au bon endroit sur le graphique. Tu entres, tu poses ton stop, et… <strong>tu t'en vas.</strong></p>",
+   "<p>C'est ça qui a tout changé. Une fois mon trade ouvert, je n'avais plus besoin de rester assis. Je pouvais vivre. Je revenais plus tard voir si j'avais raison ou tort. Pas de stress, pas de fatigue, pas de décisions prises par peur.</p>" ] },
+ { t: "Ce que ça m'a donné", h: [
+   "<p>Ce n'est pas un indicateur. Ce n'est pas un secret de banquier. C'est un <strong>processus</strong> : les mêmes heures, la même lecture, la même règle. Simple. Répétable.</p>",
+   "<p>Quand je le suis, je ne dépends plus de mon humeur du jour.</p>",
+   "<p>Tu n'as plus à « espérer ». Tu fais ton travail, et tu regardes le résultat.</p>",
+   "<p class='big serif'>Quand tout est structuré et aligné, ta progression devient inévitable.</p>",
+   "<p>Je ne te promets pas de gagner chaque trade : personne ne le peut. Je te promets que si tu suis le processus, tu avances, jour après jour.</p>" ] },
+ { t: "À retenir", h: [
+   "<ol><li>Avant « monte ou descend ? », demande-toi : <strong>« quand ? »</strong></li><li>Au bon moment, tu es au bon endroit : tu entres, tu poses ton stop, tu t'en vas.</li><li>Un processus simple, répété, vaut mieux que des heures de peur devant l'écran.</li></ol>",
+   "<div class='box'><div class='cap'>Une petite chose à faire · 2 minutes</div><p>Ouvre un graphique de l'or. Ne cherche rien. Regarde seulement : à quelle heure le prix bouge-t-il le plus ? À quelle heure presque pas ? Note ce que tu remarques. Il n'y a pas de bonne ou de mauvaise réponse.</p></div>",
+   "<div class='box'><div class='cap'>Question de contrôle</div><p>Quelle question remplace « monte ou descend ? »</p><button class='reveal' onclick=\"this.outerHTML='<p class=\\'serif\\' style=\\'color:var(--gold2);font-size:20px\\'>« Quand ? »</p>'\">Voir la réponse</button></div>" ] },
+ { t: "Mais il y a un problème", h: [
+   "<p>Même quand je savais <em>quand</em> regarder, je me trompais encore.</p>",
+   "<p>Je voyais le bon moment, et j'entrais quand même du mauvais côté. Pendant longtemps, je n'ai pas compris pourquoi.</p>",
+   "<p class='big serif'>Un jour, j'ai compris que je regardais le prix sans savoir qui le fait bouger.</p>",
+   "<p>Quand j'ai vu ça, tout est devenu simple. Si simple que je me suis demandé pourquoi personne ne me l'avait montré plus tôt.</p>",
+   "<p class='q'>Cette leçon-là, je ne l'écris pas. Je la donne en direct, en vidéo, avec toi.</p>" ], last: true }
+];
+var i = 0;
+try { i = Math.min(CH.length - 1, Math.max(0, parseInt(localStorage.getItem('l1_i') || '0', 10) || 0)); } catch (e) {}
+function show() {
+  var c = CH[i];
+  document.getElementById('head').innerHTML = '<div class="cap" style="margin-top:34px">Leçon 1 · Chapitre ' + (i + 1) + ' sur ' + CH.length + '</div><h1 class="serif">' + c.t + '</h1>' + (i === 0 ? '<div class="meta">Lecture : 4 minutes</div>' : '');
+  var el = document.getElementById('chap'); el.style.animation = 'none'; el.offsetHeight; el.style.animation = ''; el.innerHTML = c.h.join('');
+  document.getElementById('bar').style.width = ((i + 1) / CH.length * 100) + '%';
+  document.getElementById('back').style.display = i ? 'block' : 'none';
+  var n = document.getElementById('next');
+  if (c.last) { n.textContent = 'Réserver ma place · Leçon 2 en direct'; n.onclick = function () { location.href = 'live.html'; }; }
+  else { n.textContent = 'Continuer'; n.onclick = function () { go(1); }; }
+  window.scrollTo(0, 0);
+  try { localStorage.setItem('l1_i', String(i)); } catch (e) {}
+}
+function go(d) { i = Math.max(0, Math.min(CH.length - 1, i + d)); show(); }
+show();
+</script>
+</body>
+</html>
