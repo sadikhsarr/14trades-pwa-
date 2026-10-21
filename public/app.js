@@ -1553,7 +1553,7 @@ async function showCryptoPayment(code) {
     const r = await fetch(SERVER + '/api/payment/create', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ currency: 'USDTTRC20', code })
+      body: JSON.stringify({ currency: 'USDTTRC20', code, aff: (window.__aff && window.__aff()) })
     });
     const d = await r.json();
     if (!d.ok || !d.address) throw new Error(d.error||'Failed');
@@ -3327,6 +3327,16 @@ function showNotifPrompt() {
 }
 
 // ── NOTIFICATION REMINDER BANNER ───────────────────────────────────
+// Philosophy-first two-step reveal — Step 1 (tagline + positive signal)
+// shows first, Step 2 (the honest real example) only appears on tap, so
+// a cold visitor's very first impression is never a loss number.
+function revealPhilosophyStep2() {
+  var step1 = document.getElementById('philosophy-step1');
+  var step2 = document.getElementById('philosophy-step2');
+  if (step1) step1.style.display = 'none';
+  if (step2) step2.style.display = 'block';
+}
+
 function showNotifBanner() {
   if (Notification.permission === 'granted') return;
   if (document.getElementById('notif-banner')) return;
