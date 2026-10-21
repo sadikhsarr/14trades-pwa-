@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Programme affilié · 14 Trades</title>
+<style>
+:root{--bg:#0A0A0A;--card:#0D0D0D;--line:#1F1F1F;--gold:#C9A84C;--text:#F4F4F4;--mut:#9A9A9A;--green:#30D158;--orange:#FF9F0A;--red:#FF6B6B}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;padding:16px;padding-bottom:40px}
+.wrap{max-width:520px;margin:0 auto}
+h1{font-size:20px;margin:6px 0 2px}
+.sub{color:var(--mut);font-size:13px;line-height:1.6;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px}
+.card.gold{border-color:#C9A84C55}
+.lbl{font-size:11px;color:var(--mut);letter-spacing:.4px;text-transform:uppercase;margin-bottom:6px}
+.link{display:flex;gap:8px;align-items:center;background:#111;border:1px solid #262626;border-radius:10px;padding:8px 10px;margin-bottom:8px}
+.link span{flex:1;font-size:12px;color:#DDD;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+button,.btn{font-family:inherit;cursor:pointer}
+.cp{background:var(--gold);border:0;color:#111;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:800}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tile{background:#111;border:1px solid #222;border-radius:12px;padding:10px;text-align:center}
+.tile b{display:block;font-size:18px;font-family:ui-monospace,Menlo,monospace}
+.tile small{display:block;font-size:10px;color:var(--mut);margin-top:3px}
+.row{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid #1a1a1a;font-size:12px}
+.row:last-child{border:0}
+.tag{font-size:10px;font-weight:800;padding:3px 8px;border-radius:7px;white-space:nowrap}
+.wa{display:block;text-align:center;background:#25D366;color:#06210F;text-decoration:none;font-weight:800;border-radius:12px;padding:13px;font-size:14px}
+ul{margin:6px 0 0 18px;padding:0;font-size:12.5px;line-height:1.75;color:#CFCFCF}
+.mut{color:var(--mut);font-size:12px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><div class="mut" style="padding:30px 0;text-align:center">Chargement…</div></div>
+<script>
+(function () {
+  var SRV = 'https://14trades-server-production.up.railway.app', WA = '221788255099';
+  var app = document.getElementById('app');
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function usd(v) { return (Math.round(Number(v) * 100) / 100) + ' $'; }
+  function dt(d) { try { return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }); } catch (e) { return ''; } }
+  var RULES = function (rate, hold, maxp) { return '<div class="card"><div class="lbl">Les règles</div><ul>' +
+    '<li>Tu gagnes <b>' + rate + ' %</b> sur les <b>' + maxp + ' premiers paiements</b> de chaque personne que tu amènes avec ton lien.</li>' +
+    '<li>La commission est payable <b>' + hold + ' jours</b> après le paiement du client (le temps de vérifier qu\'il n\'y a pas de remboursement).</li>' +
+    '<li>Pas de commission sur ton propre achat. Un seul niveau : seulement les personnes que tu amènes toi-même.</li>' +
+    '<li>Dis clairement que tu es affilié. Ne promets jamais de gains : le trading comporte un risque de perte.</li>' +
+    '<li>Pas de spam, pas de faux comptes. Une commission obtenue de cette façon est annulée.</li></ul></div>'; };
+  function join() {
+    app.innerHTML = '<h1>Programme affilié</h1><div class="sub">Recommande 14 Trades et gagne une commission de 20 à 30 % sur chaque abonné que tu amènes.</div>' + RULES('20 à 30', 30, 3) +
+      '<a class="wa" href="https://wa.me/' + WA + '?text=' + encodeURIComponent('Bonjour Sadikh, je veux devenir affilié 14 Trades.') + '">Demander mon lien sur WhatsApp</a>';
+  }
+  var t = new URLSearchParams(location.search).get('t');
+  if (!t) return join();
+  fetch(SRV + '/api/aff/me?t=' + encodeURIComponent(t), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (d) {
+    if (!d || !d.ok) return join();
+    var st = { pending: ['En attente', '#2A2208', 'var(--orange)'], paid: ['Payé', '#0F2A1C', 'var(--green)'], void: ['Annulé', '#2A1212', 'var(--red)'] };
+    var rows = (d.list || []).map(function (x) {
+      var s = x.status === 'pending' && new Date(x.due).getTime() <= Date.now() ? ['À payer', '#102030', '#4A9EFF'] : st[x.status] || st.pending;
+      return '<div class="row"><span><b>' + esc(x.who) + '</b><br><span class="mut">' + dt(x.at) + ' · ' + usd(x.usd) + (x.status === 'pending' && new Date(x.due).getTime() > Date.now() ? ' · payable le ' + dt(x.due) : '') + '</span></span><span style="text-align:right"><b style="font-family:ui-monospace,monospace">+' + usd(x.commission) + '</b><br><span class="tag" style="background:' + s[1] + ';color:' + s[2] + '">' + s[0] + '</span></span></div>';
+    }).join('') || '<div class="mut">Pas encore de vente. Partage ton lien : dès qu\'une personne que tu amènes paie, elle apparaît ici.</div>';
+    var tile = function (v, l, c) { return '<div class="tile"><b style="color:' + (c || 'var(--text)') + '">' + v + '</b><small>' + l + '</small></div>'; };
+    app.innerHTML = '<h1>Bonjour ' + esc(d.name) + ' 👋</h1><div class="sub">Ta commission : <b style="color:var(--gold)">' + d.rate + ' %</b> sur les ' + d.maxPayments + ' premiers paiements de chaque personne.' + (d.status === 'paused' ? ' <b style="color:var(--orange)">Ton compte est en pause.</b>' : '') + '</div>' +
+      '<div class="card gold"><div class="lbl">Ton lien pour l\'app (essai gratuit + abonnement)</div><div class="link"><span id="l1">' + esc(d.link) + '</span><button class="cp" onclick="cp(\'l1\',this)">Copier</button></div>' +
+      '<div class="lbl" style="margin-top:10px">Ton lien pour la Live Room</div><div class="link"><span id="l2">' + esc(d.linkLive) + '</span><button class="cp" onclick="cp(\'l2\',this)">Copier</button></div></div>' +
+      '<div class="grid">' + tile(d.visits, 'visites') + tile(d.people, 'inscrits') + tile(d.sales, 'paiements') + tile(usd(d.pending), 'en attente', 'var(--orange)') + tile(usd(d.payable), 'à payer', '#4A9EFF') + tile(usd(d.paid), 'déjà payé', 'var(--green)') + '</div>' +
+      '<div class="card" style="margin-top:14px"><div class="lbl">Tes ventes</div>' + rows + '</div>' + RULES(d.rate, d.holdDays, d.maxPayments) +
+      (d.payable > 0 ? '<a class="wa" href="https://wa.me/' + WA + '?text=' + encodeURIComponent('Bonjour Sadikh, je suis affilié (' + d.code + '). Je demande le paiement de ma commission : ' + usd(d.payable) + '.') + '">Demander mon paiement (' + usd(d.payable) + ')</a>' : '');
+  }).catch(join);
+  window.cp = function (id, b) { var tx = document.getElementById(id).textContent; try { navigator.clipboard.writeText(tx); } catch (e) { var r = document.createRange(); r.selectNode(document.getElementById(id)); getSelection().removeAllRanges(); getSelection().addRange(r); document.execCommand('copy'); } b.textContent = 'Copié ✓'; setTimeout(function () { b.textContent = 'Copier'; }, 1500); };
+})();
+</script>
+</body>
+</html>
