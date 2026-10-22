@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>14 Trades — Trader avec une vraie méthode</title>
+<meta name="description" content="La plupart des traders perdent pour les mêmes raisons. Ce sont des problèmes de structure, pas de talent. Fais ton diagnostic et reçois ton plan, du débutant au confirmé.">
+<link rel="canonical" href="https://www.14trade.com/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="14 Trades — Trader avec une vraie méthode">
+<meta property="og:description" content="Un cours pour comprendre, une routine pour pratiquer, des signaux pour exécuter.">
+<meta property="og:url" content="https://www.14trade.com/">
+<meta name="theme-color" content="#090909">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#090909;--card:#111;--line:#232323;--txt:#F4EFE4;--mut:#9a9486;--gold:#C9A84C;--gr:#6FE3A0;--grb:#223A2C;--serif:'Fraunces',Georgia,serif;--sans:'Inter',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:720px;margin:0 auto;padding:0 22px}
+header{position:sticky;top:0;z-index:5;background:rgba(9,9,9,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{font-family:var(--serif);font-size:20px;font-weight:600}.logo b{color:var(--gold);font-weight:600}
+.nav{display:flex;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:99px;font-size:13px;font-weight:600;border:1px solid var(--grb);color:var(--gr);background:transparent;cursor:pointer;font-family:inherit}
+.pill.gold{background:var(--gold);border-color:var(--gold);color:#0a0a0a}
+.kick{font-size:12px;letter-spacing:.16em;color:var(--gold);font-weight:600;margin:72px 0 18px}
+h1,h2{font-family:var(--serif);font-weight:500;line-height:1.15;letter-spacing:-.01em}
+h1{font-size:clamp(34px,7vw,52px)}h1 em{font-style:normal;color:var(--gold)}
+h2{font-size:clamp(26px,5vw,34px)}
+.sub{color:var(--mut);font-size:18px;margin:20px 0 32px;max-width:560px}
+.btn{display:inline-block;padding:15px 26px;border-radius:99px;background:var(--gold);color:#0a0a0a;font-weight:600;font-size:15px;border:0;cursor:pointer;font-family:inherit}
+.btn.line{background:transparent;color:var(--txt);border:1px solid #3a3a3a}
+.btn.wa{background:transparent;color:var(--gr);border:1px solid var(--grb)}
+.sig{display:flex;align-items:center;gap:12px;margin:44px 0 0;padding:14px 18px;border:1px solid var(--line);border-radius:14px;background:var(--card);font-size:14px;color:var(--mut)}
+.sig b{color:var(--txt)}.sig .bl{filter:blur(5px);color:var(--gold);font-weight:600;user-select:none}.sig .dot{width:8px;height:8px;border-radius:50%;background:var(--gr);flex:none}.sig .go{margin-left:auto;color:var(--gold);font-weight:600;white-space:nowrap}
+section{padding:96px 0 20px}
+.lead{color:var(--mut);margin:12px 0 28px;font-size:17px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tile{text-align:left;padding:24px 20px;border:1px solid var(--line);border-radius:18px;background:var(--card);color:var(--txt);cursor:pointer;font-family:inherit;transition:border-color .2s,transform .2s}
+.tile:hover,.tile.on{border-color:var(--gold);transform:translateY(-2px)}
+.tile h3{font-family:var(--serif);font-weight:500;font-size:21px;margin-bottom:8px}
+.tile p{color:var(--mut);font-size:14px}
+.panel{display:none;margin-top:32px;padding:28px 24px;border:1px solid var(--line);border-radius:20px;background:var(--card)}
+.panel.show{display:block;animation:in .35s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.tag{font-size:11px;letter-spacing:.14em;color:var(--gold);font-weight:600;margin-bottom:10px}
+.panel h3{font-family:var(--serif);font-weight:500;font-size:26px;line-height:1.2}
+.steps{list-style:none;margin:22px 0}
+.steps li{display:flex;gap:14px;padding:13px 0;border-top:1px solid var(--line);font-size:15px}
+.steps li span{color:var(--gold);font-weight:600;min-width:84px}
+.acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.pains{margin:22px 0}
+.pain{display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;cursor:pointer;font-size:15px}
+.pain input{accent-color:#C9A84C;margin-top:4px;width:17px;height:17px;flex:none}
+.pain:has(input:checked){border-color:var(--gold);background:#16130a}
+.plan{margin-top:6px}
+.pi{padding:16px 0;border-top:1px solid var(--line)}
+.pi h4{font-size:15px;margin-bottom:4px;color:var(--gold);font-weight:600}
+.pi p{font-size:14.5px;color:#cfc9ba}
+.pi small{display:block;color:var(--mut);margin-top:4px;font-size:13px}
+.err{color:#e58;font-size:13px;margin-top:8px;display:none}
+footer{margin-top:110px;padding:32px 0 48px;border-top:1px solid var(--line);color:var(--mut);font-size:13px}
+footer a{text-decoration:underline;text-underline-offset:3px}
+@media(max-width:520px){.tiles{grid-template-columns:1fr}.sig .go{display:none}.pill.wa-top span{display:none}.steps li{flex-direction:column;gap:2px}}
+</style>
+</head>
+<body>
+<header><div class="wrap bar">
+  <a class="logo" href="/">14 <b>⚡</b> Trades</a>
+  <div class="nav">
+    <a class="pill wa-top" data-go="whatsapp" id="wa-top" href="#" rel="noopener">WhatsApp</a>
+    <a class="pill gold" data-go="app" id="app-top" href="#" rel="noopener">Ouvrir l'app</a>
+  </div>
+</div></header>
+
+<main class="wrap">
+  <p class="kick">POUR ARRÊTER DE PERDRE</p>
+  <h1>La plupart des traders perdent pour les mêmes <em>raisons.</em></h1>
+  <p class="sub">Ce sont des problèmes de structure, pas de talent. Ils se corrigent, avec la bonne méthode et un peu de pratique.</p>
+  <a class="btn" href="#diagnostic">Faire mon diagnostic</a>
+
+  <a class="sig" data-go="signal" id="sig" href="#" rel="noopener">
+    <i class="dot"></i><span>Signal du jour — <b>BUY Gold</b> <span class="bl">3 312.40</span></span><span class="go">Voir dans l'app →</span>
+  </a>
+
+  <section id="diagnostic">
+    <h2>On commence par toi.</h2>
+    <p class="lead">Choisis ce qui te ressemble le plus.</p>
+    <div class="tiles">
+      <button class="tile" id="t-n" type="button"><h3>Je n'ai jamais tradé</h3><p>Je pars de zéro, et ça me va.</p></button>
+      <button class="tile" id="t-e" type="button"><h3>J'ai déjà tradé</h3><p>Je connais un peu, mais ça ne marche pas comme je veux.</p></button>
+    </div>
+
+    <div class="panel" id="p-n" aria-live="polite">
+      <div class="tag">BIENVENUE, TU ES AU BON ENDROIT</div>
+      <h3>On commence par le début. Une étape à la fois.</h3>
+      <ol class="steps">
+        <li><span>Semaine 1</span>Les bases : ce qu'on trade, acheter et vendre, pips et lots</li>
+        <li><span>Semaine 2</span>Lire le graphique : bougies, tendance, supports et résistances</li>
+        <li><span>Semaine 3</span>Protéger ton capital : stop loss, ratio risque/gain, règle des 1 %</li>
+        <li><span>Semaine 4</span>Ton premier plan de trading, testé sur compte démo</li>
+      </ol>
+      <div class="acts">
+        <a class="btn" data-go="community" href="#" rel="noopener">Rejoindre la communauté</a>
+        <a class="btn wa" data-go="whatsapp" href="#" rel="noopener">Parler à Sadikh</a>
+      </div>
+    </div>
+
+    <div class="panel" id="p-e">
+      <div class="tag">ON VA TROUVER LE VRAI PROBLÈME</div>
+      <h3>Qu'est-ce qui te fait perdre ?</h3>
+      <p class="lead" style="margin-bottom:0">Choisis tout ce qui te ressemble.</p>
+      <div class="pains" id="pains"></div>
+      <button class="btn" id="seeplan" type="button">Voir mon plan</button>
+      <p class="err" id="err">Choisis au moins une réponse.</p>
+      <div class="plan" id="plan" style="display:none">
+        <div class="tag" style="margin-top:30px">TON PLAN</div>
+        <div id="planlist"></div>
+        <div class="acts">
+          <a class="btn" data-go="community" href="#" rel="noopener">Rejoindre la communauté</a>
+          <a class="btn wa" data-go="whatsapp" data-sum="1" href="#" rel="noopener">Parler à Sadikh</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap">Par Sadikh Sarr, Dakar. Le trading comporte un risque de perte. Contenu éducatif. · <a href="https://14trades-pwa.vercel.app/privacy.html">Confidentialité</a> · <a href="https://14trades-pwa.vercel.app/terms.html">Conditions</a> · <a href="https://14trades-pwa.vercel.app/affilie.html">Programme affilié</a></div></footer>
+
+<script>
+(function () {
+  var APP = 'https://14trades-pwa.vercel.app/', API = 'https://14trades-server-production.up.railway.app', WA = '221788255099';
+  var PAINS = [
+    ['nostrat', "Je n'ai pas de stratégie", "Ton plan", "Semaine 4 : « Ton premier plan de trading » et « Lire un signal : entrée, SL, TP1/2/3 ». Un plan écrit remplace l'intuition."],
+    ['struct', "Je ne comprends pas la structure du marché", "Lire le marché", "Semaine 2 : « La tendance : haussière, baissière, range » et « Supports et résistances ». Tu sauras où entrer et où sortir."],
+    ['exit', "Je ne sais pas quand sortir", "Sorties claires", "« Le take profit et le ratio risque/gain » et « Pourquoi on ne déplace jamais son stop ». Tu décides avant d'entrer."],
+    ['risk', "Je gère mal mon risque ou mon stop", "Protéger ton capital", "« La règle des 1 % » et « La taille de position ». Une perte devient un coût prévu, plus une catastrophe."],
+    ['small', "Mon capital est petit", "Petit capital", "« Pips, points et lots, simplement » et « Le levier ». Avec un petit compte, la taille de position fait toute la différence."],
+    ['emo', "Je prends des décisions sur un coup de tête", "Calmer les émotions", "« Peur, cupidité et FOMO » et « Attendre fait partie de la stratégie ». La routine quotidienne t'apprend à attendre."],
+    ['fear', "Après un gain, je perds tout ensuite", "Garder tes gains", "« Le revenge trading et comment l'arrêter ». Le journal quotidien te montre vite où tes gains s'envolent."],
+    ['over', "Je trade trop, ou à de mauvais moments", "Moins, mais mieux", "« Les sessions : Asie, Londres, New York ». Quelques bons moments valent mieux que dix mauvais."],
+    ['reg', "Je ne suis pas régulier", "Une routine", "Une leçon courte par jour et le journal de trading. La régularité se construit par petites étapes."],
+    ['sig', "Je veux juste exécuter, sans analyser", "Juste exécuter", "Reçois les signaux dans l'app : entrée, stop et objectifs déjà prêts. Tu n'as qu'à suivre le plan."]
+  ];
+  var $ = function (id) { return document.getElementById(id); };
+  var vid = '';
+  try { vid = localStorage.getItem('14t_site_vid') || ''; } catch (e) {}
+  if (!/^[A-Za-z0-9_-]{6,60}$/.test(vid)) {
+    vid = 'w' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+    try { localStorage.setItem('14t_site_vid', vid); } catch (e) {}
+  }
+  // Affiliate link (?aff=code): remembered 30 days on this site, and carried to the app so the sale is credited
+  var aff = '';
+  try { var L = localStorage, qa = (new URLSearchParams(location.search).get('aff') || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12), cur = (L.getItem('14t_aff') || '').split('|');
+    if (qa && !(cur[0] && Date.now() - (+cur[1] || 0) < 30 * 864e5)) L.setItem('14t_aff', qa + '|' + Date.now());
+    var c2 = (L.getItem('14t_aff') || '').split('|'); if (c2[0] && Date.now() - (+c2[1] || 0) < 30 * 864e5) aff = c2[0]; } catch (e) {}
+  var level = null, picked = [], ref = '';
+  try { ref = (new URLSearchParams(location.search).get('r') || '').toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 20); } catch (e) {}
+
+  function post(path, body) {
+    try { fetch(API + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), keepalive: true }).catch(function () {}); } catch (e) {}
+  }
+  function lead(action) { post('/api/site-lead', { vid: vid, level: level, pains: picked, action: action || undefined }); }
+  function ev(name) { post('/api/ev', { vid: vid, event: name, src: aff ? 'aff-' + aff : 'site' }); }
+
+  function appUrl(tab) {
+    var q = ['from=site', 'vid=' + encodeURIComponent(vid)];
+    if (tab) q.unshift('tab=' + tab);
+    if (level) q.push('lvl=' + level);
+    if (picked.length) q.push('p=' + picked.join(','));
+    if (ref) q.push('r=' + encodeURIComponent(ref));
+    if (aff) q.push('aff=' + aff);
+    return APP + '?' + q.join('&');
+  }
+  function waUrl(sum) {
+    var t = "Bonjour Sadikh, je viens de 14trade.com.";
+    if (sum && level) {
+      t += level === 'n' ? " Je n'ai jamais tradé et je veux commencer." : " J'ai déjà tradé.";
+      if (picked.length) t += " Mes difficultés : " + PAINS.filter(function (p) { return picked.indexOf(p[0]) > -1; }).map(function (p) { return p[1].toLowerCase(); }).join('; ') + ".";
+    }
+    return 'https://wa.me/' + WA + '?text=' + encodeURIComponent(t);
+  }
+  // Wire every button: the link is real (works if JS is slow), and is refreshed with the visitor's answers at click time.
+  function wire() {
+    document.querySelectorAll('[data-go]').forEach(function (a) {
+      var g = a.getAttribute('data-go'), sum = a.getAttribute('data-sum');
+      a.href = g === 'whatsapp' ? waUrl(sum) : g === 'community' ? appUrl('community') : g === 'signal' ? appUrl('signal') : appUrl('');
+      a.target = '_blank';
+    });
+  }
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('[data-go]'); if (!a) return;
+    wire();
+    var g = a.getAttribute('data-go');
+    lead('cta_' + g); ev('home_cta');
+  }, true);
+
+  // Tiles
+  function choose(l) {
+    level = l;
+    $('t-n').classList.toggle('on', l === 'n'); $('t-e').classList.toggle('on', l === 'e');
+    $('p-n').classList.toggle('show', l === 'n'); $('p-e').classList.toggle('show', l === 'e');
+    wire(); lead(); ev('home_path');
+    setTimeout(function () { $(l === 'n' ? 'p-n' : 'p-e').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 60);
+  }
+  $('t-n').onclick = function () { choose('n'); };
+  $('t-e').onclick = function () { choose('e'); };
+
+  // Pains
+  $('pains').innerHTML = PAINS.map(function (p) {
+    return '<label class="pain"><input type="checkbox" value="' + p[0] + '"><span>' + p[1] + '</span></label>';
+  }).join('');
+  $('seeplan').onclick = function () {
+    picked = Array.prototype.map.call(document.querySelectorAll('#pains input:checked'), function (i) { return i.value; });
+    if (!picked.length) { $('err').style.display = 'block'; return; }
+    $('err').style.display = 'none';
+    $('planlist').innerHTML = PAINS.filter(function (p) { return picked.indexOf(p[0]) > -1; }).map(function (p) {
+      return '<div class="pi"><h4>' + p[2] + '</h4><p>' + p[3] + '</p></div>';
+    }).join('');
+    $('plan').style.display = 'block';
+    wire(); lead('plan');
+    $('plan').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  };
+  wire(); ev('home_visit');
+})();
+</script>
+</body>
+</html>
