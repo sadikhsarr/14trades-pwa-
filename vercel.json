@@ -1,0 +1,29 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "www.14trade.com" }],
+      "destination": "/public/accueil.html"
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "14trade.com" }],
+      "destination": "/public/accueil.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/public/$1"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    }
+  ]
+}
