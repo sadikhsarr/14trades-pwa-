@@ -611,6 +611,7 @@ window.__aff=function(){try{var d=(L.getItem('14t_aff')||'').split('|');return d
 .fb-ch{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 4px}.fb-ch span{font-size:12.5px;padding:9px 13px;border:1px solid #2c2c31;border-radius:20px;color:#F4F1EA;cursor:pointer}.fb-ch span.on{border-color:#E8C766;color:#E8C766;background:rgba(232,199,102,.1)}
 .fb-mo{display:flex;gap:8px;margin:8px 0}.fb-mo span{flex:1;text-align:center;font-size:26px;padding:10px;border:1px solid #2c2c31;border-radius:12px;cursor:pointer}.fb-mo span.on{border-color:#E8C766;background:rgba(232,199,102,.1)}
 #st-space{padding-bottom:64px}
+.st-backb{position:fixed;left:14px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:95;background:#E8C766;color:#111;border-radius:22px;padding:10px 16px;font-size:12.5px;font-weight:700;cursor:pointer;display:none;box-shadow:0 4px 14px rgba(0,0,0,.5)}
 .st-sos{position:fixed;right:14px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:90;background:#1b1b1f;border:1px solid #E8C766;color:#E8C766;border-radius:22px;padding:8px 12px;font-size:11.5px;font-weight:700;cursor:pointer;display:none;box-shadow:0 4px 14px rgba(0,0,0,.5)}
 .st-sheet{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center}.st-sheet>div{width:100%;max-width:480px;background:#121214;border-top:1px solid #26262a;border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto}
 .st-sec{margin-top:26px}
@@ -5754,8 +5755,15 @@ checkRenewalV2();
   window.stGo = function (w) {
     if (w === 'journal') { stPill('journal'); return; }
     if (w === 'live') { location.href = '/scalping-room.html'; return; }
-    if (typeof switchTab === 'function') switchTab(w);
+    stBackOn = true; if (typeof switchTab === 'function') switchTab(w); stBackShow();
   };
+  var stBackOn = false;
+  function stBackShow() {
+    var b = el('st-back');
+    if (!stBackOn) { if (b) b.style.display = 'none'; return; }
+    if (!b) { b = document.createElement('div'); b.id = 'st-back'; b.className = 'st-backb'; b.textContent = '← Retour à l\'Academy'; b.onclick = function () { stBackOn = false; b.style.display = 'none'; switchTab('formation'); if (typeof fmSeg === 'function') fmSeg('acad'); stPill('today'); }; document.body.appendChild(b); }
+    b.style.display = 'block';
+  }
   function cdText(ms) {
     if (ms <= 0) return '00:00:00';
     var s = Math.floor(ms / 1000), d = Math.floor(s / 86400); s -= d * 86400;
@@ -5897,6 +5905,8 @@ checkRenewalV2();
     if (lot < 0.01) { o.innerHTML = '<b style="font-size:20px">< 0.01 lot</b><div>Stop trop large pour ce capital : réduis le stop ou augmente le risque.</div>'; return; }
     o.innerHTML = '<div>Taille de position</div><b>' + lot.toFixed(2) + ' lot</b><div>Tu risques ' + money(lot * s * 100) + ' $ (' + money(lot * s * 100 / c * 100) + ' %) si le stop est touché</div>';
   };
+  var MOODS = [['calm', 'Calme'], ['rush', 'Pressé'], ['tired', 'Fatigué'], ['stress', 'Stressé']], jmood = '';
+  function nowLocal() { var d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 16); }
   var ERRS = [['early', 'Entré trop tôt'], ['nostop', 'Sans stop'], ['outside', 'Hors fenêtre'], ['revenge', 'Vengeance'], ['fear', 'Peur'], ['other', 'Autre']], jerr = '';
   function errLabel(k) { var r = ERRS.filter(function (x) { return x[0] === k; })[0]; return r ? r[1] : ''; }
   function curveSvg(c) {
@@ -5905,34 +5915,53 @@ checkRenewalV2();
     var X = function (i) { return pad + i * (W - 2 * pad) / (c.length - 1); }, Y = function (v) { return H - pad - (v - lo) / (hi - lo) * (H - 2 * pad); };
     return '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:90px;margin-top:8px"><line x1="0" x2="' + W + '" y1="' + Y(0) + '" y2="' + Y(0) + '" stroke="rgba(255,255,255,.12)" stroke-dasharray="3 3"/><polyline fill="none" stroke="#E8C766" stroke-width="2.5" points="' + c.map(function (x, i) { return X(i) + ',' + Y(x.cum); }).join(' ') + '"/>' + c.map(function (x, i) { return '<circle cx="' + X(i) + '" cy="' + Y(x.cum) + '" r="4" fill="' + (x.ok ? '#3EE0A0' : '#FF6B6B') + '"/>'; }).join('') + '</svg><div class="st-sub" style="font-size:10.5px">Ta courbe en R sur 30 jours. 🟢 jour discipliné (routine faite) · 🔴 jour hors routine.</div>';
   }
+  function locOf(h) { var b = Math.floor(Date.now() / 3600000) * 3600000; for (var i = 0; i >= -24; i--) { if (nyH(b + i * 3600000) === h) return tm(b + i * 3600000); } return ''; }
+  function winTxt(w) { return 'clôture ' + w + 'h NY (' + locOf(+w) + ' chez toi)'; }
+  function tile(v, l, c) { return '<div style="flex:1;text-align:center;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 2px"><b style="display:block;font-size:15px;color:' + (c || '#F4F1EA') + '">' + v + '</b><small style="font-size:9.5px;color:#8E8A80">' + l + '</small></div>'; }
+  function rfmt(v) { return v == null ? '—' : (v > 0 ? '+' : '') + v + ' R'; }
+  function advCard(j) {
+    var a = j.adv || {}, w = (j.windows || []).filter(function (x) { return x.win !== 'out' && x.n >= 1; }), h = '<div class="st-card"><div class="st-k">MES CHIFFRES · 30 JOURS</div><div style="display:flex;gap:8px;margin-top:10px">' + tile(a.planPct == null ? '—' : a.planPct + ' %', 'Plan respecté', a.planPct == null ? '' : a.planPct >= 70 ? '#3EE0A0' : '#FF9F0A') + tile(rfmt(a.avgWin), 'Gain moyen', '#3EE0A0') + tile(rfmt(a.avgLoss), 'Perte moyenne', '#FF6B6B') + tile(a.drawdown ? '-' + a.drawdown + ' R' : '—', 'Baisse max') + '</div>';
+    if (w.length) { var best = w[0], worst = w[w.length - 1]; h += '<div class="st-sub" style="margin-top:10px">Meilleure fenêtre : <b style="color:#3EE0A0">' + winTxt(best.win) + '</b> · ' + rfmt(best.r) + ' sur ' + best.n + ' trade' + (best.n > 1 ? 's' : '') + '</div>'; if (w.length > 1 && worst.r < 0) h += '<div class="st-sub">Pire fenêtre : <b style="color:#FF6B6B">' + winTxt(worst.win) + '</b> · ' + rfmt(worst.r) + ' sur ' + worst.n + '</div>'; }
+    var o = (j.windows || []).filter(function (x) { return x.win === 'out'; })[0]; if (o) h += '<div class="st-sub">Hors fenêtre : ' + o.n + ' trade' + (o.n > 1 ? 's' : '') + ' · ' + rfmt(o.r) + '</div>';
+    if (a.judged) h += '<div class="st-sub" style="margin-top:8px;font-size:10.5px">Plan respecté = dans la fenêtre, avec un stop, dans la direction et le risque de ton plan du jour. C\'est calculé tout seul.</div>';
+    return h + '</div>';
+  }
+  function weekCard(j) {
+    var w = j.week; if (!w || !w.n) return '';
+    var d = new Date().getUTCDay(), end = d === 0 || d === 6;
+    return '<div class="st-card gold"><div class="st-k">' + (end ? 'REVUE DE TA SEMAINE' : 'MA SEMAINE EN COURS') + '</div><div style="font-size:13px;line-height:1.65;margin-top:8px;color:#dcd6c7">' + w.n + ' trade' + (w.n > 1 ? 's' : '') + ' · ' + w.wins + ' gagnant' + (w.wins > 1 ? 's' : '') + ' · ' + rfmt(w.r) + '.' + (w.planPct != null ? '<br>Dans le plan : <b style="color:#E8C766">' + w.planPct + ' %</b>.' : '') + (w.topErr ? '<br>Ton erreur n°1 : <b style="color:#E8C766">' + esc(w.topErr) + '</b>.' : '') + (w.bestWin != null ? '<br>Meilleure fenêtre : <b style="color:#3EE0A0">' + winTxt(w.bestWin) + '</b>.' : '') + '</div></div>';
+  }
   function tJournal() {
     var j = sp.journal, s = j.stats;
     var h = '<div class="st-stats"><div><b>' + s.n + '</b><span>trades</span></div><div><b>' + s.winRate + '%</b><span>gagnants</span></div><div><b>' + (s.r > 0 ? '+' : '') + s.r + '</b><span>total en R</span></div><div><b>' + s.streak + '</b><span>gains de suite</span></div></div>';
+    h = weekCard(j) + h + advCard(j);
     h += '<div class="st-card"><div class="st-k">MA PROGRESSION · 30 JOURS</div>' + curveSvg(j.curve) + '</div>';
     var er = j.errors || [], mx = Math.max.apply(null, [1].concat(er.map(function (x) { return x.n; })));
     h += '<div class="st-card"><div class="st-k">MES ERREURS · 30 JOURS</div>' + (er.length ? er.map(function (x) { return '<div class="fw-row" style="border:0;padding:6px 0"><span style="width:110px">' + esc(x.label) + '</span><div style="height:6px;border-radius:3px;background:#E8C766;width:' + Math.round(x.n / mx * 100) + 'px"></div><b style="width:auto;margin-left:6px">' + x.n + '</b></div>'; }).join('') + '<div class="st-sub" style="margin-top:8px;font-size:11px">Ton erreur n°1 : <b style="color:#E8C766">' + esc(er[0].label) + '</b>. C\'est celle à corriger en premier.</div>' : '<div class="st-sub" style="padding:8px 0">Après un trade perdant, dis pourquoi. Au bout de quelques trades, tu vois ton erreur n°1.</div>') + (j.lossNoTag ? '<div class="st-sub" style="margin-top:6px;font-size:11px;color:#FF9F0A">' + j.lossNoTag + ' trade' + (j.lossNoTag > 1 ? 's' : '') + ' perdant' + (j.lossNoTag > 1 ? 's' : '') + ' sans raison : touche « Pourquoi ? » ci-dessous.</div>' : '') + '</div>';
     h += '<div class="st-card"><div class="st-k">NOUVEAU TRADE</div><div class="st-seg"><button class="b ' + (jdir === 'BUY' ? 'on' : '') + '" onclick="stDir(\'BUY\')">ACHAT</button><button class="s ' + (jdir === 'SELL' ? 'on' : '') + '" onclick="stDir(\'SELL\')">VENTE</button></div>' +
       '<div class="st-g2"><div><div class="st-lbl">Entrée</div><input class="st-in" id="jr-e" type="number" inputmode="decimal" step="0.01"></div><div><div class="st-lbl">Stop</div><input class="st-in" id="jr-s" type="number" inputmode="decimal" step="0.01"></div><div><div class="st-lbl">Sortie</div><input class="st-in" id="jr-x" type="number" inputmode="decimal" step="0.01"></div></div>' +
       '<input class="st-in" id="jr-l" type="number" inputmode="decimal" step="0.01" placeholder="Lot (optionnel)"><input class="st-in" id="jr-n" maxlength="200" placeholder="Note : pourquoi j\'ai pris ce trade ? (optionnel)">' +
-      '<div class="st-lbl" style="margin-top:10px">Si le trade est perdant : pourquoi ? (facultatif)</div>' + chips(ERRS, jerr, 'stJE') + '<div class="st-err" id="jr-err"></div><button class="st-btn" onclick="stTrade()">Enregistrer le trade<span>＋</span></button></div>';
+      '<div class="st-lbl" style="margin-top:10px">Quand ? (par défaut : maintenant, heure de ton pays)</div><input class="st-in" id="jr-t" type="datetime-local" value="' + nowLocal() + '"><div class="st-lbl" style="margin-top:10px">Mon état avant d\'entrer (facultatif)</div>' + chips(MOODS, jmood, 'stJM') + '<div class="st-lbl" style="margin-top:10px">Si le trade est perdant : pourquoi ? (facultatif)</div>' + chips(ERRS, jerr, 'stJE') + '<div class="st-err" id="jr-err"></div><button class="st-btn" onclick="stTrade()">Enregistrer le trade<span>＋</span></button></div>';
     h += '<div class="st-card" style="padding:6px 16px"><div class="st-k" style="margin-top:10px">MES TRADES</div>' + (j.trades.length ? j.trades.map(function (t) {
+      var wl = t.win ? (t.win === 'out' ? 'hors fenêtre' : 'clôture ' + t.win + 'h NY' + (t.at != null ? ' (' + tm(Math.floor(t.at / 3600000) * 3600000) + ')' : '')) : '', pb = t.plan_ok === true ? ' · <span style="color:#3EE0A0">plan respecté ✓</span>' : t.plan_ok === false ? ' · <span style="color:#FF9F0A">plan non respecté : ' + esc(t.plan_why || '') + '</span>' : '';
       var why = t.pts < 0 ? (t.err ? ' · <span style="color:#FF9F0A">' + esc(errLabel(t.err)) + '</span>' : ' · <u style="color:#FF9F0A;cursor:pointer" onclick="stErr(' + t.id + ')">Pourquoi ?</u>') : '';
-      return '<div class="st-tr"><div>' + (t.dir === 'BUY' ? 'Achat' : 'Vente') + ' · ' + t.entry + ' → ' + t.exit + '<small>' + t.d.slice(8) + '/' + t.d.slice(5, 7) + (t.r != null ? ' · ' + (t.r > 0 ? '+' : '') + t.r + ' R' : '') + why + (t.note ? ' · ' + esc(t.note) : '') + '</small></div><div><span class="p ' + (t.pts > 0 ? 'w' : 'l') + '">' + (t.pts > 0 ? '+' : '') + t.pts + '</span><i onclick="stDel(' + t.id + ')">✕</i></div></div>';
+      return '<div class="st-tr"><div>' + (t.dir === 'BUY' ? 'Achat' : 'Vente') + ' · ' + t.entry + ' → ' + t.exit + '<small>' + t.d.slice(8) + '/' + t.d.slice(5, 7) + (t.r != null ? ' · ' + (t.r > 0 ? '+' : '') + t.r + ' R' : '') + (wl ? ' · ' + wl : '') + pb + why + (t.note ? ' · ' + esc(t.note) : '') + '</small></div><div><span class="p ' + (t.pts > 0 ? 'w' : 'l') + '">' + (t.pts > 0 ? '+' : '') + t.pts + '</span><i onclick="stDel(' + t.id + ')">✕</i></div></div>';
     }).join('') : '<div class="st-sub" style="padding:14px 0">Aucun trade pour l\'instant. Note chaque trade : c\'est comme ça qu\'on progresse.</div>') + '</div>';
     return h;
   }
-  window.stJE = function (k) { var keep = ['jr-e', 'jr-s', 'jr-x', 'jr-l', 'jr-n'].map(function (i) { return el(i).value; }); jerr = (jerr === k ? '' : k); stRender(); ['jr-e', 'jr-s', 'jr-x', 'jr-l', 'jr-n'].forEach(function (i, q) { el(i).value = keep[q]; }); };
+  window.stJE = function (k) { var keep = ['jr-e', 'jr-s', 'jr-x', 'jr-l', 'jr-n', 'jr-t'].map(function (i) { return el(i).value; }); jerr = (jerr === k ? '' : k); stRender(); ['jr-e', 'jr-s', 'jr-x', 'jr-l', 'jr-n', 'jr-t'].forEach(function (i, q) { el(i).value = keep[q]; }); };
+  window.stJM = function (k) { var keep = ['jr-e', 'jr-s', 'jr-x', 'jr-l', 'jr-n', 'jr-t'].map(function (i) { return el(i).value; }); jmood = (jmood === k ? '' : k); stRender(); ['jr-e', 'jr-s', 'jr-x', 'jr-l', 'jr-n', 'jr-t'].forEach(function (i, q) { el(i).value = keep[q]; }); };
   window.stErr = function (id) {
     var o = document.createElement('div'); o.className = 'st-sheet'; o.id = 'st-sheet'; o.onclick = function (e) { if (e.target === o) o.remove(); };
     o.innerHTML = '<div><div class="st-k">TRADE PERDANT</div><div style="font-size:15px;font-weight:700;margin:6px 0 4px">Pourquoi ce trade a perdu ?</div><div class="fb-ch">' + ERRS.map(function (x) { return '<span onclick="stErrSet(' + id + ',\'' + x[0] + '\')">' + x[1] + '</span>'; }).join('') + '</div></div>';
     document.body.appendChild(o);
   };
   window.stErrSet = function (id, k) { post('/api/academy/trade-err', { token: tok(), id: id, err: k }).then(function (d) { var s = el('st-sheet'); if (s) s.remove(); if (d && d.ok) { sp.journal = d.journal; stRender(); } }); };
-  window.stDir = function (d) { jdir = d; var keep = ['jr-e', 'jr-s', 'jr-x', 'jr-l', 'jr-n'].map(function (i) { return el(i).value; }); stRender(); ['jr-e', 'jr-s', 'jr-x', 'jr-l', 'jr-n'].forEach(function (i, k) { el(i).value = keep[k]; }); };
+  window.stDir = function (d) { jdir = d; var keep = ['jr-e', 'jr-s', 'jr-x', 'jr-l', 'jr-n', 'jr-t'].map(function (i) { return el(i).value; }); stRender(); ['jr-e', 'jr-s', 'jr-x', 'jr-l', 'jr-n', 'jr-t'].forEach(function (i, k) { el(i).value = keep[k]; }); };
   window.stTrade = function () {
     var err = el('jr-err'); err.style.display = 'none';
-    post('/api/academy/trade', { token: tok(), dir: jdir, entry: el('jr-e').value, sl: el('jr-s').value, exit: el('jr-x').value, lot: el('jr-l').value, note: el('jr-n').value, err: jerr }).then(function (d) {
-      if (d && d.ok) { sp.journal = d.journal; sp.routine = d.routine; jerr = ''; stRender(); } else { err.textContent = (d && d.error) || 'Erreur, réessaie'; err.style.display = 'block'; }
+    post('/api/academy/trade', { token: tok(), dir: jdir, entry: el('jr-e').value, sl: el('jr-s').value, exit: el('jr-x').value, lot: el('jr-l').value, note: el('jr-n').value, err: jerr, mood: jmood, at: el('jr-t').value ? new Date(el('jr-t').value).getTime() : '' }).then(function (d) {
+      if (d && d.ok) { sp.journal = d.journal; sp.routine = d.routine; jerr = ''; jmood = ''; stRender(); } else { err.textContent = (d && d.error) || 'Erreur, réessaie'; err.style.display = 'block'; }
     });
   };
   window.stDel = function (id) { post('/api/academy/trade-del', { token: tok(), id: id }).then(function (d) { if (d && d.ok) { sp.journal = d.journal; stRender(); } }); };
@@ -6132,7 +6161,7 @@ checkRenewalV2();
     if (tok()) { acOut(); return; }
     acForm('login');
   };
-  function acOut() { try { localStorage.removeItem('14t_acad'); } catch (e) {} acSync(); me = null; loadMe(); }
+  function acOut() { try { localStorage.removeItem('14t_acad'); } catch (e) {} stBackOn = false; acSync(); me = null; loadMe(); }
   window.acOut = acOut;
   function acForm(mode, note) {
     var old = mode === 'old', req = mode === 'req' || old;
@@ -6186,7 +6215,7 @@ checkRenewalV2();
     timer = setInterval(function () { if (!document.hidden && me && me.enrolled) loadMe(); }, 30000);
   }
   var _st = window.switchTab;
-  if (typeof _st === 'function') window.switchTab = function (n) { var r = _st.apply(this, arguments); if (n === 'formation') loadMe(); return r; };
+  if (typeof _st === 'function') window.switchTab = function (n) { var r = _st.apply(this, arguments); if (n === 'formation') { loadMe(); stBackOn = false; } stBackShow(); return r; };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
 </script>
