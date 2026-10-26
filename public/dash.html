@@ -1,0 +1,52 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Maquette tableau de bord</title>
+<style>
+body{margin:0;background:#0b0b0d;color:#F4F1EA;font-family:system-ui,sans-serif;padding:16px}
+.ph{max-width:390px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.c{background:#121214;border:1px solid #26262a;border-radius:16px;padding:14px 16px}
+.g{border-color:rgba(232,199,102,.35);background:linear-gradient(160deg,#1a1710,#121214)}
+.k{font-size:10px;letter-spacing:.14em;color:#8E8A80;font-weight:700}.gold{color:#E8C766}
+.sub{font-size:12px;color:#8E8A80;line-height:1.5}
+.sig{display:flex;gap:12px;align-items:center}.dot{width:46px;height:46px;border-radius:50%;background:#3EE0A0;box-shadow:0 0 22px rgba(62,224,160,.5);flex:none}
+.big{font-size:18px;font-weight:700}
+.rule{display:flex;gap:8px;font-size:12px;margin-top:8px;color:#C9C5B8}.rule i{font-style:normal}
+.lv{display:flex;gap:8px;margin-top:10px}.lv div{flex:1;text-align:center;border:1px solid #2c2c31;border-radius:10px;padding:8px;font-size:13px;font-weight:700}
+.chk{display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid #1f1f23;font-size:13px}.box{width:20px;height:20px;border-radius:6px;border:1.5px solid #3a3a40;text-align:center;font-size:12px;line-height:20px}.on{background:#3EE0A0;border-color:#3EE0A0;color:#111}
+.st{display:flex;gap:8px;margin-top:10px}.st div{flex:1;border:1px solid #26262a;border-radius:12px;padding:10px 6px;text-align:center}.st b{display:block;font-size:19px}.st small{font-size:10px;color:#8E8A80}
+.row{display:flex;align-items:center;gap:8px;font-size:12.5px;margin-top:8px}.bar{height:6px;border-radius:3px;background:#E8C766}
+.btn{margin-top:12px;text-align:center;background:#E8C766;color:#111;font-weight:700;border-radius:12px;padding:12px;font-size:14px}
+.tag{font-size:11.5px;padding:7px 11px;border:1px solid #2c2c31;border-radius:18px;display:inline-block;margin:6px 6px 0 0}
+svg{width:100%;height:90px;margin-top:8px}
+h2{max-width:390px;margin:18px auto 8px;font-size:11px;letter-spacing:.14em;color:#E8C766}
+</style></head><body>
+<div class="ph">
+<div class="c g"><div class="k">AUJOURD'HUI · LUNDI</div>
+<div class="sig" style="margin-top:10px"><div class="dot"></div><div><div class="big">Tu peux trader</div><div class="sub">Routine faite · 0 perte · risque utilisé 0 / 20 $</div></div></div>
+<div class="rule"><i>🟠</i> Passe à l'orange après 1 perte · <i>🔴</i> Stop après 2 pertes de suite</div></div>
+
+<div class="c"><div class="k">MON PLAN DU JOUR</div>
+<div class="lv"><div>2648<br><small class="sub">support</small></div><div>2655<br><small class="sub">pivot</small></div><div>2662<br><small class="sub">résistance</small></div></div>
+<div class="sub" style="margin-top:10px">Risque max du jour : <b style="color:#F4F1EA">20 $</b> · Direction : <b style="color:#3EE0A0">achat sur 2648</b></div>
+<div class="sub" style="margin-top:6px">🎯 Mon seul point aujourd'hui : <b class="gold">attendre mon niveau</b></div></div>
+
+<div class="c"><div class="k">CHECKLIST AVANT D'ENTRER</div>
+<div class="chk"><div class="box on">✓</div>Le niveau est touché</div>
+<div class="chk"><div class="box on">✓</div>Mon stop est placé</div>
+<div class="chk"><div class="box on">✓</div>Mon lot est calculé</div>
+<div class="chk"><div class="box"></div>Je suis dans ma session (Londres 7h30–10h)</div>
+<div class="btn" style="background:#2a2a2e;color:#8E8A80">Entrer · il manque 1 case</div></div>
+
+<div class="c"><div class="k">MES CHIFFRES · 30 JOURS</div>
+<div class="st"><div><b style="color:#3EE0A0">46 %</b><small>Réussite</small></div><div><b class="gold">1.8 R</b><small>R moyen</small></div><div><b>82 %</b><small>Respect du plan</small></div></div>
+<div class="row"><span style="width:110px">Meilleure heure</span><b class="gold">8h – 9h</b></div>
+<div class="row"><span style="width:110px">Pire heure</span><b style="color:#FF6B6B">20h – 21h</b></div></div>
+
+<div class="c"><div class="k">MES ERREURS · CLASSÉES</div>
+<div class="row"><span style="width:120px">Entré trop tôt</span><div class="bar" style="width:100px"></div><b>7</b></div>
+<div class="row"><span style="width:120px">Hors session</span><div class="bar" style="width:50px"></div><b>3</b></div>
+<div class="row"><span style="width:120px">Sans stop</span><div class="bar" style="width:20px"></div><b>1</b></div>
+<div class="sub" style="margin-top:10px">Après un trade perdant : <br><span class="tag">Entré trop tôt</span><span class="tag">Sans stop</span><span class="tag">Vengeance</span><span class="tag">Peur</span><span class="tag">Hors plan</span></div></div>
+
+<div class="c"><div class="k">MA PROGRESSION · 🔥 6 JOURS DISCIPLINÉS</div>
+<svg viewBox="0 0 300 90"><polyline points="0,70 30,66 60,72 90,50 120,54 150,38 180,42 210,26 240,30 300,14" fill="none" stroke="#E8C766" stroke-width="2.5"/><g fill="#3EE0A0"><circle cx="90" cy="50" r="4"/><circle cx="150" cy="38" r="4"/><circle cx="210" cy="26" r="4"/><circle cx="300" cy="14" r="4"/></g><g fill="#FF6B6B"><circle cx="60" cy="72" r="4"/><circle cx="120" cy="54" r="4"/></g></svg>
+<div class="sub">🟢 jour discipliné · 🔴 jour hors plan. Les jours disciplinés sont ceux qui montent.</div></div>
+</div></body></html>
