@@ -1,0 +1,35 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Maquette fenêtre de trading</title>
+<style>
+body{margin:0;background:#0b0b0d;color:#F4F1EA;font-family:system-ui,sans-serif;padding:16px}
+.ph{max-width:390px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.c{background:#121214;border:1px solid #26262a;border-radius:16px;padding:14px 16px}
+.g{border-color:rgba(232,199,102,.35);background:linear-gradient(160deg,#1a1710,#121214)}
+.k{font-size:10px;letter-spacing:.14em;color:#8E8A80;font-weight:700}.gold{color:#E8C766}.sub{font-size:12px;color:#8E8A80;line-height:1.5}
+.big{font-size:22px;font-weight:700;margin:6px 0 2px}
+.chk{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid #1f1f23;font-size:13px}.box{width:18px;height:18px;border-radius:5px;border:1.5px solid #3a3a40}
+.two{display:flex;gap:8px;margin-top:10px}.two div{flex:1;text-align:center;border-radius:12px;padding:11px;font-size:13px;font-weight:700}
+.y{background:#E8C766;color:#111}.n{border:1px solid #2c2c31}
+.t{display:flex;align-items:center;padding:9px 0;border-top:1px solid #1f1f23;font-size:13px}.t b{width:62px}.t span{flex:1;color:#8E8A80;font-size:11.5px}.t em{font-style:normal;font-weight:700}
+.now{background:rgba(232,199,102,.08);border-radius:8px;padding-left:6px;margin:0 -6px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#3EE0A0;margin-right:6px}
+</style></head><body><div class="ph">
+<div class="c g"><div class="k"><span class="dot"></span>FENÊTRE DE TRADING · CLÔTURE H1</div>
+<div class="big">Prépare-toi · clôture dans 12 min</div>
+<div class="sub">Clôture 3h New York = <b id="loc">07h00</b> chez toi</div>
+<div style="margin-top:10px"><div class="chk"><div class="box"></div>Où est le prix sur la H1 ?</div><div class="chk"><div class="box"></div>Sur un support ou une résistance ?</div><div class="chk"><div class="box"></div>Ma direction : achat ou vente</div></div>
+<div class="two"><div class="n">Non, j'attends</div><div class="y">Oui, sur mon niveau</div></div></div>
+
+<div class="c"><div class="k">LES 5 CLÔTURES · HEURE DE NEW YORK, PUIS CHEZ TOI</div>
+<div id="rows"></div>
+<div class="sub" style="margin-top:10px">Les heures chez toi suivent toutes seules le changement d'heure américain (1ᵉʳ novembre).</div></div>
+</div>
+<script>
+const NY=[18,0,3,7,12];const lab=['Ouverture Asie','Minuit','Londres','Pré-New York','Midi'];
+function loc(h,mo,d){// local hour of NY h:00 on given date, using the browser timezone
+ const base=Date.UTC(2026,mo,d,h);for(let off=-6;off<=6;off++){const t=new Date(base+off*3600000);
+  const ny=+new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'numeric',hour12:false}).format(t)%24;
+  const day=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',day:'numeric'}).format(t);
+  if(ny===h&&+day===d)return new Intl.DateTimeFormat('fr-FR',{hour:'2-digit',minute:'2-digit'}).format(t).replace(':','h');}return '—';}
+document.getElementById('rows').innerHTML=NY.map((h,i)=>`<div class="t ${i==2?'now':''}"><b>${String(h).padStart(2,'0')}h</b><span>${lab[i]}</span><em class="gold">${loc(h,9,26)}</em><span style="flex:none;width:92px;text-align:right">dès le 1ᵉʳ nov : ${loc(h,10,2)}</span></div>`).join('');
+document.getElementById('loc').textContent=loc(3,9,26);
+</script></body></html>
