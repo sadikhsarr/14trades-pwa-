@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>14 Trades — Live Room</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;600;700;800&family=Playfair+Display:wght@400;500&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#0A0A0A;--bg2:#111;--bg3:#1A1A1A;--border:#2A2A2A;
@@ -46,38 +46,79 @@ input{width:100%;background:#050505;border:1.5px solid var(--border);border-radi
 input:focus{border-color:var(--gold)}
 .footer{text-align:center;font-size:10px;color:var(--muted);line-height:1.6;margin-top:8px}
 .footer a{color:var(--gold)}
+
+.lp-top{display:flex;justify-content:space-between;align-items:center;padding:20px 0 6px}
+.lp-top .back{position:static}
+.lp-pill{display:inline-flex;gap:8px;align-items:center;border:1px solid #C9A84C55;border-radius:99px;padding:7px 13px;font-size:12px;color:#E8CF7E;margin-top:18px}.lp-pill i{width:7px;height:7px;border-radius:50%;background:#ff5a5a;box-shadow:0 0 10px #ff5a5a}
+.lp-h1{font-family:'Playfair Display',Georgia,serif;font-weight:500;font-size:38px;line-height:1.1;color:#F4EFE4;margin-top:24px}.lp-h1 em{color:var(--gold);font-style:italic}
+.lp-lead{font-size:16px;line-height:1.6;color:#cfc9ba;margin-top:16px}
+.lp-btn{display:block;text-align:center;margin-top:22px;padding:15px;border-radius:99px;background:var(--gold);color:#0a0a0a;font-weight:700;font-size:15px;text-decoration:none}
+.lp-ghost{display:block;text-align:center;margin-top:14px;font-size:13px;color:var(--gold);text-decoration:none}
+.lp-k{font-size:10.5px;letter-spacing:.16em;color:var(--gold);font-weight:700;margin:44px 0 12px}
+.lp-h2{font-family:'Playfair Display',Georgia,serif;font-weight:500;font-size:28px;line-height:1.15;color:#F4EFE4}
+.lp-sk{display:grid;gap:10px;margin-top:18px}.lp-sk>div{border:1px solid #232323;border-radius:18px;background:#0e0e0e;padding:16px}.lp-sk b{display:block;font-family:'Playfair Display',Georgia,serif;font-size:20px;font-weight:500;color:#F4EFE4}.lp-sk span{display:block;font-size:13.5px;color:#9a9486;margin-top:5px;line-height:1.55}.lp-sk small{font-size:10px;letter-spacing:.14em;color:var(--gold);font-weight:700}
+.lp-sess{margin-top:18px;border:1px solid #C9A84C55;border-radius:20px;background:linear-gradient(170deg,#1a150a,#0c0c0c 70%);padding:6px 16px}
+.lp-st{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #241f12}.lp-st:last-child{border:0}.lp-st i{flex:none;width:26px;height:26px;border-radius:50%;background:var(--gold);color:#111;font-style:normal;font-weight:800;font-size:12px;display:grid;place-items:center}.lp-st b{display:block;color:#F4EFE4;font-size:14.5px}.lp-st span{font-size:12.5px;color:#9a9486;line-height:1.5}
+.lp-in{list-style:none;margin-top:14px}.lp-in li{padding:11px 0;border-bottom:1px solid #1d1d1d;font-size:15px;color:#E8E3D6}.lp-in li:before{content:"✓";color:#6FE3A0;margin-right:10px;font-weight:700}.lp-in li small{display:block;font-size:12.5px;color:#9a9486;margin:3px 0 0 24px}
+.lp-cmp{margin-top:18px;border:1px dashed #3a3a3a;border-radius:16px;padding:14px;font-size:13px;color:#cfc9ba;line-height:1.55}.lp-cmp b{color:#F4EFE4}
+.lp-pr{margin-top:28px;border:1px solid #C9A84C77;border-radius:24px;background:linear-gradient(170deg,#1a150a,#0c0c0c 70%);padding:24px}
+.lp-big{font-family:'Space Mono',monospace;font-size:46px;color:var(--gold2);font-weight:700;line-height:1}.lp-per{font-size:13px;color:#9a9486;margin-top:6px}
+.lp-fit{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}.lp-fit>div{border:1px solid #232323;border-radius:16px;padding:14px;font-size:12.5px;line-height:1.6;color:#cfc9ba;background:#0e0e0e}.lp-fit b{display:block;color:#F4EFE4;font-size:13.5px;margin-bottom:6px}
+.lp-risk{font-size:11px;color:#6b675e;line-height:1.55;margin-top:14px;text-align:center}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <div class="header">
-    <a class="back" href="/" aria-label="Retour à l'app"><span class="chev">‹</span> App</a>
-    <div class="header-logo">14⚡</div>
-    <div class="header-sub">Live Room</div>
-    <div style="font-size:11px;color:#8A8A8A;margin-top:8px">Trading en direct + éducation avec Sadikh</div>
-    <div style="font-size:9px;color:#555;margin-top:3px">anciennement Scalping Room</div>
+  <div class="lp-top"><a class="back" href="/" aria-label="Retour à l'app"><span class="chev">‹</span> App</a><span class="header-logo" style="font-size:22px;margin:0">14⚡</span><span style="width:60px"></span></div>
+
+  <div class="lp-pill"><i></i>Sessions en direct · lun–ven · 15h–18h Dakar</div>
+  <h1 class="lp-h1">Apprends à lire le marché <em>en direct</em>, pas après.</h1>
+  <p class="lp-lead">Chaque session, je lis l'or devant toi. Tu votes avant moi, je te corrige, et tu comprends pourquoi. À la fin, tu sais faire seul.</p>
+  <a class="lp-btn" href="#join">Rejoindre la Live Room · 200 $/mois</a>
+  <a class="lp-ghost" href="/scalping-room.html">Déjà abonné ? Se connecter →</a>
+
+  <p class="lp-k">DEUX COMPÉTENCES, UNE SEULE ROOM</p>
+  <h2 class="lp-h2">Lire, puis exécuter.</h2>
+  <div class="lp-sk">
+    <div><small>1 · LIRE</small><b>Où est le prix, et pourquoi</b><span>Zones, support, résistance, ce qui annule la lecture. Tu vois comment j'identifie le setup.</span></div>
+    <div><small>2 · EXÉCUTER</small><b>Le bon moment, le bon timing</b><span>Attendre le retour dans la zone, placer le stop, gérer la sortie. En direct, pas en théorie.</span></div>
+    <div><small>3 · TE CORRIGER</small><b>Tu votes avant moi</b><span>Tu donnes ton avis avant le résultat. Je corrige en direct. Ton score de lecture progresse.</span></div>
   </div>
 
-  <a href="/scalping-room.html" style="display:block;width:100%;text-align:center;font-size:11px;color:var(--gold);text-decoration:none;margin-bottom:16px;padding:10px;border:1px solid #C9A84C25;border-radius:10px">Déjà abonné ? Se connecter →</a>
-
-  <div class="amount-hero">
-    <div class="amount-usd">$200</div>
-    <div class="amount-period">par mois</div>
-    <div class="amount-window">⏱️ Sessions en direct — 15h à 18h, heure de Dakar</div>
+  <p class="lp-k">UNE SESSION</p>
+  <h2 class="lp-h2">Ce qui se passe en direct.</h2>
+  <div class="lp-sess">
+    <div class="lp-st"><i>1</i><div><b>Le plan de la session</b><span>On pose le décor : zones, scénario, ce qui annule.</span></div></div>
+    <div class="lp-st"><i>2</i><div><b>Tu votes avant moi</b><span>Le prix atteint le niveau, ou il casse ? Tu réponds d'abord.</span></div></div>
+    <div class="lp-st"><i>3</i><div><b>Je lis et j'exécute</b><span>Tu vois mes décisions et mes raisons, en temps réel.</span></div></div>
+    <div class="lp-st"><i>4</i><div><b>Le bilan</b><span>Ce qui a marché, ce qui a coûté, ce que tu retiens.</span></div></div>
   </div>
 
-  <div class="value-banner">
-    <div class="vb-kicker">Live Room · 14 Trades</div>
-    <div class="vb-title">Deux compétences.<br>Une seule room.</div>
-    <div class="vb-body"><strong>Lire</strong> le marché est une compétence.
-<strong>Exécuter</strong> — le bon moment, le bon timing — en est une autre.</div>
-    <div class="vb-divider"></div>
-    <div class="vb-body">Ici, tu vois les deux en direct : comment j'identifie le setup, et comment je l'exécute.
+  <p class="lp-k">CE QUE TU REÇOIS</p>
+  <h2 class="lp-h2">Tout ce qu'il y a dans la room.</h2>
+  <ul class="lp-in">
+    <li>Les signaux aussi<small>Entrée, stop et objectifs, comme les membres Signal.</small></li>
+    <li>Le plan de la semaine<small>Zone, stop et objectifs, avec le prix en direct sur une échelle.</small></li>
+    <li>La lecture du cycle<small>Niveau, prochain niveau, et ce qui annule la lecture.</small></li>
+    <li>Ton score de lecture<small>Ta série, tes bonnes lectures, le classement.</small></li>
+    <li>Le chat de la room<small>Tu poses ta question, je réponds en séance.</small></li>
+  </ul>
+  <div class="lp-cmp"><b>Signal seul : 100 $/mois.</b> Tu reçois les signaux, sans la partie apprentissage en direct. La Live Room les inclut.</div>
 
-Pas de devinettes. Juste du timing.</div>
-    <div class="vb-signature">— Sadikh</div>
+  <div class="lp-pr">
+    <p style="font-size:10.5px;letter-spacing:.16em;color:var(--gold);font-weight:700;margin-bottom:12px">L'OFFRE</p>
+    <div class="lp-big">200 $</div>
+    <div class="lp-per">par mois · sessions lun–ven, 15h à 18h (Dakar)</div>
+    <a class="lp-btn" href="#join" style="margin-top:20px">Je rejoins la Live Room</a>
   </div>
+
+  <div class="lp-fit">
+    <div><b>C'est pour toi si</b>tu veux comprendre le marché, pas copier. Tu peux suivre une session en direct.</div>
+    <div><b>Ce n'est pas pour toi si</b>tu cherches un gain rapide ou une promesse de résultat. Il n'y en a pas.</div>
+  </div>
+
+  <p class="lp-k" id="join">REJOINDRE</p>
 
   <div class="card">
     <div class="card-hdr"><div class="card-title">Ton email</div></div>
