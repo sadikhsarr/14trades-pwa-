@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>14 Trades — Ton avis</title>
+<meta name="robots" content="noindex">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Playfair+Display:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#C9A84C;--bg:#080808}
+html,body{min-height:100vh;background:var(--bg);color:#E8E3D6;font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body{display:flex;justify-content:center;position:relative;overflow-x:hidden}
+body:before{content:'';position:absolute;left:50%;top:-140px;width:560px;height:440px;transform:translateX(-50%);background:radial-gradient(ellipse at center,#C9A84C33,transparent 65%);pointer-events:none}
+.wrap{position:relative;width:100%;max-width:420px;padding:26px 18px 40px}
+.lg{text-align:center;font-family:ui-monospace,monospace;color:#FFD76A;font-weight:700;font-size:26px}
+.k{font-size:10.5px;letter-spacing:.16em;color:var(--gold);font-weight:700;margin-top:24px}
+h1{font-family:'Playfair Display',Georgia,serif;font-weight:500;font-size:32px;line-height:1.12;color:#F4EFE4;margin-top:10px}h1 em{color:var(--gold)}
+.s{font-size:14.5px;line-height:1.6;color:#9a9486;margin-top:10px}
+.card{position:relative;margin-top:20px;border:1px solid #C9A84C44;border-radius:22px;background:linear-gradient(170deg,#16120a,#0c0c0c 70%);padding:18px}
+.card:before{content:'';position:absolute;top:0;left:20%;right:20%;height:1.5px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+label{display:block;font-size:10px;letter-spacing:.16em;color:var(--gold);font-weight:700}
+input,textarea{width:100%;margin:7px 0 14px;border:1px solid #2a2a2a;border-radius:13px;padding:13px;font-size:15px;color:#F0F2F8;background:#050505;outline:none;font-family:inherit}
+input:focus,textarea:focus{border-color:var(--gold)}textarea{height:96px;resize:none;line-height:1.5}
+.stars{display:flex;gap:6px;margin:6px 0 14px}.stars button{background:none;border:0;font-size:36px;line-height:1;color:var(--gold);opacity:.28;cursor:pointer;padding:2px 4px}.stars button.on{opacity:1}
+.ck{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:#cfc9ba;line-height:1.5;margin:2px 0 16px}.ck input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:var(--gold)}
+.btn{display:block;width:100%;border:0;padding:15px;border-radius:99px;background:linear-gradient(135deg,#C9A84C,#FFD76A);color:#0a0a0a;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit;box-shadow:0 8px 28px #C9A84C33}
+.btn:disabled{opacity:.6}
+.err{color:#FF6B6B;font-size:12.5px;text-align:center;min-height:18px;margin-top:10px}
+.n{font-size:11px;color:#6b675e;text-align:center;margin-top:14px;line-height:1.6}
+.ok{display:none;text-align:center;padding:30px 10px}.ok b{display:block;font-family:'Playfair Display',Georgia,serif;font-weight:500;font-size:28px;color:#F4EFE4}.ok p{font-size:14.5px;color:#9a9486;margin-top:10px;line-height:1.6}.ok a{display:inline-block;margin-top:18px;color:var(--gold);font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="lg">14⚡</div>
+  <div id="form-box">
+    <p class="k">TON AVIS COMPTE</p>
+    <h1>Ton avis, <em>en 1 minute.</em></h1>
+    <p class="s">Dis honnêtement ce que la Live Room ou le Signal t'a apporté. Ça aide les prochains à choisir.</p>
+    <div class="card">
+      <label for="a-email">TON EMAIL</label>
+      <input id="a-email" type="email" placeholder="ton@email.com" autocomplete="email" autocapitalize="off">
+      <label for="a-code">TON CODE D'ACCÈS</label>
+      <input id="a-code" type="text" placeholder="XXXX-XXXX" autocomplete="off" autocapitalize="characters" style="text-transform:uppercase;letter-spacing:.12em">
+      <label>TA NOTE</label>
+      <div class="stars" id="stars" role="radiogroup" aria-label="Note de 1 à 5"></div>
+      <label for="a-name">TON PRÉNOM (POUR L'AFFICHAGE)</label>
+      <input id="a-name" type="text" placeholder="Ex : Awa" maxlength="20" autocomplete="given-name">
+      <label for="a-text">TA PHRASE (FACULTATIF)</label>
+      <textarea id="a-text" maxlength="300" placeholder="Ce qui a changé pour toi…"></textarea>
+      <label class="ck"><input id="a-ok" type="checkbox"><span>Tu peux afficher ma phrase sur la page publique, avec mon prénom seulement.</span></label>
+      <button class="btn" id="a-btn" onclick="send()">Envoyer mon avis</button>
+      <div class="err" id="a-err"></div>
+    </div>
+    <p class="n">Ton code sert seulement à vérifier que tu es membre. Aucun avis n'est inventé ni modifié.</p>
+  </div>
+  <div class="ok" id="ok-box"><b id="ok-t">Merci.</b><p id="ok-p">Je lis chaque avis.</p><a href="/">Retour à l'app →</a></div>
+</div>
+<script>
+var SERVER = 'https://14trades-server-production.up.railway.app', rating = 0;
+(function () {
+  var box = document.getElementById('stars');
+  for (var i = 1; i <= 5; i++) (function (n) {
+    var b = document.createElement('button'); b.type = 'button'; b.textContent = '★'; b.setAttribute('aria-label', n + ' sur 5'); b.onclick = function () { rating = n; [].forEach.call(box.children, function (x, k) { x.classList.toggle('on', k < n); }); };
+    box.appendChild(b);
+  })(i);
+  try { var q = new URLSearchParams(location.search), c = (q.get('c') || '').toUpperCase().replace(/[^A-Z0-9-]/g, ''); if (c) document.getElementById('a-code').value = c; } catch (e) {}
+})();
+function send() {
+  var err = document.getElementById('a-err'), btn = document.getElementById('a-btn');
+  var email = document.getElementById('a-email').value.trim(), code = document.getElementById('a-code').value.trim().toUpperCase();
+  if (!email || email.indexOf('@') < 1) { err.textContent = 'Entre ton email.'; return; }
+  if (!code) { err.textContent = 'Entre ton code d\'accès.'; return; }
+  if (!rating) { err.textContent = 'Choisis une note de 1 à 5.'; return; }
+  err.textContent = ''; btn.disabled = true; btn.textContent = 'Envoi…';
+  fetch(SERVER + '/api/review/link', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, code: code, rating: rating, name: document.getElementById('a-name').value.trim(), text: document.getElementById('a-text').value, consent: document.getElementById('a-ok').checked }) })
+    .then(function (r) { return r.json(); }).then(function (d) {
+      btn.disabled = false; btn.textContent = 'Envoyer mon avis';
+      if (d && d.ok) {
+        document.getElementById('form-box').style.display = 'none'; var ok = document.getElementById('ok-box'); ok.style.display = 'block';
+        if (d.already) { document.getElementById('ok-t').textContent = 'Déjà reçu.'; document.getElementById('ok-p').textContent = 'J\'ai déjà ton avis. Merci encore.'; }
+        else { document.getElementById('ok-t').textContent = 'Merci.'; document.getElementById('ok-p').textContent = 'Je lis chaque avis. Ta phrase ne s\'affiche que si tu as donné ton accord, et après que je l\'aie validée.'; }
+        window.scrollTo(0, 0);
+      } else err.textContent = (d && d.error) || 'Erreur, réessaie.';
+    }).catch(function () { btn.disabled = false; btn.textContent = 'Envoyer mon avis'; err.textContent = 'Erreur réseau, réessaie.'; });
+}
+</script>
+</body>
+</html>
