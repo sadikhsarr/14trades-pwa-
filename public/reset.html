@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Réinitialisation — 14 Trades</title>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      background:#080808; color:#F0F2F8; font-family:system-ui,sans-serif;
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      padding:20px; text-align:center;
+    }
+    .box { max-width:340px; }
+    .icon { font-size:40px; margin-bottom:16px; }
+    h1 { font-size:18px; margin-bottom:10px; }
+    p { font-size:13px; color:#888; line-height:1.6; margin-bottom:20px; }
+    #status { font-size:12px; color:#C9A84C; margin-bottom:20px; min-height:20px; }
+    a, button {
+      display:inline-block; background:linear-gradient(135deg,#C9A84C,#FFD700); color:#000;
+      border:none; border-radius:12px; padding:14px 28px; font-size:14px; font-weight:800;
+      text-decoration:none; cursor:pointer; font-family:inherit;
+    }
+    .done { background:#00C87A !important; color:#000 !important; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="icon">🔄</div>
+    <h1>Réinitialisation en cours</h1>
+    <p>Cette page supprime toute ancienne version mise en cache sur ton téléphone, puis t'envoie vers l'admin propre et à jour.</p>
+    <div id="status">Nettoyage en cours…</div>
+    <a id="goBtn" href="/admin.html" style="display:none">Ouvrir Admin →</a>
+  </div>
+
+  <script>
+    async function resetEverything() {
+      const statusEl = document.getElementById('status');
+      const btn = document.getElementById('goBtn');
+
+      try {
+        // Unregister every service worker controlling this origin
+        if ('serviceWorker' in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          for (const reg of regs) await reg.unregister();
+        }
+
+        // Delete every cache bucket
+        if ('caches' in window) {
+          const keys = await caches.keys();
+          for (const key of keys) await caches.delete(key);
+        }
+
+        statusEl.textContent = '✅ Terminé — appuie sur le bouton ci-dessous';
+        statusEl.style.color = '#00C87A';
+        btn.style.display = 'inline-block';
+        btn.classList.add('done');
+        btn.textContent = 'Ouvrir Admin →';
+      } catch(e) {
+        statusEl.textContent = 'Erreur : ' + (e?.message || String(e));
+        statusEl.style.color = '#FF3B4E';
+        btn.style.display = 'inline-block';
+        btn.textContent = 'Essayer quand même →';
+      }
+    }
+
+    resetEverything();
+  </script>
+</body>
+</html>
