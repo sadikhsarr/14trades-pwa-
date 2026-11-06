@@ -1,0 +1,15 @@
+{
+  "name": "14trades-alert-pwa",
+  "version": "1.0.0",
+  "description": "14 Trades Alert — PWA for Gold, Nasdaq, BTC signals",
+  "scripts": {
+    "dev":   "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "web-push": "^3.6.6"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  }
+}
