@@ -1,0 +1,14 @@
+{
+  "rewrites": [
+    { "source": "/srv/:path*", "destination": "https://14trades-server-production.up.railway.app/:path*" },
+    { "source": "/(.*)", "destination": "/public/$1" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    }
+  ]
+}
