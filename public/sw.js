@@ -1,7 +1,7 @@
 // 14 Trades Alert — Service Worker
 // Handles: push notifications, background sync, offline cache
 
-const CACHE   = '14trades-v499';
+const CACHE   = '14trades-v501';
 const ASSETS  = ['/', '/index.html', '/style.css', '/manifest.json'];
 
 // ─── Install: cache core assets ───────────────────────────────────
@@ -24,6 +24,7 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
+  if (url.pathname.startsWith('/srv/')) return;   // l'API passe toujours par le réseau (jamais en cache)
   // Always fetch JS, HTML and CSS fresh — never serve stale code or styling
   if (url.pathname.endsWith('.js') || url.pathname.endsWith('.html') || url.pathname.endsWith('.css') || url.pathname === '/') {
     e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
