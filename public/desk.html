@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<script>/* Railway bloqué sur certains réseaux (incident du 4 nov.) : si le serveur ne répond pas en direct, on repasse par Vercel (/srv), qui lui parle à Railway. */
+(function(){var H='https://14trades-server-production.up.railway.app',P='/srv',F=window.fetch;
+if(!F||!/(^|\.)(vercel\.app|14trade\.com)$|^localhost$/.test(location.hostname))return;
+var KEY='14t_px';function on(){try{return Date.now()-Number(localStorage.getItem(KEY)||0)<1800000}catch(e){return false}}
+function flag(){try{localStorage.setItem(KEY,String(Date.now()))}catch(e){}}
+function viaP(u,o,alt){return F.call(window,typeof u==='string'?alt:new Request(alt,u),o)}
+window.fetch=function(u,o){var s=typeof u==='string'?u:(u&&u.url)||'';if(s.indexOf(H)!==0)return F.apply(this,arguments);
+var alt=P+s.slice(H.length),get=!(o&&o.method&&o.method.toUpperCase()!=='GET')&&!(typeof u!=='string'&&u.method&&u.method!=='GET');
+if(on())return viaP(u,o,alt).catch(function(e){return F.apply(window,[u,o])});
+var c=null,t=null,o2=o;if(get&&window.AbortController&&!(o&&o.signal)){c=new AbortController();o2=Object.assign({},o||{},{signal:c.signal});t=setTimeout(function(){c.abort()},6000)}
+return F.call(window,u,o2).then(function(r){clearTimeout(t);return r},function(e){clearTimeout(t);flag();return viaP(u,o,alt)})}})();
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08080b">
+<meta name="robots" content="noindex">
+<title>Le Desk — 14 Trades Académie</title>
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<style>
+:root{--bg:#08080b;--card:rgba(255,255,255,.035);--line:rgba(201,168,76,.16);--gold:#C9A84C;--gold2:#E8D28A;--tx:#EDE9DF;--mut:#8b877c;--up:#4ADE80;--dn:#F26B5E}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif;min-height:100vh}
+body{background:radial-gradient(120% 60% at 50% -10%,rgba(201,168,76,.10),transparent 60%),var(--bg)}
+.serif{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-weight:500;letter-spacing:.2px}
+.wrap{max-width:480px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 20px 110px}
+.top{display:flex;justify-content:space-between;align-items:center}
+.brand{font-size:11px;letter-spacing:3px;color:var(--gold);font-weight:700}
+.ico{background:none;border:1px solid var(--line);color:var(--mut);border-radius:50%;width:34px;height:34px;font-size:15px;cursor:pointer;margin-left:8px}
+.ico.on{color:var(--gold);border-color:var(--gold)}
+h1{font-size:30px;line-height:1.15;margin-top:22px}
+.sub{font-size:13px;color:var(--mut);line-height:1.6;margin-top:6px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px;margin-top:16px;backdrop-filter:blur(6px)}
+.lbl{font-size:11px;color:var(--mut);letter-spacing:.4px}
+.cap{font-size:10px;letter-spacing:2.2px;color:var(--gold);font-weight:700;text-transform:uppercase}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.num{font-variant-numeric:tabular-nums}
+.pos{color:var(--up)}.neg{color:var(--dn)}.mut{color:var(--mut)}
+button{font-family:inherit;cursor:pointer}
+.cta{width:100%;background:linear-gradient(180deg,#D8B95A,#B8932F);color:#1a1405;border:0;border-radius:16px;padding:16px;font-size:15px;font-weight:700;margin-top:18px;letter-spacing:.3px}
+.cta:disabled{opacity:.4}
+.ghost{background:none;border:0;color:var(--mut);font-size:13px;padding:10px 0}
+.big-opt{width:100%;text-align:left;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;color:var(--tx);padding:16px 18px;font-size:15px;font-weight:600;margin-top:10px;display:flex;justify-content:space-between;align-items:center}
+.big-opt small{font-weight:400;color:var(--mut);font-size:12px}
+.big-opt.on{border-color:var(--gold);background:rgba(201,168,76,.08)}
+.dir{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.dir button{padding:26px 0;border-radius:18px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);font-size:20px;font-weight:700;letter-spacing:1px;color:var(--tx)}
+.dir .b.on{border-color:var(--up);color:var(--up);background:rgba(74,222,128,.07)}
+.dir .s.on{border-color:var(--dn);color:var(--dn);background:rgba(242,107,94,.07)}
+input,textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;color:var(--tx);padding:14px;font-size:14px;font-family:inherit;margin-top:10px}
+textarea{min-height:84px;resize:none}
+input:focus,textarea:focus{outline:none;border-color:var(--gold)}
+.err{color:var(--dn);font-size:12px;margin-top:10px;min-height:14px}
+.dots{display:flex;gap:6px;justify-content:center;margin-bottom:14px}
+.dots i{width:22px;height:3px;border-radius:2px;background:rgba(255,255,255,.12)}.dots i.on{background:var(--gold)}
+.tl{display:flex;align-items:flex-start;justify-content:space-between;position:relative;margin-top:22px}
+.tl:before{content:"";position:absolute;left:12%;right:12%;top:19px;height:1px;background:var(--line)}
+.node{position:relative;width:33.3%;text-align:center}
+.g{width:38px;height:38px;border-radius:50%;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;background:var(--bg);border:1px solid rgba(255,255,255,.14);color:var(--mut)}
+.g.tp{border-color:var(--up);color:var(--up)}.g.sl{border-color:var(--dn);color:var(--dn)}.g.none{color:var(--mut)}.g.missed{border-color:var(--dn);color:var(--dn);border-style:dashed}
+.g.open{border-color:var(--gold);color:var(--gold);animation:pl 2s infinite}
+.g.wait{border-color:var(--gold);color:var(--gold)}
+@keyframes pl{0%{box-shadow:0 0 0 0 rgba(201,168,76,.5)}70%{box-shadow:0 0 0 12px rgba(201,168,76,0)}100%{box-shadow:0 0 0 0 rgba(201,168,76,0)}}
+.node .t{font-size:12px;margin-top:8px;font-weight:600}.node .w{font-size:11px;color:var(--mut);margin-top:2px}
+.ring{position:relative;width:132px;height:132px;margin:4px auto 0}
+.ring svg{transform:rotate(-90deg)}
+.ring .in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .tm{font-size:26px;font-weight:600}
+.wk{display:grid;grid-template-columns:44px 1fr 46px;align-items:center;gap:10px;padding:14px 0;border-top:1px solid rgba(255,255,255,.06)}
+.wk:first-child{border-top:0}
+.wk .gs{display:flex;gap:8px}.wk .g{width:28px;height:28px;font-size:12px;margin:0}
+.seg{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:12px}.seg i{height:4px;border-radius:2px;background:rgba(255,255,255,.1)}.seg i.on{background:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.stats .big{font-size:24px;margin-top:4px}
+.ins{border-radius:18px;padding:16px;margin-top:12px;border:1px solid var(--line);background:var(--card)}
+.ins.good{border-color:rgba(74,222,128,.3)}.ins.fix{border-color:rgba(242,107,94,.3)}
+.ins b{font-weight:600;font-size:15px;display:block;margin-top:4px}
+.ins p{font-size:13px;color:#cfcabd;line-height:1.6;margin-top:6px}
+.ins .do{color:var(--gold2)}
+details summary{cursor:pointer;list-style:none;color:var(--mut);font-size:13px;padding:10px 0}details summary::-webkit-details-marker{display:none}
+.hrow{border-top:1px solid rgba(255,255,255,.06);padding:12px 0;font-size:13px;line-height:1.55}.hrow:first-child{border-top:0}
+.small{font-size:11px;color:var(--mut);line-height:1.6}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;color:#cfcabd;padding:9px 14px;font-size:13px}
+.chip.on{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.08)}
+.tabs{position:fixed;left:0;right:0;bottom:0;background:rgba(8,8,11,.88);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:10px 0 max(12px,env(safe-area-inset-bottom));z-index:5}
+.tabs div{max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr)}
+.tabs button{background:none;border:0;color:var(--mut);font-size:12px;padding:6px;letter-spacing:.5px}
+.tabs button b{display:block;font-size:17px;margin-bottom:3px;font-weight:400}
+.tabs button.on{color:var(--gold)}
+.fade{animation:fd .35s ease}@keyframes fd{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div id="login" style="display:none">
+  <div class="brand" style="margin-top:30px">14 TRADES · ACADÉMIE</div>
+  <h1 class="serif" style="font-size:36px">Le Desk</h1>
+  <p class="sub">Ta pratique quotidienne. Connecte-toi avec ton accès Académie.</p>
+  <div class="card">
+    <input id="em" type="email" placeholder="Email" autocomplete="username" style="margin-top:0">
+    <input id="pw" type="password" placeholder="Mot de passe" autocomplete="current-password">
+    <div class="err" id="lerr"></div>
+    <button class="cta" style="margin-top:6px" onclick="doLogin()">Entrer</button>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <div class="top"><div class="brand">14 TRADES · DESK</div><div><button class="ico" id="bell" onclick="enablePush()" title="Rappels">🔔</button><button class="ico" onclick="logout()" title="Sortir">⏻</button></div></div>
+
+  <section id="v-today" class="fade"></section>
+  <section id="v-week" style="display:none"></section>
+  <section id="v-report" style="display:none"></section>
+
+  <p class="small" style="margin-top:30px;text-align:center">Exercice de pratique. Ce n'est ni un conseil d'investissement ni une promesse de gains.</p>
+</div>
+</div>
+
+<nav class="tabs" id="tabs" style="display:none"><div>
+  <button id="t-today" class="on" onclick="tab('today')"><b>◉</b>Aujourd'hui</button>
+  <button id="t-week" onclick="tab('week')"><b>▦</b>Semaine</button>
+  <button id="t-report" onclick="tab('report')"><b>◈</b>Bilan</button>
+</div></nav>
+
+<script>
+var API = 'https://14trades-server-production.up.railway.app';
+var S = null, R = null, skew = 0, curTab = 'today', step = 0, F = { pos: '', dir: '', why: '' }, formKey = '', answering = false, nsl = '', justAnswered = null;
+var NAMES = { '20': '20h', '00': '00h', '05': '05h' };
+var REASONS = { bounce: 'Rebond sur le support', reject: 'Rejet de la résistance', brk: 'Cassure de zone', trend: 'Je suis la tendance', mid: 'Milieu de zone, je joue le retour', other: 'Autre' };
+var POSN = { S: 'près du support', R: 'près de la résistance', M: 'entre les deux zones' };
+function $(i) { return document.getElementById(i); }
+function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function pad(n) { return String(n).padStart(2, '0'); }
+function sg(n) { return (n > 0 ? '+' : '') + n; }
+function tok() { try { return localStorage.getItem('desk_token') || ''; } catch (e) { return ''; } }
+function setTok(t) { try { if (t) localStorage.setItem('desk_token', t); else localStorage.removeItem('desk_token'); } catch (e) {} }
+function api(path, body) {
+  var o = { headers: { 'Content-Type': 'application/json', 'x-desk-token': tok() } };
+  if (body) { o.method = 'POST'; o.body = JSON.stringify(body); }
+  return fetch(API + path, o).then(function (r) { if (r.status === 401) { logout(); throw new Error('auth'); } return r.json(); });
+}
+function logout() { setTok(''); S = null; R = null; $('app').style.display = 'none'; $('tabs').style.display = 'none'; $('login').style.display = 'block'; }
+function doLogin() {
+  $('lerr').textContent = '';
+  fetch(API + '/api/desk/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: $('em').value, password: $('pw').value }) })
+    .then(function (r) { return r.json(); }).then(function (d) {
+      if (!d.ok) { $('lerr').textContent = d.error || 'Connexion impossible.'; return; }
+      setTok(d.token); $('login').style.display = 'none'; load();
+    }).catch(function () { $('lerr').textContent = 'Serveur injoignable. Réessaie.'; });
+}
+function load() {
+  if (!tok()) { $('login').style.display = 'block'; return; }
+  api('/api/desk/state').then(function (d) { if (!d.ok) return; S = d; skew = d.now - Date.now(); $('login').style.display = 'none'; $('app').style.display = 'block'; $('tabs').style.display = 'block'; render(); loadReport(); }).catch(function () {});
+}
+function loadReport() { api('/api/desk/report').then(function (d) { if (d.ok) { R = d; if (curTab === 'report' && !(document.activeElement && document.activeElement.id === 'ntext')) renderReport(); } }).catch(function () {}); }
+function tab(t) {
+  curTab = t; ['today', 'week', 'report'].forEach(function (x) { $('v-' + x).style.display = x === t ? 'block' : 'none'; $('t-' + x).className = x === t ? 'on' : ''; });
+  $('v-' + t).className = 'fade'; if (t === 'report') renderReport(); window.scrollTo(0, 0);
+}
+function mmss(ms) { var s = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60); return (h ? pad(h) + ':' : '') + pad(m) + ':' + pad(s % 60); }
+function hm(ms) { var d = new Date(ms); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+var DAYS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'], MON = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+function dayLong(b) { var d = new Date(b + 'T12:00:00Z'); return DAYS[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + MON[d.getUTCMonth()]; }
+function dayShort(b) { var d = new Date(b + 'T12:00:00Z'); return DAYS[d.getUTCDay()].slice(0, 3) + '. ' + pad(d.getUTCDate()) + '/' + pad(d.getUTCMonth() + 1); }
+function glyph(s) {
+  var c = 'g', t = '';
+  if (s.state === 'graded' && s.answer) { c += ' ' + s.answer.result; t = s.answer.result === 'tp' ? '✓' : s.answer.result === 'sl' ? '✕' : '–'; }
+  else if (s.state === 'missed') { c += ' missed'; t = '!'; }
+  else if (s.state === 'open') { c += ' open'; t = '●'; }
+  else if (s.state === 'waiting') { c += ' wait'; t = '…'; }
+  else t = '○';
+  return '<div class="' + c + '">' + t + '</div>';
+}
+function focusWeek() { var f = S.current || S.next, w = null; S.week.forEach(function (d) { if (f && d.block === f.block) w = d; }); return w || S.week[0]; }
+
+function render() { if (!S) return; renderToday(); renderWeek(); if (curTab === 'report') renderReport(); tick(); }
+function isForm(cur, mine) { return cur && !mine && !(justAnswered && justAnswered.key === cur.block + cur.slot); }
+function renderToday() {
+  var wk = focusWeek(), cur = S.current, mine = null, h = '';
+  if (cur) wk.slots.forEach(function (s) { if (s.slot === cur.slot && s.answer) mine = s.answer; });
+  h += '<div class="cap" style="margin-top:26px">' + (S.name ? 'Bonjour ' + esc(S.name) : 'Bonjour') + '</div>';
+  h += '<h1 class="serif" style="margin-top:6px">' + esc(dayLong(wk.block)) + '</h1>';
+  h += '<div class="sub">Heure de New York · ' + S.weekValid + ' jour' + (S.weekValid > 1 ? 's' : '') + ' validé' + (S.weekValid > 1 ? 's' : '') + ' cette semaine</div>';
+  h += '<div class="tl">' + wk.slots.map(function (s) {
+    var sc = s.answer && s.answer.score !== null && s.answer.score !== undefined ? sg(s.answer.score) : (s.state === 'missed' ? '-1' : '');
+    return '<div class="node">' + glyph(s) + '<div class="t">' + NAMES[s.slot] + '</div><div class="w ' + (sc && sc.charAt(0) === '+' ? 'pos' : sc === '0' ? '' : sc ? 'neg' : '') + '">' + (sc || '&nbsp;') + '</div></div>';
+  }).join('') + '</div>';
+  if (isForm(cur, mine)) h += openCard(cur); else if (cur) h += doneCard(cur, mine); else h += nextCard();
+  var last = S.hist[0];
+  if (last) h += '<div class="card"><div class="cap">Dernier résultat</div>' + histBody(last) + '</div>';
+  var keepForm = $('form') && formKey === (cur ? cur.block + cur.slot : '') && isForm(cur, mine) && document.activeElement && (document.activeElement.id === 'rtx' || document.activeElement.id === 'ent' || document.activeElement.id === 'slp');
+  if (keepForm) return;
+  $('v-today').innerHTML = h;
+  if (isForm(cur, mine)) drawStep();
+}
+function ringHtml(label) {
+  return '<div class="ring"><svg width="132" height="132"><circle cx="66" cy="66" r="58" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="3"/><circle id="arc" cx="66" cy="66" r="58" fill="none" stroke="#C9A84C" stroke-width="3" stroke-linecap="round" stroke-dasharray="364.4" stroke-dashoffset="0"/></svg><div class="in"><div class="tm serif num" id="tm">--:--</div><div class="lbl">' + label + '</div></div></div>';
+}
+function openCard(cur) {
+  var cfg = S.cfg[cur.slot];
+  return '<div class="card" id="form" style="margin-top:22px"></div><div class="row" style="margin-top:14px;padding:0 4px"><span class="small">Session ' + NAMES[cur.slot] + ' · mouvement habituel ' + cfg.range[0] + ' à ' + cfg.range[1] + ' pts</span><span class="serif num" style="color:var(--gold2);font-size:18px" id="tm">--:--</span></div>';
+}
+function doneCard(cur, mine) {
+  var j = justAnswered && justAnswered.key === cur.block + cur.slot ? justAnswered.d : null, dir = mine ? mine.direction : (j ? j.dir : '');
+  var h = '<div class="card" style="text-align:center"><div class="cap">Réponse enregistrée</div><div class="serif" style="font-size:34px;margin-top:10px;color:' + (dir === 'BUY' ? 'var(--up)' : 'var(--dn)') + '">' + esc(dir) + '</div>';
+  if (j) h += '<div class="sub num">Entrée ' + j.entry + ' · stop ' + j.sl + ' · objectif ' + j.tp + '</div>';
+  h += ringHtml('avant le résultat') + '<div class="sub" style="margin-top:10px">Le résultat est calculé à la fin de la fenêtre.</div></div>';
+  if (j && j.explain) h += '<div class="card"><div class="cap">Ce que voit le système</div>' + j.explain.map(function (t) { return '<p class="sub" style="color:#cfcabd">' + esc(t) + '</p>'; }).join('') + '</div>';
+  return h;
+}
+function nextCard() {
+  var nx = S.next; if (!nx) return '<div class="card"><div class="sub">Pas de session à venir.</div></div>';
+  return '<div class="card" style="text-align:center"><div class="cap">Prochaine session</div><div class="serif" style="font-size:38px;margin-top:10px">' + NAMES[nx.slot] + '</div><div class="sub">' + esc(dayLong(nx.block)) + ' · ouvre à ' + hm(nx.start) + ' chez toi</div><div class="serif num" id="tm" style="font-size:30px;margin-top:14px;color:var(--gold2)">--:--</div><div class="lbl">avant l\'ouverture</div></div>';
+}
+function drawStep() {
+  var cur = S.current; if (!cur) return; var key = cur.block + cur.slot; if (formKey !== key) { formKey = key; step = 0; F = { pos: '', dir: '', why: '' }; }
+  var box = $('form'); if (!box) return; var cfg = S.cfg[cur.slot], h = '<div class="dots">' + [0, 1, 2, 3].map(function (i) { return '<i class="' + (i <= step ? 'on' : '') + '"></i>'; }).join('') + '</div>';
+  if (step === 0) {
+    h += '<div class="serif" style="font-size:22px">Où est le prix ?</div><div class="sub">Sur ta bougie de 1 h.</div>' + [['S', 'Support', 'Près de la zone basse'], ['R', 'Résistance', 'Près de la zone haute'], ['M', 'Entre les deux', 'Pas de repère net']].map(function (o) { return '<button class="big-opt' + (F.pos === o[0] ? ' on' : '') + '" onclick="setF(\'pos\',\'' + o[0] + '\')"><span>' + o[1] + '<br><small>' + o[2] + '</small></span><span class="mut">›</span></button>'; }).join('');
+  } else if (step === 1) {
+    h += '<div class="serif" style="font-size:22px">Ta décision</div><div class="sub">Le prix est ' + POSN[F.pos] + '.</div><div class="dir"><button class="b' + (F.dir === 'BUY' ? ' on' : '') + '" onclick="setF(\'dir\',\'BUY\')">BUY</button><button class="s' + (F.dir === 'SELL' ? ' on' : '') + '" onclick="setF(\'dir\',\'SELL\')">SELL</button></div><button class="ghost" onclick="back()">‹ Retour</button>';
+  } else if (step === 2) {
+    h += '<div class="serif" style="font-size:22px">Pourquoi ?</div><div class="sub">Une raison, pour apprendre de chaque trade.</div><div class="chips">' + Object.keys(REASONS).map(function (k) { return '<button class="chip' + (F.why === k ? ' on' : '') + '" onclick="setF(\'why\',\'' + k + '\')">' + REASONS[k] + '</button>'; }).join('') + '</div><input id="rtx" maxlength="160" placeholder="En une phrase (facultatif)" value="' + esc(F.txt || '') + '">';
+    if (F.why) h += '<button class="cta" style="margin-top:14px" onclick="F.txt=$(\'rtx\').value;step=3;drawStep()">Continuer</button>';
+    h += '<button class="ghost" onclick="back()">‹ Retour</button>';
+  } else {
+    h += '<div class="serif" style="font-size:22px">Confirmer</div><div class="row" style="margin-top:14px"><span class="mut">Position</span><b>' + POSN[F.pos] + '</b></div><div class="row" style="margin-top:8px"><span class="mut">Décision</span><b class="' + (F.dir === 'BUY' ? 'pos' : 'neg') + '">' + F.dir + '</b></div><div class="row" style="margin-top:8px"><span class="mut">Raison</span><b>' + REASONS[F.why] + '</b></div>' +
+      '<details><summary>Ajuster mon prix et mon stop ›</summary><input id="ent" type="number" step="0.01" placeholder="Mon prix d\'entrée (vide : prix du marché)"><input id="slp" type="number" step="1" placeholder="Mon stop en points (max ' + cfg.sl + ', vide : ' + cfg.sl + ')"></details>' +
+      '<div class="small">Stop maximum ' + cfg.sl + ' points · objectif ' + cfg.tp + ' points.</div><div class="err" id="aerr"></div><button class="cta" id="go" style="margin-top:6px" onclick="submitAns()">Valider ma réponse</button><button class="ghost" onclick="back()">‹ Retour</button>';
+  }
+  box.innerHTML = h;
+}
+function setF(k, v) { F[k] = v; if (k === 'pos') step = 1; else if (k === 'dir') step = 2; drawStep(); }
+function back() { step = Math.max(0, step - 1); drawStep(); }
+function submitAns() {
+  if (answering) return; answering = true; $('go').disabled = true; $('aerr').textContent = '';
+  var cur = S.current, key = cur.block + cur.slot;
+  api('/api/desk/answer', { position: F.pos, direction: F.dir, reason: F.why, reasonTxt: F.txt || '', entry: ($('ent') || {}).value, slPts: ($('slp') || {}).value }).then(function (d) {
+    answering = false;
+    if (!d.ok) { $('go').disabled = false; $('aerr').textContent = d.error || 'Erreur.'; return; }
+    justAnswered = { key: key, d: { dir: F.dir, entry: d.entry, sl: d.sl, tp: d.tp, explain: d.explain } }; load();
+  }).catch(function () { answering = false; if ($('go')) $('go').disabled = false; if ($('aerr')) $('aerr').textContent = 'Serveur injoignable. Réessaie.'; });
+}
+
+function renderWeek() {
+  var t = S.totals || { valid: 0, days: 0, score: 0, missed: 0 }, h = '<div class="cap" style="margin-top:26px">Semaine</div><h1 class="serif" style="margin-top:6px">' + S.weekValid + ' sur 5 jours validés</h1>';
+  h += '<div class="seg">' + [0, 1, 2, 3, 4].map(function (i) { return '<i class="' + (i < S.weekValid ? 'on' : '') + '"></i>'; }).join('') + '</div>';
+  h += '<div class="sub">' + (S.unlocked ? 'Semaine parfaite : le module suivant est débloqué.' : 'Cinq jours validés sur cinq débloquent le module suivant.') + '</div>';
+  h += '<div class="card">' + S.week.map(function (d) {
+    var sc = d.score === null ? '' : sg(d.score);
+    return '<div class="wk"><div><div style="font-weight:600;font-size:14px">' + d.label + '</div><div class="small">' + d.block.slice(8) + '/' + d.block.slice(5, 7) + '</div></div><div class="gs">' + d.slots.map(glyph).join('') + '</div><div class="num" style="text-align:right;font-weight:700;color:' + (d.valid === true ? 'var(--up)' : d.valid === false ? 'var(--dn)' : 'var(--mut)') + '">' + (sc || '·') + '</div></div>';
+  }).join('') + '<div class="small" style="margin-top:8px">✓ objectif · ✕ stop · – sans résultat · ! manquée</div></div>';
+  h += '<div class="card"><div class="stats" style="margin-top:0"><div><div class="lbl">Jours validés</div><div class="big serif num">' + t.valid + '/' + t.days + '</div></div><div><div class="lbl">Score</div><div class="big serif num">' + sg(t.score) + '</div></div><div><div class="lbl">Manquées</div><div class="big serif num">' + t.missed + '</div></div></div>' +
+    (S.best ? '<div class="sub" style="margin-top:14px">Meilleure session : ' + esc(dayShort(S.best.block)) + ' ' + NAMES[S.best.slot] + ', ' + S.best.direction + ', jusqu\'à +' + S.best.mfe + ' points en ta faveur.</div>' : '') + '</div>';
+  $('v-week').innerHTML = h;
+}
+
+function histBody(x) {
+  var res = x.result === 'tp' ? 'Objectif atteint' : x.result === 'sl' ? 'Stop touché' : 'Ni objectif ni stop';
+  var ctx = x.systemPos ? 'Le système voyait le prix ' + POSN[x.systemPos] + '. ' + (x.coherent ? 'Ta lecture était juste.' : 'Ta lecture était différente.') : '';
+  return '<div class="row" style="margin-top:8px"><div class="serif" style="font-size:19px">' + esc(dayShort(x.block)) + ' · ' + NAMES[x.slot] + ' · ' + x.direction + '</div><b class="serif num ' + (x.score > 0 ? 'pos' : x.score < 0 ? 'neg' : 'mut') + '" style="font-size:22px">' + sg(x.score) + '</b></div>' +
+    '<div class="sub" style="color:#cfcabd">' + res + '. Entrée ' + x.entry + ', stop ' + x.sl + ', objectif ' + x.tp + '.</div>' +
+    '<div class="small">Au mieux +' + (x.mfe || 0) + ' pts en ta faveur, au pire -' + (x.mae || 0) + '. Plus haut ' + (x.hi !== null ? x.hi : '?') + ', plus bas ' + (x.lo !== null ? x.lo : '?') + '. ' + esc(ctx) + '</div>';
+}
+function renderReport() {
+  var h = '<div class="cap" style="margin-top:26px">Bilan</div><h1 class="serif" style="margin-top:6px">Ce qui marche, ce qui bloque</h1><div class="sub">Calculé sur tes 4 dernières semaines.</div>';
+  if (!R) { $('v-report').innerHTML = h + '<div class="card"><div class="sub">Chargement…</div></div>'; return; }
+  h += '<div class="card"><div class="stats" style="margin-top:0">' + ['20', '00', '05'].map(function (k) { var x = R.slots[k], v = x.tp - x.sl - x.missed; return '<div><div class="lbl">Session ' + NAMES[k] + '</div><div class="big serif num ' + (v > 0 ? 'pos' : v < 0 ? 'neg' : 'mut') + '">' + sg(v) + '</div><div class="small">' + x.tp + ' ✓ · ' + x.sl + ' ✕ · ' + x.missed + ' !</div></div>'; }).join('') + '</div></div>';
+  var good = R.insights.filter(function (i) { return i.kind === 'good'; }), fix = R.insights.filter(function (i) { return i.kind === 'fix'; });
+  function ins(i) { return '<div class="ins ' + i.kind + '"><div class="cap" style="color:' + (i.kind === 'good' ? 'var(--up)' : 'var(--dn)') + '">' + (i.kind === 'good' ? 'Point fort' : 'À travailler') + '</div><b class="serif" style="font-size:18px">' + esc(i.title) + '</b><p>' + esc(i.why) + '</p><p class="do">' + esc(i.fix) + '</p></div>'; }
+  if (!R.insights.length) h += '<div class="card"><div class="sub">Ton bilan se construit après quelques sessions (au moins deux dans la même heure). Continue.</div></div>';
+  else { if (good[0]) h += ins(good[0]); if (fix[0]) h += ins(fix[0]); var more = good.slice(1).concat(fix.slice(1)); if (more.length) h += '<details><summary>Voir ' + more.length + ' autre' + (more.length > 1 ? 's' : '') + ' observation' + (more.length > 1 ? 's' : '') + ' ›</summary>' + more.map(ins).join('') + '</details>'; }
+  if (R.reasons.length) h += '<div class="card"><div class="cap">Tes raisons</div>' + R.reasons.map(function (r) { return '<div class="row hrow"><span>' + esc(r.name) + '</span><span class="mut num">' + r.tp + ' ✓ · ' + r.sl + ' ✕ sur ' + r.n + '</span></div>'; }).join('') + '</div>';
+  h += '<div class="card"><div class="cap">Ton coach</div><div class="serif" style="font-size:19px;margin-top:6px">Ma solution, ou j\'ai besoin d\'aide</div><div class="sub">Écris ce que tu vas changer, ou demande de l\'aide sur une session.</div><div class="chips">' + ['20', '00', '05'].map(function (k) { return '<button class="chip' + (nsl === k ? ' on' : '') + '" onclick="nslot(\'' + k + '\')">' + NAMES[k] + '</button>'; }).join('') + '</div><textarea id="ntext" maxlength="600" placeholder="Ex : à 00h, j\'attends la fermeture de la première bougie 5 min avant de répondre."></textarea><div class="row" style="margin-top:10px"><button class="chip" onclick="sendNote(\'plan\')">Enregistrer mon plan</button><button class="chip on" onclick="sendNote(\'help\')">Demander de l\'aide</button></div><div class="err" id="nerr"></div>' +
+    R.notes.map(function (n) { return '<div class="hrow"><div class="small">' + (n.kind === 'help' ? 'Demande d\'aide' : 'Mon plan') + (n.slot ? ' · ' + NAMES[n.slot] : '') + '</div>' + esc(n.text) + (n.reply ? '<div class="ins good" style="margin-top:8px"><div class="cap" style="color:var(--up)">Réponse du coach</div><p>' + esc(n.reply) + '</p></div>' : (n.kind === 'help' ? '<div class="small">En attente de réponse.</div>' : '')) + '</div>'; }).join('') + '</div>';
+  h += '<div class="card"><div class="cap">Historique</div>' + (S.hist.length ? S.hist.map(function (x) { return '<div class="hrow">' + histBody(x) + '</div>'; }).join('') : '<div class="sub">Tes résultats apparaîtront ici.</div>') + '</div>';
+  var keep = $('ntext') ? $('ntext').value : ''; $('v-report').innerHTML = h; if (keep) $('ntext').value = keep;
+}
+function nslot(k) { nsl = k; renderReport(); }
+function sendNote(kind) {
+  $('nerr').textContent = '';
+  api('/api/desk/note', { kind: kind, slot: nsl, text: $('ntext').value }).then(function (d) { if (!d.ok) { $('nerr').textContent = d.error || 'Erreur.'; return; } $('ntext').value = ''; loadReport(); }).catch(function () { $('nerr').textContent = 'Serveur injoignable.'; });
+}
+
+function tick() {
+  var el = $('tm'); if (!el || !S) return; var now = Date.now() + skew;
+  if (S.current) {
+    var left = S.current.end - now; el.textContent = mmss(left);
+    var arc = $('arc'); if (arc) { var frac = Math.max(0, Math.min(1, left / 3600000)); arc.setAttribute('stroke-dashoffset', (364.4 * (1 - frac)).toFixed(1)); }
+    if (left <= 0) { S.current = null; setTimeout(load, 1500); }
+  } else if (S.next) { var d = S.next.start - now; el.textContent = mmss(d); if (d <= 0) setTimeout(load, 1500); }
+}
+setInterval(tick, 1000);
+setInterval(function () { if (tok() && document.visibilityState === 'visible') load(); }, 30000);
+
+function pushReady(cb) { window.OneSignalDeferred = window.OneSignalDeferred || []; window.OneSignalDeferred.push(function (OS) { cb(OS); }); }
+function initPush() {
+  fetch(API + '/api/config').then(function (r) { return r.json(); }).then(function (c) {
+    if (!c.onesignalAppId) return;
+    pushReady(function (OS) { OS.init({ appId: c.onesignalAppId, notifyButton: { enable: false } }).then(function () { syncPush(OS); try { OS.User.PushSubscription.addEventListener('change', function () { syncPush(OS); }); } catch (e) {} }).catch(function () {}); });
+  }).catch(function () {});
+}
+function syncPush(OS) { try { var id = OS.User.PushSubscription.id, on = OS.User.PushSubscription.optedIn; if (id && on) { $('bell').className = 'ico on'; $('bell').title = 'Rappels activés'; if (tok()) api('/api/desk/push', { playerId: id }).catch(function () {}); } } catch (e) {} }
+function enablePush() { pushReady(function (OS) { OS.Notifications.requestPermission().then(function () { try { OS.User.PushSubscription.optIn(); } catch (e) {} setTimeout(function () { syncPush(OS); }, 1500); }); }); }
+load(); initPush();
+</script>
+</body>
+</html>
