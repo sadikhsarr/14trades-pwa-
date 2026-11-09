@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08080b">
+<meta name="robots" content="noindex">
+<title>Quiz leçon 3 — 14 Trades Académie</title>
+<style>
+:root{--bg:#08080b;--card:rgba(255,255,255,.035);--line:rgba(201,168,76,.16);--gold:#C9A84C;--gold2:#E8D28A;--tx:#EDE9DF;--mut:#8b877c;--up:#4ADE80;--dn:#F26B5E}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif;min-height:100vh}
+body{background:radial-gradient(120% 60% at 50% -10%,rgba(201,168,76,.10),transparent 60%),var(--bg)}
+.serif{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-weight:500}
+.wrap{max-width:480px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 20px 60px}
+.brand{font-size:11px;letter-spacing:3px;color:var(--gold);font-weight:700;margin-top:14px}
+.cap{font-size:10px;letter-spacing:2.2px;color:var(--gold);font-weight:700;text-transform:uppercase}
+h1{font-size:26px;line-height:1.3;margin-top:12px}
+.sub{font-size:14px;color:var(--mut);line-height:1.65;margin-top:8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;margin-top:16px}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:5px;margin-top:20px}.seg i{height:4px;border-radius:2px;background:rgba(255,255,255,.1)}.seg i.on{background:var(--gold)}.seg i.cur{background:rgba(201,168,76,.45)}
+button{font-family:inherit;cursor:pointer}
+.opt{width:100%;text-align:left;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:16px;color:var(--tx);padding:16px 18px;font-size:15px;font-weight:600;margin-top:10px;transition:.15s}
+.opt.bad{border-color:var(--dn);background:rgba(242,107,94,.08);color:var(--dn)}
+.opt.good{border-color:var(--up);background:rgba(74,222,128,.08);color:var(--up)}
+.opt:disabled{opacity:.6}
+.cta{width:100%;background:linear-gradient(180deg,#D8B95A,#B8932F);color:#1a1405;border:0;border-radius:16px;padding:16px;font-size:15px;font-weight:700;margin-top:16px;text-decoration:none;display:block;text-align:center}
+.fb{border-radius:18px;padding:16px;margin-top:14px;font-size:14px;line-height:1.65;animation:fd .3s ease}
+.fb.ok{border:1px solid rgba(74,222,128,.4);background:rgba(74,222,128,.06)}.fb.ko{border:1px solid rgba(242,107,94,.4);background:rgba(242,107,94,.06)}
+.fb b{display:block;font-size:15px;margin-bottom:4px}
+@keyframes fd{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;color:var(--tx);padding:14px;font-size:14px;font-family:inherit;margin-top:10px}
+.err{color:var(--dn);font-size:12px;margin-top:10px;min-height:14px}
+.small{font-size:11px;color:var(--mut);line-height:1.6}
+svg text{font-family:-apple-system,Inter,sans-serif}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">14 TRADES · ACADÉMIE</div>
+
+  <div id="login" style="display:none">
+    <h1 class="serif">Quiz · Leçon 3</h1>
+    <p class="sub">Connecte-toi avec ton accès Académie.</p>
+    <div class="card"><input id="em" type="email" placeholder="Email" autocomplete="username" style="margin-top:0"><input id="pw" type="password" placeholder="Mot de passe" autocomplete="current-password"><div class="err" id="lerr"></div><button class="cta" style="margin-top:6px" onclick="doLogin()">Entrer</button></div>
+  </div>
+
+  <div id="app" style="display:none">
+    <div class="cap" style="margin-top:30px" id="cap">Leçon 3 · Quiz pratique</div>
+    <div class="seg" id="seg"></div>
+    <div id="body"></div>
+    <p class="small" style="margin-top:28px;text-align:center">Exercice pédagogique. Le prix suit des tendances, jamais des certitudes.</p>
+  </div>
+</div>
+
+<script>
+var API = 'https://14trades-server-production.up.railway.app';
+var Q = null, done = [], idx = 0, locked = false, passed = false;
+function $(i) { return document.getElementById(i); }
+function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function tok() { try { return localStorage.getItem('desk_token') || ''; } catch (e) { return ''; } }
+function setTok(t) { try { if (t) localStorage.setItem('desk_token', t); else localStorage.removeItem('desk_token'); } catch (e) {} }
+function api(path, body) {
+  var o = { headers: { 'Content-Type': 'application/json', 'x-desk-token': tok() } };
+  if (body) { o.method = 'POST'; o.body = JSON.stringify(body); }
+  return fetch(API + path, o).then(function (r) { if (r.status === 401) { setTok(''); $('app').style.display = 'none'; $('login').style.display = 'block'; throw new Error('auth'); } return r.json(); });
+}
+function doLogin() {
+  $('lerr').textContent = '';
+  fetch(API + '/api/desk/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: $('em').value, password: $('pw').value }) })
+    .then(function (r) { return r.json(); }).then(function (d) { if (!d.ok) { $('lerr').textContent = d.error || 'Connexion impossible.'; return; } setTok(d.token); $('login').style.display = 'none'; load(); })
+    .catch(function () { $('lerr').textContent = 'Serveur injoignable. Réessaie.'; });
+}
+function load() {
+  if (!tok()) { $('login').style.display = 'block'; return; }
+  api('/api/quiz/3').then(function (d) {
+    if (!d.ok) return; Q = d.questions; done = d.done; passed = d.passed;
+    idx = Q.length; for (var i = 0; i < Q.length; i++) if (done.indexOf(Q[i].id) < 0) { idx = i; break; }
+    $('login').style.display = 'none'; $('app').style.display = 'block'; show();
+  }).catch(function () {});
+}
+function chart(c) {
+  var W = 320, H = 190, pl = 8, pr = 8, pt = 14, pb = 14, lo = c.lo, hi = c.hi;
+  function Y(v) { return pt + (hi - v) / (hi - lo) * (H - pt - pb); }
+  function X(i) { return pl + i / (c.pts.length - 1) * (W - pl - pr - 110); }
+  var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" style="display:block;background:rgba(255,255,255,.02);border-radius:14px">';
+  c.levels.forEach(function (l) {
+    var col = l.k === 'S' ? '#4ADE80' : '#F26B5E', y = Y(l.y);
+    s += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + y + '" y2="' + y + '" stroke="' + col + '" stroke-width="1" stroke-dasharray="4 4" opacity=".75"/><text x="' + (W - pr) + '" y="' + (y - 4) + '" fill="' + col + '" font-size="10" text-anchor="end">' + esc(l.l) + '</text>';
+  });
+  var pts = c.pts.map(function (v, i) { return X(i).toFixed(1) + ',' + Y(v).toFixed(1); }).join(' ');
+  s += '<polyline points="' + pts + '" fill="none" stroke="#E8D28A" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>';
+  var last = c.pts.length - 1; s += '<circle cx="' + X(last).toFixed(1) + '" cy="' + Y(c.pts[last]).toFixed(1) + '" r="4.5" fill="#E8D28A"/><text x="' + (X(last) + 9).toFixed(1) + '" y="' + (Y(c.pts[last]) + 4).toFixed(1) + '" fill="#EDE9DF" font-size="10">Prix</text>';
+  return s + '</svg>';
+}
+function seg() { $('seg').innerHTML = Q.map(function (q, i) { return '<i class="' + (done.indexOf(q.id) >= 0 ? 'on' : i === idx ? 'cur' : '') + '"></i>'; }).join(''); $('cap').textContent = 'Leçon 3 · Question ' + (Math.min(idx, Q.length - 1) + 1) + ' sur ' + Q.length; }
+function show() {
+  seg(); locked = false;
+  if (idx >= Q.length) return win();
+  var q = Q[idx];
+  $('body').innerHTML = '<div class="card">' + chart(q.chart) + '</div><h1 class="serif">' + esc(q.text) + '</h1><div id="opts">' + q.opts.map(function (o) { return '<button class="opt" id="o-' + o.id + '" onclick="pick(\'' + q.id + '\',\'' + o.id + '\')">' + esc(o.t) + '</button>'; }).join('') + '</div><div id="fb"></div>';
+  if (done.indexOf(q.id) >= 0) { $('fb').innerHTML = '<div class="fb ok"><b>Déjà réussi</b>Tu as déjà trouvé la bonne réponse à cette question.</div><button class="cta" onclick="next()">Continuer</button>'; }
+}
+function pick(qid, oid) {
+  if (locked) return; locked = true;
+  api('/api/quiz/3/answer', { q: qid, o: oid }).then(function (d) {
+    if (!d.ok) { locked = false; $('fb').innerHTML = '<div class="fb ko">' + esc(d.error || 'Erreur') + '</div>'; return; }
+    done = d.done; passed = d.passed; seg();
+    if (d.correct) {
+      Array.prototype.forEach.call(document.querySelectorAll('.opt'), function (b) { b.disabled = true; }); $('o-' + oid).className = 'opt good';
+      $('fb').innerHTML = '<div class="fb ok"><b>Exact.</b>' + esc(d.explain) + '</div><button class="cta" onclick="next()">' + (done.length === Q.length ? 'Voir mon résultat' : 'Question suivante') + '</button>';
+    } else {
+      $('o-' + oid).className = 'opt bad'; $('o-' + oid).disabled = true; locked = false;
+      $('fb').innerHTML = '<div class="fb ko"><b>Pas tout à fait.</b>' + esc(d.why) + '<br><span style="color:var(--mut)">Essaie une autre réponse.</span></div>';
+    }
+  }).catch(function () { locked = false; });
+}
+function next() { idx++; if (idx >= Q.length) return win(); show(); }
+function win() {
+  seg(); $('cap').textContent = 'Leçon 3 · Quiz réussi';
+  $('body').innerHTML = '<div class="card" style="text-align:center;border-color:rgba(74,222,128,.35);margin-top:26px"><div style="font-size:42px">🔓</div><h1 class="serif" style="margin-top:8px">Leçon 4 débloquée</h1><p class="sub">Tu sais maintenant comment se forme un support, vers quoi le prix se dirige, et où placer ton stop. Tu as gagné ta place pour la suite.</p></div><a class="cta" href="desk.html">Continuer au Desk</a><a class="cta" style="background:none;border:1px solid var(--line);color:var(--gold);margin-top:10px" href="live.html">Réserver la leçon suivante</a>';
+}
+load();
+</script>
+</body>
+</html>
