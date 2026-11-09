@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080808">
+<title>14 Trades — Formation en personne</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    background:#080808; color:#F0F2F8; font-family:'Inter',system-ui,sans-serif;
+    min-height:100vh; padding:24px 18px 60px;
+  }
+  .wrap { max-width:420px; margin:0 auto; }
+  .logo-row { display:flex; align-items:center; gap:8px; margin-bottom:24px; }
+  .logo { font-family:monospace; font-size:22px; font-weight:700; color:#C9A84C; letter-spacing:-1px; }
+  .hero-title { font-size:22px; font-weight:800; line-height:1.3; margin-bottom:8px; }
+  .hero-sub { font-size:13px; color:#666; line-height:1.6; margin-bottom:24px; }
+  .field { margin-bottom:14px; }
+  .field label { display:block; font-size:11px; color:#888; margin-bottom:6px; }
+  .field select, .field input {
+    width:100%; background:#1C1C1E; border:1px solid #3A3A3C; border-radius:10px;
+    padding:12px 14px; font-size:14px; color:#F0F2F8; font-family:inherit; outline:none;
+  }
+  .btn {
+    width:100%; background:linear-gradient(135deg,#C9A84C,#FFD700); color:#000; border:none;
+    border-radius:12px; padding:15px; font-size:14px; font-weight:800; cursor:pointer;
+    font-family:inherit; margin-top:8px;
+  }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .progress-card {
+    background:linear-gradient(145deg,#141000,#0D0A00); border:1px solid #C9A84C30;
+    border-radius:14px; padding:16px; margin-bottom:20px; display:none;
+  }
+  .progress-bar-bg { height:8px; background:#1A1A1A; border-radius:4px; overflow:hidden; margin:10px 0; }
+  .progress-bar-fill { height:100%; background:linear-gradient(90deg,#C9A84C,#FFD700); border-radius:4px; transition:width .4s ease; }
+  .error { display:none; color:#FF6B6B; font-size:12px; margin-top:10px; text-align:center; }
+  .success { display:none; text-align:center; padding:20px 0; }
+  .success-icon { font-size:40px; margin-bottom:12px; }
+  .regions-list { display:flex; flex-direction:column; gap:8px; margin-top:24px; }
+  .region-row {
+    display:flex; align-items:center; justify-content:space-between; background:#0D0D0D;
+    border:1px solid #1A1A1A; border-radius:10px; padding:11px 13px; font-size:12px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <img src="/tour-hero.jpg" alt="Tour du Sénégal — Formation Trading avec 14 Trades" style="width:100%;border-radius:14px;margin-bottom:24px;display:block">
+
+  <div class="logo-row">
+    <span class="logo">14⚡</span>
+    <div style="font-size:7px;font-weight:700;letter-spacing:3px;color:#F0F2F8">TRADES ALERT</div>
+  </div>
+
+  <div class="hero-title">Formation en personne, dans ta région</div>
+  <div class="hero-sub">Inscris-toi selon ta région. Dès qu'assez de monde s'inscrit dans ta zone, je confirme une date et je viens vous former en personne — l'analyse technique, la gestion du risque, ma méthode complète.</div>
+
+  <div id="progress-card" class="progress-card">
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-bottom:4px">TA RÉGION</div>
+    <div id="progress-region" style="font-size:16px;font-weight:800;margin-bottom:8px">—</div>
+    <div class="progress-bar-bg"><div id="progress-fill" class="progress-bar-fill" style="width:0%"></div></div>
+    <div id="progress-text" style="font-size:11px;color:#888">—</div>
+    <div id="progress-date" style="font-size:12px;color:#00E68A;margin-top:8px;display:none"></div>
+  </div>
+
+  <div id="form-view">
+    <div class="field">
+      <label>Ta région</label>
+      <select id="region-input">
+        <option value="">Choisis ta région</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Ton nom</label>
+      <input id="name-input" type="text" placeholder="Ton nom complet">
+    </div>
+    <div class="field">
+      <label>WhatsApp</label>
+      <input id="wa-input" type="tel" placeholder="77 XXX XX XX">
+    </div>
+    <div class="field">
+      <label>Email (optionnel)</label>
+      <input id="email-input" type="email" placeholder="ton@email.com">
+    </div>
+    <button class="btn" id="submit-btn" onclick="submitRegistration()">Je m'inscris →</button>
+    <div class="error" id="error-msg"></div>
+  </div>
+
+  <div class="success" id="success-view">
+    <div class="success-icon">✅</div>
+    <div style="font-size:16px;font-weight:800;margin-bottom:8px">Tu es inscrit !</div>
+    <div id="success-msg" style="font-size:13px;color:#888;line-height:1.6">—</div>
+  </div>
+
+  <div style="font-size:10px;color:#333;text-align:center;margin-top:20px">Toutes les régions — nombre de personnes inscrites</div>
+  <div class="regions-list" id="regions-list"></div>
+
+</div>
+
+<script>
+const SERVER = 'https://14trades-server-production.up.railway.app';
+const REGIONS = ['Thiès','Touba','Saint-Louis','Kaolack','Ziguinchor'];
+
+// Populate dropdown
+const sel = document.getElementById('region-input');
+REGIONS.forEach(r => {
+  const opt = document.createElement('option');
+  opt.value = r; opt.textContent = r;
+  sel.appendChild(opt);
+});
+
+async function loadStatus() {
+  try {
+    const r = await fetch(SERVER + '/api/tour-status');
+    const d = await r.json();
+    if (!d.ok) return;
+
+    const list = document.getElementById('regions-list');
+    list.innerHTML = d.regions
+      .sort((a,b) => b.count - a.count)
+      .map(reg => {
+        const pct = Math.min(100, Math.round((reg.count / reg.threshold) * 100));
+        const status = reg.confirmedDate ? `📅 ${new Date(reg.confirmedDate).toLocaleDateString('fr-FR')}` : reg.metThreshold ? '✅ Seuil atteint' : `${reg.count}/${reg.threshold}`;
+        const trophy = reg.isFirstPlace ? '🏆 ' : '';
+        return `<div class="region-row">
+          <span>${trophy}${reg.region}</span>
+          <span style="color:${reg.metThreshold?'#00E68A':'#888'}">${status}</span>
+        </div>`;
+      }).join('');
+
+    if (d.winner) {
+      let banner = document.getElementById('winner-banner');
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'winner-banner';
+        banner.style.cssText = 'text-align:center;font-size:11px;color:#FFD700;margin-top:10px';
+        list.parentElement.insertBefore(banner, list.nextSibling);
+      }
+      banner.textContent = `🏆 ${d.winner} est en tête — première ville à atteindre son seuil !`;
+    }
+
+    window._tourStatus = d.regions;
+  } catch(e) {}
+}
+loadStatus();
+
+document.getElementById('region-input').addEventListener('change', function() {
+  const region = this.value;
+  const card = document.getElementById('progress-card');
+  if (!region || !window._tourStatus) { card.style.display = 'none'; return; }
+  const reg = window._tourStatus.find(r => r.region === region);
+  if (!reg) { card.style.display = 'none'; return; }
+
+  card.style.display = 'block';
+  document.getElementById('progress-region').textContent = region;
+  const pct = Math.min(100, Math.round((reg.count / reg.threshold) * 100));
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = `${reg.count} sur ${reg.threshold} inscrits nécessaires`;
+
+  const dateEl = document.getElementById('progress-date');
+  if (reg.confirmedDate) {
+    dateEl.style.display = 'block';
+    dateEl.textContent = '📅 Date confirmée : ' + new Date(reg.confirmedDate).toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'});
+  } else if (reg.metThreshold) {
+    dateEl.style.display = 'block';
+    dateEl.textContent = '✅ Seuil atteint — date bientôt annoncée';
+  } else {
+    dateEl.style.display = 'none';
+  }
+});
+
+async function submitRegistration() {
+  const region = document.getElementById('region-input').value;
+  const name = document.getElementById('name-input').value.trim();
+  const whatsapp = document.getElementById('wa-input').value.trim();
+  const email = document.getElementById('email-input').value.trim();
+  const errEl = document.getElementById('error-msg');
+  const btn = document.getElementById('submit-btn');
+
+  errEl.style.display = 'none';
+  if (!region) { errEl.textContent = 'Choisis ta région'; errEl.style.display = 'block'; return; }
+  if (!name) { errEl.textContent = 'Entre ton nom'; errEl.style.display = 'block'; return; }
+  if (!whatsapp || whatsapp.replace(/[^0-9]/g,'').length < 6) { errEl.textContent = 'Entre un numéro WhatsApp valide'; errEl.style.display = 'block'; return; }
+
+  btn.disabled = true; btn.textContent = 'Inscription...';
+
+  try {
+    const r = await fetch(SERVER + '/api/tour-register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ region, name, whatsapp, email })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      document.getElementById('form-view').style.display = 'none';
+      document.getElementById('success-view').style.display = 'block';
+      document.getElementById('success-msg').textContent = d.metThreshold
+        ? `${region} a atteint son seuil ! Une date sera bientôt confirmée. (${d.count}/${d.threshold})`
+        : `Il reste ${d.threshold - d.count} personne${d.threshold-d.count>1?'s':''} pour que ${region} atteigne son seuil. (${d.count}/${d.threshold})`;
+      loadStatus();
+    } else {
+      errEl.textContent = d.error || 'Erreur, réessaie';
+      errEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = "Je m'inscris →";
+    }
+  } catch(e) {
+    errEl.textContent = 'Erreur de connexion';
+    errEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = "Je m'inscris →";
+  }
+}
+</script>
+</body>
+</html>
