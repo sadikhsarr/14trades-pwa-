@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08080b">
+<meta name="robots" content="noindex">
+<title>Cours en direct — 14 Trades Académie</title>
+<style>
+:root{--bg:#08080b;--card:rgba(255,255,255,.035);--line:rgba(201,168,76,.16);--gold:#C9A84C;--gold2:#E8D28A;--tx:#EDE9DF;--mut:#8b877c;--up:#4ADE80;--dn:#F26B5E}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif;min-height:100vh}
+body{background:radial-gradient(120% 60% at 50% -10%,rgba(201,168,76,.10),transparent 60%),var(--bg)}
+.serif{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-weight:500}
+.wrap{max-width:480px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 20px 60px}
+.brand{font-size:11px;letter-spacing:3px;color:var(--gold);font-weight:700;margin-top:14px}
+.cap{font-size:10px;letter-spacing:2.2px;color:var(--gold);font-weight:700;text-transform:uppercase}
+h1{font-size:30px;line-height:1.2;margin-top:12px}
+.sub{font-size:14px;color:var(--mut);line-height:1.65;margin-top:8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px;margin-top:18px}
+.num{font-variant-numeric:tabular-nums}
+button{font-family:inherit;cursor:pointer}
+.cta{width:100%;background:linear-gradient(180deg,#D8B95A,#B8932F);color:#1a1405;border:0;border-radius:16px;padding:16px;font-size:15px;font-weight:700;margin-top:16px;text-decoration:none;display:block;text-align:center}
+.ghost{background:none;border:0;color:var(--mut);font-size:13px;padding:10px 0}
+input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;color:var(--tx);padding:14px;font-size:14px;font-family:inherit;margin-top:10px}
+.err{color:var(--dn);font-size:12px;margin-top:10px;min-height:14px}
+.li{display:flex;gap:12px;margin-top:14px;font-size:15px;line-height:1.55;color:#E3DED2}.li b{color:var(--gold);font-family:Georgia,serif;font-size:18px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:20px}
+.seg button{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:16px;color:#cfcabd;padding:12px 8px;font-size:13px;font-weight:600;line-height:1.35}
+.seg button small{display:block;font-weight:400;color:var(--mut);font-size:11px;margin-top:2px}
+.seg button.on{border-color:var(--gold);background:rgba(201,168,76,.09);color:var(--gold)}
+.days{display:flex;gap:8px;overflow-x:auto;padding:4px 0 2px;margin-top:14px;scrollbar-width:none}.days::-webkit-scrollbar{display:none}
+.day{flex:0 0 auto;min-width:62px;text-align:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:16px;color:#cfcabd;padding:10px 8px}
+.day small{display:block;font-size:10px;letter-spacing:1px;color:var(--mut);text-transform:uppercase}.day b{font-size:20px;font-weight:600}
+.day.on{border-color:var(--gold);background:rgba(201,168,76,.09);color:var(--gold)}
+.slot{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px 16px;margin-top:10px}
+.slot .t{font-size:17px;font-weight:600}.slot .l{font-size:12px;color:var(--mut);margin-top:2px}
+.slot button{background:rgba(201,168,76,.12);border:1px solid var(--gold);color:var(--gold);border-radius:12px;padding:10px 16px;font-size:13px;font-weight:700}
+.slot.full{opacity:.45}.slot.full button{display:none}
+.pill{display:inline-block;border:1px solid var(--up);color:var(--up);border-radius:20px;padding:5px 12px;font-size:11px;letter-spacing:1px;font-weight:700}
+.small{font-size:11px;color:var(--mut);line-height:1.6}
+.quiz{display:block;text-align:center;text-decoration:none;color:var(--gold);border:1px dashed var(--gold);border-radius:16px;padding:14px;font-size:14px;font-weight:600;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">14 TRADES · ACADÉMIE</div>
+
+  <div id="login" style="display:none">
+    <h1 class="serif">Cours en direct</h1>
+    <p class="sub">Connecte-toi avec ton accès Académie pour réserver ta place.</p>
+    <div class="card"><input id="em" type="email" placeholder="Email" autocomplete="username" style="margin-top:0"><input id="pw" type="password" placeholder="Mot de passe" autocomplete="current-password"><div class="err" id="lerr"></div><button class="cta" style="margin-top:6px;width:100%" onclick="doLogin()">Entrer</button></div>
+  </div>
+
+  <div id="app" style="display:none">
+    <div class="cap" style="margin-top:30px">Cours en direct avec Sadikh</div>
+    <h1 class="serif">2 cours par semaine</h1>
+    <p class="sub">45 minutes en vidéo (Google Meet). Heure de Dakar. 10 places par cours.</p>
+
+    <div id="mine"></div>
+
+    <div class="seg" id="seg"></div>
+    <div class="card" id="about"></div>
+
+    <div id="pick">
+      <div class="cap" style="margin-top:26px">Choisis ton créneau</div>
+      <div class="days" id="days"></div>
+      <div id="slots"></div>
+      <div class="err" id="err"></div>
+    </div>
+
+    <p class="small" style="margin-top:28px;text-align:center">Une réservation par leçon, 2 cours par semaine au maximum. Annulation possible jusqu'à 2 h avant. Contenu pédagogique, pas un conseil d'investissement.</p>
+  </div>
+</div>
+
+<script>
+var API = 'https://14trades-server-production.up.railway.app';
+var D = null, skew = 0, selDay = '', selLesson = 0;
+var ABOUT = {
+  2: ['Qui fait vraiment bouger le prix : les deux camps.', 'À quelle heure chaque camp entre sur le marché.', 'Le meilleur moment pour être dans le marché, et pourquoi.'],
+  3: ['Comment se forme un support : une baisse qui s\'arrête.', 'Pourquoi le prix va d\'un support vers une résistance, et revient.', 'Quel niveau il vise en premier, pour savoir où sont les acheteurs et les vendeurs.']
+};
+function $(i) { return document.getElementById(i); }
+function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function pad(n) { return String(n).padStart(2, '0'); }
+function tok() { try { return localStorage.getItem('desk_token') || ''; } catch (e) { return ''; } }
+function setTok(t) { try { if (t) localStorage.setItem('desk_token', t); else localStorage.removeItem('desk_token'); } catch (e) {} }
+function api(path, body) {
+  var o = { headers: { 'Content-Type': 'application/json', 'x-desk-token': tok() } };
+  if (body) { o.method = 'POST'; o.body = JSON.stringify(body); }
+  return fetch(API + path, o).then(function (r) { if (r.status === 401) { setTok(''); $('app').style.display = 'none'; $('login').style.display = 'block'; throw new Error('auth'); } return r.json(); });
+}
+function doLogin() {
+  $('lerr').textContent = '';
+  fetch(API + '/api/desk/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: $('em').value, password: $('pw').value }) })
+    .then(function (r) { return r.json(); }).then(function (d) { if (!d.ok) { $('lerr').textContent = d.error || 'Connexion impossible.'; return; } setTok(d.token); $('login').style.display = 'none'; load(); })
+    .catch(function () { $('lerr').textContent = 'Serveur injoignable. Réessaie.'; });
+}
+var DN = ['dim', 'lun', 'mar', 'mer', 'jeu', 'ven', 'sam'], DL = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'], MN = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+function dkey(ts) { var d = new Date(ts); return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate()); }
+function hh(ts) { return pad(new Date(ts).getUTCHours()) + ':' + pad(new Date(ts).getUTCMinutes()); }
+function longDay(ts) { var d = new Date(ts); return DL[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + MN[d.getUTCMonth()]; }
+function load() {
+  if (!tok()) { $('login').style.display = 'block'; return; }
+  api('/api/live/slots').then(function (d) { if (!d.ok) return; D = d; skew = d.now - Date.now(); if (!selLesson) { var q = /[?&]l=(\d+)/.exec(location.search); selLesson = q ? Number(q[1]) : d.lessons[0].id; } $('login').style.display = 'none'; $('app').style.display = 'block'; render(); }).catch(function () {});
+}
+function lesson(id) { return D.lessons.filter(function (l) { return l.id === id; })[0] || D.lessons[0]; }
+function setLesson(id) { selLesson = id; selDay = ''; render(); }
+function render() {
+  var h = '';
+  D.lessons.forEach(function (L) { L.slots.forEach(function (s) { if (s.mine) h += mineCard(L, s); }); });
+  $('mine').innerHTML = h;
+  $('seg').innerHTML = D.lessons.map(function (L) { var has = L.slots.some(function (s) { return s.mine; }); return '<button class="' + (L.id === selLesson ? 'on' : '') + '" onclick="setLesson(' + L.id + ')">' + esc(L.title.split(' · ')[0]) + '<small>' + esc(L.title.split(' · ')[1] || '') + (has ? ' ✓' : '') + '</small></button>'; }).join('');
+  var L = lesson(selLesson), has = L.slots.some(function (s) { return s.mine; });
+  $('about').innerHTML = '<div class="cap">Ce que tu vas découvrir</div>' + (ABOUT[L.id] || []).map(function (t, i) { return '<div class="li"><b>' + (i + 1) + '</b><span>' + esc(t) + '</span></div>'; }).join('') + (L.id === 3 ? '<a class="quiz" href="quiz-3.html">Après le cours : le quiz qui débloque la leçon 4 ›</a>' : '');
+  $('pick').style.display = has ? 'none' : 'block';
+  if (!has) {
+    var keys = [], by = {}; L.slots.forEach(function (s) { var k = dkey(s.ts); if (!by[k]) { by[k] = []; keys.push(k); } by[k].push(s); });
+    if (!selDay || !by[selDay]) selDay = keys[0];
+    $('days').innerHTML = keys.map(function (k) { var d = new Date(k + 'T12:00:00Z'); return '<button class="day' + (k === selDay ? ' on' : '') + '" onclick="selDay=\'' + k + '\';render()"><small>' + DN[d.getUTCDay()] + '</small><b>' + d.getUTCDate() + '</b></button>'; }).join('');
+    $('slots').innerHTML = !D.on ? '<div class="card"><div class="sub">Les réservations sont fermées pour le moment.</div></div>' : (keys.length ? by[selDay].map(function (s) {
+      var full = s.left === 0;
+      return '<div class="slot' + (full ? ' full' : '') + '"><div><div class="t num">' + hh(s.ts) + ' – ' + hh(s.ts + D.minutes * 60000) + '</div><div class="l">' + (full ? 'Complet' : s.left + ' place' + (s.left > 1 ? 's' : '') + ' restante' + (s.left > 1 ? 's' : '')) + '</div></div><button onclick="book(' + L.id + ',' + s.ts + ')">Réserver</button></div>';
+    }).join('') : '<div class="card"><div class="sub">Aucun créneau pour le moment. Reviens bientôt.</div></div>');
+  }
+  tick();
+}
+function mineCard(L, s) {
+  return '<div class="card" style="text-align:center;border-color:rgba(74,222,128,.35)"><span class="pill">TA PLACE EST RÉSERVÉE</span><div class="cap" style="margin-top:14px">' + esc(L.title) + '</div><div class="serif" style="font-size:24px;margin-top:8px">' + esc(longDay(s.ts)) + '</div><div class="serif num" style="font-size:40px;color:var(--gold2);margin-top:2px">' + hh(s.ts) + '</div><div class="sub" style="margin-top:0">heure de Dakar · 45 minutes</div><div class="serif num cd" data-ts="' + s.ts + '" style="font-size:19px;margin-top:12px"></div>' +
+    (s.link ? '<a class="cta" href="' + esc(s.link) + '" target="_blank" rel="noopener">Rejoindre l\'appel (Google Meet)</a>' : '<div class="sub">Le lien Google Meet apparaît ici 15 minutes avant le début.</div>') +
+    '<button class="ghost" onclick="cancel(' + s.ts + ')">Annuler ma réservation</button></div>';
+}
+function book(lessonId, ts) { $('err').textContent = ''; api('/api/live/book', { lesson: lessonId, ts: ts }).then(function (d) { if (!d.ok) { $('err').textContent = d.error || 'Erreur.'; load(); return; } load(); }).catch(function () { $('err').textContent = 'Serveur injoignable.'; }); }
+function cancel(ts) { if (!confirm('Annuler ta réservation ?')) return; api('/api/live/cancel', { ts: ts }).then(function (d) { if (!d.ok) { alert(d.error || 'Erreur.'); return; } load(); }).catch(function () {}); }
+function tick() {
+  if (!D) return; var els = document.querySelectorAll('.cd');
+  for (var i = 0; i < els.length; i++) {
+    var ts = Number(els[i].getAttribute('data-ts')), ms = ts - (Date.now() + skew), s = Math.floor(Math.abs(ms) / 1000), d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60);
+    els[i].textContent = ms <= 0 ? (ms > -D.minutes * 60000 ? 'Le cours est en cours' : 'Terminé') : 'Dans ' + (d ? d + ' j ' : '') + pad(h) + ' h ' + pad(m) + ' min ' + pad(s % 60) + ' s';
+  }
+}
+setInterval(tick, 1000); setInterval(function () { if (tok() && document.visibilityState === 'visible') load(); }, 30000);
+load();
+</script>
+</body>
+</html>
